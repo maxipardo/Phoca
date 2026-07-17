@@ -1,15 +1,20 @@
 #include "MainWindow.h"
 #include "ServiceMaintainer.h"
 
-MainWindow::MainWindow(QWidget *parent) // Constructor
-    : QWidget(parent)
+MainWindow::MainWindow(QWidget *parent) 
+    : QMainWindow(parent)
 {
-    layout = new QVBoxLayout(this);
-    linkBox = new QLineEdit(this);
-    downloadButton = new QPushButton(this);
-    getEngineButton = new QPushButton(this);
-    statusLabel = new QLabel(this);
-
+    // 1. Creamos el contenedor central
+    QWidget *centralWidget = new QWidget(this);
+    
+    // 2. Inicializamos TU variable layout, atándola al centralWidget
+    layout = new QVBoxLayout(centralWidget);
+    
+    // 3. Creamos los elementos (como parent le podés pasar el centralWidget)
+    linkBox = new QLineEdit(centralWidget);
+    downloadButton = new QPushButton(centralWidget);
+    getEngineButton = new QPushButton(centralWidget);
+    statusLabel = new QLabel(centralWidget);
     maintainer = new ServiceMaintainer(this);
 
     linkBox->setPlaceholderText("Enter link...");
@@ -17,19 +22,21 @@ MainWindow::MainWindow(QWidget *parent) // Constructor
     downloadButton->setEnabled(false);
     getEngineButton->setText("Update yt-dlp");
 
+    // 4. Metemos todo en el layout
     layout->addWidget(linkBox);
     layout->addWidget(statusLabel);
     layout->addWidget(downloadButton);
     layout->addWidget(getEngineButton);
 
-    this->setLayout(layout);
+    // 5. Configuración final de la ventana (¡sin this->setLayout!)
     this->setWindowTitle("Phoca");
+    setCentralWidget(centralWidget);
 
-    connect(linkBox, &QLineEdit::textChanged, this, &MainWindow::setDownloadReadiness); // Update downlaod button
-    connect(getEngineButton, &QPushButton::clicked, maintainer, &ServiceMaintainer::getService); // Download yt-dlp
-    connect(maintainer, &ServiceMaintainer::started, this, &MainWindow::engineDownloading); // yt-dlp finished downloading
-    connect(maintainer, &ServiceMaintainer::finished, this, &MainWindow::engineDownloaded); // yt-dlp finished downloading
-
+    // 6. Conexiones
+    connect(linkBox, &QLineEdit::textChanged, this, &MainWindow::setDownloadReadiness);
+    connect(getEngineButton, &QPushButton::clicked, maintainer, &ServiceMaintainer::getService); 
+    connect(maintainer, &ServiceMaintainer::started, this, &MainWindow::engineDownloading); 
+    connect(maintainer, &ServiceMaintainer::finished, this, &MainWindow::engineDownloaded); 
 }
 
 void MainWindow::engineDownloading() {
