@@ -1,7 +1,4 @@
 #include "ServiceMaintainer.h"
-#include <qdebug.h>
-#include <qfileinfo.h>
-#include <qtmetamacros.h>
 
 ServiceMaintainer::ServiceMaintainer(QObject *parent) {
     downloadProcess = new QProcess(this);
@@ -12,7 +9,7 @@ ServiceMaintainer::ServiceMaintainer(QObject *parent) {
            this, &ServiceMaintainer::onProcessFinish);
 }
 
-void ServiceMaintainer::getService() {
+void ServiceMaintainer::getService(bool nightly) {
     QDir directory;
     if (!directory.exists(serviceDirectory)) {
         if (!directory.mkdir(serviceDirectory)) {
@@ -20,10 +17,17 @@ void ServiceMaintainer::getService() {
             return;
         }
     }
-    QString command { "wget -O \"" + serviceFile + "\" "
-                      "https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp && "
-                      "chmod a+rx \"" + serviceFile + "\""
-    };
+    QString command;
+    if (nightly) {
+        command = "wget -O \"" + serviceFile + "\" "
+                          "https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/latest/download/yt-dlp && "
+                          "chmod a+rx \"" + serviceFile + "\"";
+    } else {
+        command = "wget -O \"" + serviceFile + "\" "
+                          "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp && "
+                          "chmod a+rx \"" + serviceFile + "\"";
+    }
+
     downloadProcess->start("bash", {"-c", command});
 }
 

@@ -5,6 +5,15 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
+#include <QStandardPaths>
+
+#include <QMenuBar>
+#include <QMenu>
+#include <QAction>
+#include <QActionGroup>
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -12,15 +21,27 @@ public:
     MainWindow(QWidget *parent = nullptr);
 private:
     QVBoxLayout *layout;
+    QHBoxLayout *linkLayout;
     QLineEdit *linkBox;
     QPushButton *downloadButton;
     QPushButton *getEngineButton;
-    QLabel *statusLabel; // General: descarga y servicio
+    QLabel *statusLabel; // General: download and service
     ServiceMaintainer *maintainer;
+    QString chosenDirectory;
+    QMenu *optionsMenu;
+    QMenu *buildMenu;
+
+    QAction *chooseLocationAction;
+    QAction *chooseNightlyAction;
+    QAction *chooseStableAction;
+    QActionGroup *versionGroup;
+
+    QString downloadLocation;
     
 private slots:
+    void getServiceSlot();
     void setDownloadReadiness(); // Updates downloadButton status
     void engineDownloading();
     void engineDownloaded(int exit);
-
+    void changeLocation();
 };

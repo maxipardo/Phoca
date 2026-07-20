@@ -11,7 +11,7 @@ Q_OBJECT
 public:
     ServiceMaintainer(QObject *parent = nullptr);
     bool exists();
-    void getService();
+    void getService(bool nightly);
 
 private:
     QProcess *downloadProcess;
