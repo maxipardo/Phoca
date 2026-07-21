@@ -16,8 +16,10 @@ private:
 private slots:
     void onProcessFinish(int exitCode, QProcess::ExitStatus status);
     void downloadFailed(QProcess::ProcessError error);
+    void readOutput();
 signals:
     void downloadStarted();
     void downloadFinished(int exit);
     void processFailed(QString error);
+    void percentageUpdated(int percentage);
 };

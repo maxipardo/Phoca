@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     downloadButton = new QPushButton(centralWidget);
     getEngineButton = new QPushButton(centralWidget);
     statusLabel = new QLabel(centralWidget);
+    progressBar = new QProgressBar(centralWidget);
     maintainer = new ServiceMaintainer(this);
     chosenDirectory = QDir::homePath();
 
@@ -45,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
     linkLayout->addWidget(linkBox);
     linkLayout->addWidget(downloadButton);
     layout->addWidget(statusLabel);
+    layout->addWidget(progressBar);
+    progressBar->hide();
     layout->addWidget(getEngineButton);
 
     this->setWindowTitle("Phoca");
@@ -78,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(service, &Service::downloadStarted, this, &MainWindow::downloadStarted);
     connect(service, &Service::downloadFinished, this, &MainWindow::downloadFinished);
     connect(service, &Service::processFailed, this, &MainWindow::downloadProcessFailed);
+    connect(service, &Service::percentageUpdated, this, &MainWindow::downloadProgress);
 }
 
 void MainWindow::engineDownloading() {
@@ -145,6 +149,13 @@ void MainWindow::startDownload() {
 
 void MainWindow::downloadStarted() {
     statusLabel->setText("Download started");
+    progressBar->setValue(0);
+    progressBar->show();
+}
+
+void MainWindow::downloadProgress(int percentage) {
+    statusLabel->setText("Downloading... " + QString::number(percentage) + "%");
+    progressBar->setValue(percentage);
 }
 
 void MainWindow::downloadFinished(int exit) {
@@ -153,6 +164,7 @@ void MainWindow::downloadFinished(int exit) {
     } else if (exit == 1) {
         statusLabel->setText("Download failed, error code: " + QString::number(exit));
     }
+    progressBar->hide();
 }
 
 void MainWindow::downloadProcessFailed(QString error) {

@@ -10,6 +10,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QStandardPaths>
+#include <QProgressBar>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -33,6 +34,7 @@ private:
     QString chosenDirectory;
     QMenu *optionsMenu;
     QMenu *buildMenu;
+    QProgressBar *progressBar;
 
     QAction *chooseLocationAction;
     QAction *chooseNightlyAction;
@@ -54,4 +56,5 @@ private slots:
     void downloadStarted();
     void downloadFinished(int exit);
     void downloadProcessFailed(QString error);
+    void downloadProgress(int percentage);
 };
