@@ -12,7 +12,7 @@ public:
     ServiceMaintainer(QObject *parent = nullptr);
     bool exists();
     void getService(bool nightly);
-
+    static QString getServiceLocation();
 private:
     QProcess *downloadProcess;
     QString programLocation {QCoreApplication::applicationDirPath()};

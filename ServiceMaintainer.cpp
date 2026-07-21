@@ -45,3 +45,8 @@ void ServiceMaintainer::onProcessFinish(int exitCode, QProcess::ExitStatus statu
 bool ServiceMaintainer::exists() {
     return QFile::exists(serviceFile); // Indica si existe el archivo yt-dlp
 }
+
+QString ServiceMaintainer::getServiceLocation() {
+    QString appPath = QCoreApplication::applicationDirPath();
+    return appPath + "/bin/yt-dlp";
+}
