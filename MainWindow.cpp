@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "Service.h"
+#include <qobject.h>
 
 MainWindow::MainWindow(QWidget *parent) 
     : QMainWindow(parent)
@@ -76,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(downloadButton, &QPushButton::clicked, this, &MainWindow::startDownload);
     connect(service, &Service::downloadStarted, this, &MainWindow::downloadStarted);
     connect(service, &Service::downloadFinished, this, &MainWindow::downloadFinished);
+    connect(service, &Service::processFailed, this, &MainWindow::downloadProcessFailed);
 }
 
 void MainWindow::engineDownloading() {
@@ -149,6 +151,10 @@ void MainWindow::downloadFinished(int exit) {
     if (exit == 0) {
         statusLabel->setText("Download finished successfully");
     } else if (exit == 1) {
-        statusLabel->setText("Download failed");
+        statusLabel->setText("Download failed, error code: " + QString::number(exit));
     }
+}
+
+void MainWindow::downloadProcessFailed(QString error) {
+    statusLabel->setText(error);
 }

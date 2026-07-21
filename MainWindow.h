@@ -53,4 +53,5 @@ private slots:
     void startDownload();
     void downloadStarted();
     void downloadFinished(int exit);
+    void downloadProcessFailed(QString error);
 };
