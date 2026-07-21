@@ -1,9 +1,5 @@
 #include "MainWindow.h"
-#include "ServiceMaintainer.h"
-#include <qaction.h>
-#include <qdir.h>
-#include <qfiledialog.h>
-#include <qpushbutton.h>
+#include "Service.h"
 
 MainWindow::MainWindow(QWidget *parent) 
     : QMainWindow(parent)
@@ -73,6 +69,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(chooseStableAction, &QAction::triggered, this, &MainWindow::getServiceSlot);
     connect(chooseNightlyAction, &QAction::triggered, this, &MainWindow::getServiceSlot);
     connect(chooseLocationAction, &QAction::triggered, this, &MainWindow::changeLocation);
+
+    /* Service */
+    service = new Service(this);
+
+    connect(downloadButton, &QPushButton::clicked, this, &MainWindow::startDownload);
+    connect(service, &Service::downloadStarted, this, &MainWindow::downloadStarted);
+    connect(service, &Service::downloadFinished, this, &MainWindow::downloadFinished);
 }
 
 void MainWindow::engineDownloading() {
@@ -131,5 +134,21 @@ void MainWindow::changeLocation() {
         }
 
         qDebug() << "Chosen folder:" << downloadLocation;
+    }
+}
+
+void MainWindow::startDownload() {
+    service->startDownload(linkBox->text(), downloadLocation);
+}
+
+void MainWindow::downloadStarted() {
+    statusLabel->setText("Download started");
+}
+
+void MainWindow::downloadFinished(int exit) {
+    if (exit == 0) {
+        statusLabel->setText("Download finished successfully");
+    } else if (exit == 1) {
+        statusLabel->setText("Download failed");
     }
 }

@@ -5,8 +5,7 @@ ServiceMaintainer::ServiceMaintainer(QObject *parent) {
 
     connect(downloadProcess, &QProcess::started, this, &ServiceMaintainer::started);
     connect(downloadProcess, &QProcess::finished, this, &ServiceMaintainer::finished);
-    connect(downloadProcess, qOverload<int,QProcess::ExitStatus>(&QProcess::finished), 
-           this, &ServiceMaintainer::onProcessFinish);
+    connect(downloadProcess, &QProcess::finished, this, &ServiceMaintainer::onProcessFinish);
 }
 
 void ServiceMaintainer::getService(bool nightly) {

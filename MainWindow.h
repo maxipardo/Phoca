@@ -1,5 +1,6 @@
 #pragma once
 #include "ServiceMaintainer.h"
+#include "Service.h"
 #include <QMainWindow>
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -14,6 +15,8 @@
 #include <QMenu>
 #include <QAction>
 #include <QActionGroup>
+
+#include <QList>
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -37,6 +40,8 @@ private:
     QActionGroup *versionGroup;
 
     QString downloadLocation;
+
+    Service *service;
     
 private slots:
     void getServiceSlot();
@@ -44,4 +49,8 @@ private slots:
     void engineDownloading();
     void engineDownloaded(int exit);
     void changeLocation();
+
+    void startDownload();
+    void downloadStarted();
+    void downloadFinished(int exit);
 };

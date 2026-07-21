@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QString>
 #include <QStringList>
+#include <QRegularExpression>
 
 class Service : public QObject {
 Q_OBJECT
@@ -12,7 +13,11 @@ public:
     void startDownload(QString link, QString location);
 private:
     QProcess *downloadProcess;
+private slots:
+    void onProcessFinish(int exitCode, QProcess::ExitStatus status);
+    void downloadFailed(QProcess::ProcessError error);
 signals:
     void downloadStarted();
-    void downloadFinished();
+    void downloadFinished(int exit);
+    void processFailed(QString error);
 };
