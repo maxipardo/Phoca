@@ -75,6 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(chooseLocationAction, &QAction::triggered, this, &MainWindow::changeLocation);
 
     /* Service */
+    downloadPhase = "";
     service = new Service(this);
 
     connect(downloadButton, &QPushButton::clicked, this, &MainWindow::startDownload);
@@ -82,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(service, &Service::downloadFinished, this, &MainWindow::downloadFinished);
     connect(service, &Service::processFailed, this, &MainWindow::downloadProcessFailed);
     connect(service, &Service::percentageUpdated, this, &MainWindow::downloadProgress);
+    connect(service, &Service::phaseUpdated, this, &MainWindow::downloadPhaseUpdated);
 }
 
 void MainWindow::engineDownloading() {
@@ -154,7 +156,7 @@ void MainWindow::downloadStarted() {
 }
 
 void MainWindow::downloadProgress(int percentage) {
-    statusLabel->setText("Downloading... " + QString::number(percentage) + "%");
+    statusLabel->setText(downloadPhase + QString::number(percentage) + "%");
     progressBar->setValue(percentage);
 }
 
@@ -169,4 +171,8 @@ void MainWindow::downloadFinished(int exit) {
 
 void MainWindow::downloadProcessFailed(QString error) {
     statusLabel->setText(error);
+}
+
+void MainWindow::downloadPhaseUpdated(QString phase) {
+    downloadPhase = phase;
 }

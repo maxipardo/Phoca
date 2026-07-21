@@ -13,6 +13,7 @@ public:
     void startDownload(QString link, QString location);
 private:
     QProcess *downloadProcess;
+    int partCounter;
 private slots:
     void onProcessFinish(int exitCode, QProcess::ExitStatus status);
     void downloadFailed(QProcess::ProcessError error);
@@ -22,4 +23,5 @@ signals:
     void downloadFinished(int exit);
     void processFailed(QString error);
     void percentageUpdated(int percentage);
+    void phaseUpdated(QString phase);
 };

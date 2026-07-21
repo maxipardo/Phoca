@@ -44,6 +44,7 @@ private:
     QString downloadLocation;
 
     Service *service;
+    QString downloadPhase;
     
 private slots:
     void getServiceSlot();
@@ -57,4 +58,5 @@ private slots:
     void downloadFinished(int exit);
     void downloadProcessFailed(QString error);
     void downloadProgress(int percentage);
+    void downloadPhaseUpdated(QString phase);
 };

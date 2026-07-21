@@ -17,7 +17,7 @@ void Service::startDownload(QString link, QString location) {
     QStringList arguments;
     QString outputPath = location + "/%(title)s.%(ext)s";
     arguments << "--newline" << "--no-colors" << "-o" << outputPath << link;
-
+    partCounter = 0;
     downloadProcess->start(executable, arguments);
 }
 
@@ -38,17 +38,38 @@ void Service::downloadFailed(QProcess::ProcessError error) {
 }
 
 void Service::readOutput() {
+    QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
+    QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%");
+    QRegularExpression regexMerger("^\\[Merger\\]");
+
     while (downloadProcess->canReadLine()) {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
-        QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%");
-        QRegularExpressionMatch matchProgress = regexProgress.match(line);
 
+        QRegularExpressionMatch matchDestination = regexDestination.match(line);
+        if (matchDestination.hasMatch()) {
+            partCounter++;
+
+            if (partCounter == 1) {
+                emit phaseUpdated("Downloading video...");
+            } else if (partCounter == 2) {
+                emit phaseUpdated("Downloading audio...");
+            }
+            continue;
+        }
+
+        QRegularExpressionMatch matchProgress = regexProgress.match(line);
         if (matchProgress.hasMatch()) {
             QString textNumber = matchProgress.captured(1);
-            
             int percentage = qRound(textNumber.toDouble());
             
             emit percentageUpdated(percentage);
+            continue;
+        }
+
+        QRegularExpressionMatch matchMerger = regexMerger.match(line);
+        if (matchMerger.hasMatch()) {
+            emit phaseUpdated("Merging formats...");
+            continue;
         }
     }
 }
