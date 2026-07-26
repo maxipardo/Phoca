@@ -12,3 +12,6 @@
 !Service.h
 !ServiceMaintainer.cpp
 !ServiceMaintainer.h
+!.github/
+!.github/workflows/
+!.github/workflows/windows-build.yml
