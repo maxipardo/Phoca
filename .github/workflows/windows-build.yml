@@ -22,8 +22,8 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake ..
-        mingw32-make release
+        cmake .. -G "MinGW Makefiles"
+        cmake --build . --config Release
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
