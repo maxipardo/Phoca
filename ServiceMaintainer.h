@@ -14,6 +14,7 @@ public:
     void getService(bool nightly);
     static QString getServiceLocation();
 private:
+    /* TODO: Change QProcess to QNetworkAccessManager */
     QProcess *downloadProcess;
     QString programLocation {QCoreApplication::applicationDirPath()};
     QString serviceDirectory {programLocation + "/bin"};
