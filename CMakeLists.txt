@@ -13,6 +13,7 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt6 COMPONENTS Widgets Core Network REQUIRED)
 
 add_executable(phoca 
+    WIN32
     main.cpp 
     MainWindow.cpp
     MainWindow.h
