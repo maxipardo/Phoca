@@ -41,7 +41,7 @@ void Service::readOutput() {
     QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
     QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%");
     QRegularExpression regexMerger("^\\[Merger\\]");
-    QRegularExpression regexTitle();
+    QRegularExpression regexTitle;
 
     while (downloadProcess->canReadLine()) {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
