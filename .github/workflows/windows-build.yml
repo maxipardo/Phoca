@@ -25,8 +25,14 @@ jobs:
         cmake .. -G "MinGW Makefiles"
         cmake --build . --config Release
 
+    - name: Deploy Qt Dependencies
+      run: |
+        mkdir Phoca-Windows
+        Copy-Item build\*.exe Phoca-Windows\
+        windeployqt Phoca-Windows\
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Phoca-Windows
-        path: build/*.exe
+        name: Phoca-Windows-Portable
+        path: Phoca-Windows\
