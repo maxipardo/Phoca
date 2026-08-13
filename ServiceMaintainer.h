@@ -1,27 +1,35 @@
 #pragma once
-#include <QObject>
-#include <QProcess>
-#include <QDir>
-#include <QString>
 #include <QCoreApplication>
+#include <QDir>
+#include <QFile>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QObject>
+#include <QString>
 
 class ServiceMaintainer : public QObject {
-Q_OBJECT
+  Q_OBJECT
 
 public:
-    ServiceMaintainer(QObject *parent = nullptr);
-    bool exists();
-    void getService(bool nightly);
-    static QString getServiceLocation();
+  ServiceMaintainer(QObject *parent = nullptr);
+  bool exists();
+  void getService(bool nightly);
+  static QString getServiceLocation();
+
 private:
-    /* TODO: Change QProcess to QNetworkAccessManager */
-    QProcess *downloadProcess;
-    QString programLocation {QCoreApplication::applicationDirPath()};
-    QString serviceDirectory {programLocation + "/bin"};
-    QString serviceFile {serviceDirectory + "/yt-dlp"};
+  QNetworkAccessManager *networkManager;
+  QNetworkReply *currentReply = nullptr;
+  QFile *downloadFile = nullptr;
+  QString programLocation{QCoreApplication::applicationDirPath()};
+  QString serviceDirectory{programLocation + "/bin"};
+#ifdef Q_OS_WIN
+  QString serviceFile{serviceDirectory + "/yt-dlp.exe"};
+#else
+  QString serviceFile{serviceDirectory + "/yt-dlp"};
+#endif
 private slots:
-    void onProcessFinish(int exitCode, QProcess::ExitStatus status);
+  void onDownloadFinished();
 signals:
-    void started();
-    void finished(int exit);
+  void started();
+  void finished(int exit);
 };
