@@ -1,0 +1,65 @@
+name: Build Linux AppImage
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libgl1-mesa-dev imagemagick
+
+    - name: Set up Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.8.2'
+        target: 'desktop'
+        arch: 'gcc_64'
+
+    - name: Build Project
+      run: |
+        mkdir build
+        cd build
+        cmake .. 
+        cmake --build . --config Release
+
+    - name: Prepare AppDir and linuxdeployqt
+      run: |
+
+        mkdir -p AppDir/usr/bin
+        mkdir -p AppDir/usr/share/applications
+        mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
+        
+        cp build/phoca AppDir/usr/bin/
+        
+        cat <<EOF > AppDir/usr/share/applications/phoca.desktop
+        [Desktop Entry]
+        Name=Phoca
+        Exec=phoca
+        Icon=phoca
+        Type=Application
+        Categories=Utility;
+        EOF
+        
+        convert -size 256x256 xc:blue AppDir/usr/share/icons/hicolor/256x256/apps/phoca.png
+        
+        wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+        chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+        
+        ./linuxdeployqt-continuous-x86_64.AppImage --appimage-extract
+        
+        ./squashfs-root/AppRun AppDir/usr/share/applications/phoca.desktop -appimage -unsupported-allow-new-glibc
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Phoca-Linux-AppImage
+        # Subimos el archivo final
+        path: Phoca-*.AppImage
