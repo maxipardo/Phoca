@@ -16,20 +16,22 @@ jobs:
       with:
         version: '6.8.2'
         target: 'desktop'
-        arch: 'win64_mingw'
+        # Usamos el compilador nativo de Windows para evitar choques
+        arch: 'win64_msvc2022_64'
 
     - name: Build Project
       run: |
         mkdir build
         cd build
-        cmake .. -G "MinGW Makefiles"
+        cmake .. 
         cmake --build . --config Release
 
     - name: Deploy Qt Dependencies
       run: |
         mkdir Phoca-Windows
-        Copy-Item build\*.exe Phoca-Windows\
-        windeployqt --compiler-runtime Phoca-Windows\
+        # Con MSVC, el ejecutable se guarda en la carpeta Release
+        Copy-Item build\Release\*.exe Phoca-Windows\
+        windeployqt Phoca-Windows\
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
