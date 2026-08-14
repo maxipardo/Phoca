@@ -5,12 +5,13 @@
 #include <QString>
 #include <QStringList>
 #include <QRegularExpression>
+#include <QFileInfo>
 
 class Service : public QObject {
 Q_OBJECT
 public:
     explicit Service(QObject *parent = nullptr);
-    void startDownload(QString link, QString location);
+    void startDownload(QString link, QString location, int format);
 private:
     QProcess *downloadProcess;
     int partCounter;
