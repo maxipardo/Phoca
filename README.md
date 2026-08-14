@@ -9,10 +9,10 @@
     </td>
   </tr>
   <tr>
-    <td valign="center">
+    <td style="vertical-align: middle; text-align: center;">
       <img src="https://github.com/user-attachments/assets/26890c36-f6ce-447d-b7a8-05524412e9b9" width="400" />
     </td>
-    <td valign="center">
+    <td style="vertical-align: middle; text-align: center;">
       <img src="https://github.com/user-attachments/assets/2e00a79a-792c-4794-94ca-b98e316c6c82" width="400" />
     </td>
   </tr>
