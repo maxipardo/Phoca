@@ -1,5 +1,7 @@
 #include "Service.h"
 #include "ServiceMaintainer.h"
+#include <QFileInfo>
+
 
 Service::Service(QObject *parent) {
     downloadProcess = new QProcess(this);
@@ -41,7 +43,8 @@ void Service::readOutput() {
     QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
     QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%");
     QRegularExpression regexMerger("^\\[Merger\\]");
-    QRegularExpression regexTitle;
+    
+    QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
 
     while (downloadProcess->canReadLine()) {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
@@ -49,6 +52,21 @@ void Service::readOutput() {
         QRegularExpressionMatch matchDestination = regexDestination.match(line);
         if (matchDestination.hasMatch()) {
             partCounter++;
+
+            // get title
+            QString fullPath = matchDestination.captured(1);
+            QString fileName = QFileInfo(fullPath).fileName();
+            
+            QRegularExpressionMatch matchTitle = regexTitle.match(fileName);
+            QString cleanTitle;
+            
+            if (matchTitle.hasMatch()) {
+                cleanTitle = matchTitle.captured(1);
+            } else {
+                cleanTitle = fileName;
+            }
+
+            emit titleUpdated(cleanTitle);
 
             if (partCounter == 1) {
                 emit phaseUpdated("Downloading video...");

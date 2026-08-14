@@ -30,6 +30,7 @@ private:
     QPushButton *downloadButton;
     QPushButton *getEngineButton;
     QLabel *statusLabel; // General: download and service
+    QLabel *titleLabel;
     ServiceMaintainer *maintainer;
     QString chosenDirectory;
     QMenu *optionsMenu;
@@ -59,4 +60,5 @@ private slots:
     void downloadProcessFailed(QString error);
     void downloadProgress(int percentage);
     void downloadPhaseUpdated(QString phase);
+    void onTitleUpdated(QString title);
 };
