@@ -1,3 +1,23 @@
+## 📥 Download
+Windows installer is available on [Releases](https://github.com/maxipardo/Phoca/releases), GNU/Linux packages are yet to be defined.
+
+## 📦 Compiling from source code
+**Requirements (Ubuntu/Debian):**
+```bash
+sudo apt update
+sudo apt install build-essential cmake qt6-base-dev ffmpeg
+curl -fsSL https://deno.land/install.sh | sh
+```
+**Compilación:**
+```bash
+git clone https://github.com/maxipardo/Phoca.git
+cd Phoca
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j$(nproc)
+./Phoca
+```
+
 ## 📸 Screenshots ##
 <table>
   <tr>
