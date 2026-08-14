@@ -1,7 +1,5 @@
 #include "Service.h"
 #include "ServiceMaintainer.h"
-#include <QFileInfo>
-
 
 Service::Service(QObject *parent) {
     downloadProcess = new QProcess(this);
@@ -14,11 +12,27 @@ Service::Service(QObject *parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 };
 
-void Service::startDownload(QString link, QString location) {
+void Service::startDownload(QString link, QString location, int format) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath = location + "/%(title)s.%(ext)s";
-    arguments << "--newline" << "--no-colors" << "-o" << outputPath << link;
+    
+    arguments << "--newline" << "--no-colors" << "-o" << outputPath;
+
+    switch (format) {
+        case 0: // both
+            arguments << "-f" << "bestvideo+bestaudio/best";
+            break;
+        case 1: // video only
+            arguments << "-f" << "bestvideo";
+            break;
+        case 2: // audio only
+            arguments << "-x" << "--audio-format" << "mp3";
+            break;
+    }
+
+    arguments << link;
+    
     partCounter = 0;
     downloadProcess->start(executable, arguments);
 }
@@ -69,7 +83,7 @@ void Service::readOutput() {
             emit titleUpdated(cleanTitle);
 
             if (partCounter == 1) {
-                emit phaseUpdated("Downloading video...");
+                emit phaseUpdated("Downloading...");
             } else if (partCounter == 2) {
                 emit phaseUpdated("Downloading audio...");
             }

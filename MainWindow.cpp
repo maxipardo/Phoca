@@ -1,12 +1,15 @@
 #include "MainWindow.h"
 #include "Service.h"
 #include <qobject.h>
+#include <QSpacerItem>
+#include <QSizePolicy>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
 
   layout = new QVBoxLayout(centralWidget);
   linkLayout = new QHBoxLayout();
+  optionsLayout = new QHBoxLayout();
   linkBox = new QLineEdit(centralWidget);
   downloadButton = new QPushButton(centralWidget);
   getEngineButton = new QPushButton(centralWidget);
@@ -15,6 +18,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   progressBar = new QProgressBar(centralWidget);
   maintainer = new ServiceMaintainer(this);
   chosenDirectory = QDir::homePath();
+
+  bothButton = new QRadioButton("Both", centralWidget);
+  videoButton = new QRadioButton("Video", centralWidget);
+  audioButton = new QRadioButton("Audio", centralWidget);
+
+  /* MainWindow size */
+  this->resize(400, 100);
+  this->setMinimumWidth(400);
 
   /* Menu */
   optionsMenu = new QMenu("Options", this);
@@ -40,16 +51,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   linkBox->setPlaceholderText("Enter link...");
   downloadButton->setText("Download link");
   downloadButton->setEnabled(false);
+
   getEngineButton->setText("Update yt-dlp");
+  
   layout->addLayout(linkLayout);
   linkLayout->addWidget(linkBox);
+  layout->addLayout(optionsLayout);
   linkLayout->addWidget(downloadButton);
   layout->addWidget(titleLabel);
   layout->addWidget(statusLabel);
-  titleLabel->hide();
   layout->addWidget(progressBar);
-  progressBar->hide();
   layout->addWidget(getEngineButton);
+  titleLabel->hide();
+  progressBar->hide();
+
+  optionsLayout->addWidget(bothButton);
+  optionsLayout->addWidget(videoButton);
+  optionsLayout->addWidget(audioButton);
+
+  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+  optionsLayout->addItem(spacer);
+
+  bothButton->setChecked(true);
 
   this->setWindowTitle("Phoca");
   setCentralWidget(centralWidget);
@@ -129,6 +152,7 @@ void MainWindow::setDownloadReadiness() {
 }
 
 void MainWindow::getServiceSlot() {
+  downloadButton->setEnabled(false);
   bool nightly{chooseNightlyAction->isChecked()};
   maintainer->getService(nightly);
 }
@@ -155,7 +179,14 @@ void MainWindow::changeLocation() {
 }
 
 void MainWindow::startDownload() {
-  service->startDownload(linkBox->text(), downloadLocation);
+  int format {0}; // both
+  if (videoButton->isChecked()) {
+    format = 1;
+  } else if (audioButton->isChecked()) {
+    format = 2;
+  }
+
+  service->startDownload(linkBox->text(), downloadLocation, format);
   titleLabel->hide();
 }
 

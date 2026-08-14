@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QLabel>
 #include <QFileDialog>
 #include <QFile>
@@ -18,6 +19,7 @@
 #include <QActionGroup>
 
 #include <QList>
+#include <qradiobutton.h>
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -26,6 +28,7 @@ public:
 private:
     QVBoxLayout *layout;
     QHBoxLayout *linkLayout;
+    QHBoxLayout *optionsLayout;
     QLineEdit *linkBox;
     QPushButton *downloadButton;
     QPushButton *getEngineButton;
@@ -36,6 +39,10 @@ private:
     QMenu *optionsMenu;
     QMenu *buildMenu;
     QProgressBar *progressBar;
+    
+    QRadioButton *bothButton;
+    QRadioButton *videoButton;
+    QRadioButton *audioButton;
 
     QAction *chooseLocationAction;
     QAction *chooseNightlyAction;
