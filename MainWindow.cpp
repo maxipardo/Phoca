@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   downloadButton = new QPushButton(centralWidget);
   getEngineButton = new QPushButton(centralWidget);
   statusLabel = new QLabel(centralWidget);
+  titleLabel = new QLabel(centralWidget);
   progressBar = new QProgressBar(centralWidget);
   maintainer = new ServiceMaintainer(this);
   chosenDirectory = QDir::homePath();
@@ -43,7 +44,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   layout->addLayout(linkLayout);
   linkLayout->addWidget(linkBox);
   linkLayout->addWidget(downloadButton);
+  layout->addWidget(titleLabel);
   layout->addWidget(statusLabel);
+  titleLabel->hide();
   layout->addWidget(progressBar);
   progressBar->hide();
   layout->addWidget(getEngineButton);
@@ -96,6 +99,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::downloadProgress);
   connect(service, &Service::phaseUpdated, this,
           &MainWindow::downloadPhaseUpdated);
+  connect(service, &Service::titleUpdated, this, 
+          &MainWindow::onTitleUpdated);
 }
 
 void MainWindow::engineDownloading() { statusLabel->setText("Downloading..."); }
@@ -130,7 +135,7 @@ void MainWindow::getServiceSlot() {
 
 void MainWindow::changeLocation() {
   downloadLocation = QFileDialog::getExistingDirectory(
-      this, "Elegí dónde guardar los videos", QDir::homePath(),
+      this, "Choose where to save files", QDir::homePath(),
       QFileDialog::ShowDirsOnly);
   if (!downloadLocation.isEmpty()) {
     QFile file("config.txt");
@@ -151,6 +156,7 @@ void MainWindow::changeLocation() {
 
 void MainWindow::startDownload() {
   service->startDownload(linkBox->text(), downloadLocation);
+  titleLabel->hide();
 }
 
 void MainWindow::downloadStarted() {
@@ -160,7 +166,7 @@ void MainWindow::downloadStarted() {
 }
 
 void MainWindow::downloadProgress(int percentage) {
-  statusLabel->setText(downloadPhase + QString::number(percentage) + "%");
+  statusLabel->setText(downloadPhase);
   progressBar->setValue(percentage);
 }
 
@@ -180,3 +186,8 @@ void MainWindow::downloadProcessFailed(QString error) {
 }
 
 void MainWindow::downloadPhaseUpdated(QString phase) { downloadPhase = phase; }
+
+void MainWindow::onTitleUpdated(QString title) {
+  titleLabel->show();
+  titleLabel->setText(title);
+}

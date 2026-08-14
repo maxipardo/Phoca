@@ -19,6 +19,7 @@ private slots:
     void downloadFailed(QProcess::ProcessError error);
     void readOutput();
 signals:
+    void titleUpdated(QString title);
     void downloadStarted();
     void downloadFinished(int exit);
     void processFailed(QString error);
