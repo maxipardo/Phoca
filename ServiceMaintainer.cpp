@@ -2,15 +2,25 @@
 #include <QNetworkRequest>
 #include <QUrl>
 #include <QDebug>
+#include <QStandardPaths>
 
 ServiceMaintainer::ServiceMaintainer(QObject *parent) : QObject(parent) {
   networkManager = new QNetworkAccessManager(this);
+
+  QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Phoca";
+  serviceDirectory = basePath + "/bin";
+
+#ifdef Q_OS_WIN
+  serviceFile = serviceDirectory + "/yt-dlp.exe";
+#else
+  serviceFile = serviceDirectory + "/yt-dlp";
+#endif
 }
 
 void ServiceMaintainer::getService(bool nightly) {
   QDir directory;
   if (!directory.exists(serviceDirectory)) {
-    if (!directory.mkdir(serviceDirectory)) {
+    if (!directory.mkpath(serviceDirectory)) {
       emit finished(2);
       return;
     }
@@ -37,8 +47,6 @@ void ServiceMaintainer::getService(bool nightly) {
 
 #ifdef Q_OS_WIN
   urlString += "yt-dlp.exe";
-#elif defined(Q_OS_MAC)
-  urlString += "yt-dlp_macos";
 #else
   urlString += "yt-dlp";
 #endif
@@ -63,12 +71,11 @@ void ServiceMaintainer::onDownloadFinished() {
   if (currentReply->error() == QNetworkReply::NoError) {
       if (downloadFile) {
           downloadFile->close();
-          // Make it executable on Unix systems
 #ifndef Q_OS_WIN
           downloadFile->setPermissions(downloadFile->permissions() | QFileDevice::ExeOwner | QFileDevice::ExeUser | QFileDevice::ExeGroup | QFileDevice::ExeOther);
 #endif
       }
-      qDebug() << "[ServiceMaintainer] yt-dlp descargado.";
+      qDebug() << "[ServiceMaintainer] yt-dlp descargado en:" << serviceFile;
       emit finished(0);
   } else {
       qDebug() << "[ServiceMaintainer] Fallo en la descarga. Error:" << currentReply->errorString();
@@ -93,10 +100,11 @@ bool ServiceMaintainer::exists() {
 }
 
 QString ServiceMaintainer::getServiceLocation() {
-  QString appPath = QCoreApplication::applicationDirPath();
+  QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Phoca";
+  QString dir = basePath + "/bin";
 #ifdef Q_OS_WIN
-  return appPath + "/bin/yt-dlp.exe";
+  return dir + "/yt-dlp.exe";
 #else
-  return appPath + "/bin/yt-dlp";
+  return dir + "/yt-dlp";
 #endif
 }
