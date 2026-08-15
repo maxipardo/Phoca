@@ -12,16 +12,16 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 COMPONENTS Widgets Core Network REQUIRED)
 
-add_executable(phoca 
+add_executable(phoca
     WIN32
-    main.cpp 
+    main.cpp
     MainWindow.cpp
     MainWindow.h
-    Service.cpp 
+    Service.cpp
     Service.h
     ServiceMaintainer.cpp
     ServiceMaintainer.h
 )
 
-# Enlazamos las librerías de Qt al ejecutablec
+# Enlazamos las librerías de Qt al ejecutable
 target_link_libraries(phoca PRIVATE Qt6::Widgets Qt6::Core Qt6::Network)

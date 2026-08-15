@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include <QObject>
 #include <QString>
+#include <QStandardPaths>
 
 class ServiceMaintainer : public QObject {
   Q_OBJECT
@@ -20,13 +21,10 @@ private:
   QNetworkAccessManager *networkManager;
   QNetworkReply *currentReply = nullptr;
   QFile *downloadFile = nullptr;
-  QString programLocation{QCoreApplication::applicationDirPath()};
-  QString serviceDirectory{programLocation + "/bin"};
-#ifdef Q_OS_WIN
-  QString serviceFile{serviceDirectory + "/yt-dlp.exe"};
-#else
-  QString serviceFile{serviceDirectory + "/yt-dlp"};
-#endif
+  
+  QString serviceDirectory;
+  QString serviceFile;
+
 private slots:
   void onDownloadFinished();
 signals:
