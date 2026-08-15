@@ -12,20 +12,30 @@ Service::Service(QObject *parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 };
 
-void Service::startDownload(QString link, QString location, int format) {
+void Service::startDownload(QString link, QString location, int format, QString quality) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath = location + "/%(title)s.%(ext)s";
     
     arguments << "--newline" << "--no-colors" << "-o" << outputPath;
 
+    QString videoFilter = "bv*"; 
+    
+    if (quality != "Best" && !quality.isEmpty()) {
+        QString height = quality;
+        height.remove("p");
+        videoFilter = "bv*[height<=" + height + "]";
+    }
+
     switch (format) {
-        case 0: // both
-            arguments << "-f" << "bestvideo+bestaudio/best";
+        case 0: // both (Video + Audio)
+            arguments << "-f" << videoFilter + "+ba/b";
             break;
-        case 1: // video only
-            arguments << "-f" << "bestvideo";
+            
+        case 1: // video only (Video mudo)
+            arguments << "-f" << videoFilter;
             break;
+            
         case 2: // audio only
             arguments << "-x" << "--audio-format" << "mp3";
             break;

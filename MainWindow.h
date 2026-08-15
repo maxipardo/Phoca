@@ -14,6 +14,7 @@
 #include <QStandardPaths>
 #include <QProgressBar>
 #include <QStatusBar>
+#include <QComboBox>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -45,6 +46,8 @@ private:
     QRadioButton *bothButton;
     QRadioButton *videoButton;
     QRadioButton *audioButton;
+
+    QComboBox *qualityBox;
 
     QAction *chooseLocationAction;
     QAction *chooseNightlyAction;

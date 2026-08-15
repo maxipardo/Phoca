@@ -11,7 +11,7 @@ class Service : public QObject {
 Q_OBJECT
 public:
     explicit Service(QObject *parent = nullptr);
-    void startDownload(QString link, QString location, int format);
+    void startDownload(QString link, QString location, int format, QString quality);
 private:
     QProcess *downloadProcess;
     int partCounter;
