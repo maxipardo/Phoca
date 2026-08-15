@@ -25,7 +25,7 @@ add_executable(phoca
 )
 
 if(WIN32)
-    target_sources(Phoca PRIVATE icon.rc)
+    target_sources(phoca PRIVATE icon.rc)
 endif()
 
 # Enlazamos las librerías de Qt al ejecutable
