@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   buildMenu->addAction(chooseStableAction);
 
   linkBox->setPlaceholderText("Enter link...");
-  downloadButton->setText("Download link");
+  downloadButton->setText("Download");
   downloadButton->setEnabled(false);
 
   getEngineButton->setText("Update yt-dlp");
@@ -124,6 +124,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::downloadPhaseUpdated);
   connect(service, &Service::titleUpdated, this, 
           &MainWindow::onTitleUpdated);
+
+  this->statusBar()->showMessage("Download location: " + downloadLocation);
 }
 
 void MainWindow::engineDownloading() { statusLabel->setText("Downloading..."); }
@@ -175,6 +177,7 @@ void MainWindow::changeLocation() {
     }
 
     qDebug() << "Chosen folder:" << downloadLocation;
+    this->statusBar()->showMessage("Download location: " + downloadLocation);
   }
 }
 
