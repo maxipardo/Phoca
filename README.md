@@ -1,3 +1,10 @@
+<p align="left">
+  <img width="100" alt="icon" src="https://github.com/user-attachments/assets/ebfb3248-54cf-4f95-bab2-e51b68f795ba"/><br>
+  <h1>Phoca, a yt-dlp Qt6 frontend</h1>
+</p>
+
+A minimalistic program to download video and audio from most social media platforms.
+
 ## 📥 Download
 AppImage binaries and Windows installer are available on [Releases](https://github.com/maxipardo/Phoca/releases).
 
