@@ -72,6 +72,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   optionsLayout->addWidget(videoButton);
   optionsLayout->addWidget(audioButton);
 
+  qualityBox = new QComboBox(this);
+  qualityBox->setEditable(true);
+  qualityBox->setInsertPolicy(QComboBox::NoInsert);
+  qualityBox->addItem("Best");
+  qualityBox->addItem("2160p");
+  qualityBox->addItem("1440p");
+  qualityBox->addItem("1080p");
+  qualityBox->addItem("720p");
+  qualityBox->addItem("480p");
+  optionsLayout->addWidget(qualityBox);
+
   QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
   optionsLayout->addItem(spacer);
 
@@ -95,6 +106,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   }
 
   connect(linkBox, &QLineEdit::textChanged, this,
+          &MainWindow::setDownloadReadiness);
+  connect(qualityBox, &QComboBox::editTextChanged, this,
           &MainWindow::setDownloadReadiness);
   connect(getEngineButton, &QPushButton::clicked, this,
           &MainWindow::getServiceSlot);
@@ -150,7 +163,10 @@ void MainWindow::engineDownloaded(int exit) {
 }
 
 void MainWindow::setDownloadReadiness() {
-  if (!linkBox->text().isEmpty() && maintainer->exists()) {
+  // search quality in qualityBox
+  bool validQuality = qualityBox->findText(qualityBox->currentText()) != -1;
+
+  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality) {
     downloadButton->setEnabled(true);
   } else {
     downloadButton->setEnabled(false);
@@ -192,8 +208,9 @@ void MainWindow::startDownload() {
   } else if (audioButton->isChecked()) {
     format = 2;
   }
-
-  service->startDownload(linkBox->text(), downloadLocation, format);
+  if (qualityBox->currentIndex() == -1) {
+    service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText());
+  }
   titleLabel->hide();
 }
 
