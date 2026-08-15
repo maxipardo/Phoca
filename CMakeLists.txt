@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Phoca VERSION 1.0)
+project(Phoca VERSION 0.1)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
