@@ -21,7 +21,12 @@ add_executable(phoca
     Service.h
     ServiceMaintainer.cpp
     ServiceMaintainer.h
+    resources.qrc
 )
+
+if(WIN32)
+    target_sources(Phoca PRIVATE icon.rc)
+endif()
 
 # Enlazamos las librerías de Qt al ejecutable
 target_link_libraries(phoca PRIVATE Qt6::Widgets Qt6::Core Qt6::Network)

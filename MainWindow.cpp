@@ -196,7 +196,7 @@ void MainWindow::downloadStarted() {
   progressBar->show();
 }
 
-void MainWindow::downloadProgress(int percentage) {
+void MainWindow::downloadProgress(int percentage) { // Percentage updated
   statusLabel->setText(downloadPhase);
   progressBar->setValue(percentage);
 }
