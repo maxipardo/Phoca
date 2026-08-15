@@ -1,5 +1,5 @@
 ## 📥 Download
-Windows installer is available on [Releases](https://github.com/maxipardo/Phoca/releases), GNU/Linux packages are yet to be defined.
+AppImage binaries and Windows installer are available on [Releases](https://github.com/maxipardo/Phoca/releases).
 
 ## 📦 Compiling from source code
 **Requirements (Ubuntu/Debian):**
