@@ -22,6 +22,8 @@ add_executable(phoca
     ServiceMaintainer.cpp
     ServiceMaintainer.h
     resources.qrc
+    About.h
+    About.cpp
 )
 
 if(WIN32)

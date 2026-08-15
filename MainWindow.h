@@ -1,6 +1,7 @@
 #pragma once
 #include "ServiceMaintainer.h"
 #include "Service.h"
+#include "About.h"
 #include <QMainWindow>
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -19,6 +20,7 @@
 #include <QActionGroup>
 
 #include <QList>
+#include <qpushbutton.h>
 #include <qradiobutton.h>
 
 class MainWindow : public QMainWindow {
@@ -38,6 +40,7 @@ private:
     QString chosenDirectory;
     QMenu *optionsMenu;
     QMenu *buildMenu;
+    QAction *aboutAction;
     QProgressBar *progressBar;
     
     QRadioButton *bothButton;
@@ -68,4 +71,6 @@ private slots:
     void downloadProgress(int percentage);
     void downloadPhaseUpdated(QString phase);
     void onTitleUpdated(QString title);
+
+    void aboutPage();
 };
