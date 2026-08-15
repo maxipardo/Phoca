@@ -4,7 +4,6 @@
 #include <qobject.h>
 #include <QSpacerItem>
 #include <QSizePolicy>
-#include <qpushbutton.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -26,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   audioButton = new QRadioButton("Audio", centralWidget);
 
   /* MainWindow size */
-  this->resize(400, 100);
+  this->resize(500, 100);
   this->setMinimumWidth(400);
 
   /* Menu */
@@ -53,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   buildMenu->addAction(chooseStableAction);
 
   linkBox->setPlaceholderText("Enter link...");
-  downloadButton->setText("Download link");
+  downloadButton->setText("Download");
   downloadButton->setEnabled(false);
 
   getEngineButton->setText("Update yt-dlp");
@@ -129,6 +128,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::downloadPhaseUpdated);
   connect(service, &Service::titleUpdated, this, 
           &MainWindow::onTitleUpdated);
+
+  this->statusBar()->showMessage("Download location: " + downloadLocation);
 }
 
 void MainWindow::engineDownloading() { statusLabel->setText("Downloading..."); }
@@ -180,6 +181,7 @@ void MainWindow::changeLocation() {
     }
 
     qDebug() << "Chosen folder:" << downloadLocation;
+    this->statusBar()->showMessage("Download location: " + downloadLocation);
   }
 }
 
@@ -224,8 +226,7 @@ void MainWindow::downloadProcessFailed(QString error) {
 void MainWindow::downloadPhaseUpdated(QString phase) { downloadPhase = phase; }
 
 void MainWindow::onTitleUpdated(QString title) {
-  titleLabel->show();
-  titleLabel->setText(title);
+  this->statusBar()->showMessage(title.toUpper());
 }
 
 void MainWindow::aboutPage() {
