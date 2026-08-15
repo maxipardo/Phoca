@@ -12,6 +12,7 @@
 #include <QTextStream>
 #include <QStandardPaths>
 #include <QProgressBar>
+#include <QStatusBar>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -19,6 +20,7 @@
 #include <QActionGroup>
 
 #include <QList>
+#include <qmainwindow.h>
 #include <qradiobutton.h>
 
 class MainWindow : public QMainWindow {
@@ -53,6 +55,7 @@ private:
 
     Service *service;
     QString downloadPhase;
+
     
 private slots:
     void getServiceSlot();
