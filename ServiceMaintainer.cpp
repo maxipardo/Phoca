@@ -75,10 +75,10 @@ void ServiceMaintainer::onDownloadFinished() {
           downloadFile->setPermissions(downloadFile->permissions() | QFileDevice::ExeOwner | QFileDevice::ExeUser | QFileDevice::ExeGroup | QFileDevice::ExeOther);
 #endif
       }
-      qDebug() << "[ServiceMaintainer] yt-dlp descargado en:" << serviceFile;
+      qDebug() << "[ServiceMaintainer] yt-dlp downloaded at:" << serviceFile;
       emit finished(0);
   } else {
-      qDebug() << "[ServiceMaintainer] Fallo en la descarga. Error:" << currentReply->errorString();
+      qDebug() << "[ServiceMaintainer] yt-dlp Download failed. Error:" << currentReply->errorString();
       if (downloadFile) {
           downloadFile->close();
           downloadFile->remove();
