@@ -1,8 +1,10 @@
 #include "MainWindow.h"
 #include "Service.h"
+#include <qaction.h>
 #include <qobject.h>
 #include <QSpacerItem>
 #include <QSizePolicy>
+#include <qpushbutton.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -29,9 +31,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   /* Menu */
   optionsMenu = new QMenu("Options", this);
+  aboutAction = new QAction("About", this);
   buildMenu = new QMenu("Choose yt-dlp version", optionsMenu);
   menuBar()->addMenu(optionsMenu);
   optionsMenu->addMenu(buildMenu);
+  menuBar()->addAction(aboutAction);
 
   chooseLocationAction = new QAction("Change download location...", this);
   chooseNightlyAction = new QAction("Use yt-dlp nightly (recommended)", this);
@@ -105,6 +109,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::getServiceSlot);
   connect(chooseLocationAction, &QAction::triggered, this,
           &MainWindow::changeLocation);
+  connect(aboutAction, &QAction::triggered, this, &MainWindow::aboutPage);
 
   /* Service */
   downloadPhase = "";
@@ -221,4 +226,9 @@ void MainWindow::downloadPhaseUpdated(QString phase) { downloadPhase = phase; }
 void MainWindow::onTitleUpdated(QString title) {
   titleLabel->show();
   titleLabel->setText(title);
+}
+
+void MainWindow::aboutPage() {
+  About aboutWindow(this);
+  aboutWindow.exec();
 }
