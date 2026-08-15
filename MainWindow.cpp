@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   audioButton = new QRadioButton("Audio", centralWidget);
 
   /* MainWindow size */
-  this->resize(400, 100);
+  this->resize(500, 100);
   this->setMinimumWidth(400);
 
   /* Menu */
@@ -222,6 +222,5 @@ void MainWindow::downloadProcessFailed(QString error) {
 void MainWindow::downloadPhaseUpdated(QString phase) { downloadPhase = phase; }
 
 void MainWindow::onTitleUpdated(QString title) {
-  titleLabel->show();
-  titleLabel->setText(title);
+  this->statusBar()->showMessage(title.toUpper());
 }
