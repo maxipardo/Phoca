@@ -30,6 +30,11 @@ void ServiceMaintainer::getService(bool nightly) {
       return; // Already downloading
   }
 
+  if (downloadFile) {
+      downloadFile->deleteLater();
+      downloadFile = nullptr;
+  }
+
   downloadFile = new QFile(serviceFile, this);
   if (!downloadFile->open(QIODevice::WriteOnly)) {
       delete downloadFile;
