@@ -17,12 +17,14 @@ Service::Service(QObject *parent) {
 void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
-    QString outputPath = location + "/%(title)s.%(ext)s";
+    QString outputPath;
     
     if (playlist) {
         arguments << "--yes-playlist";
+        outputPath = location + "/%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s";
     } else {
         arguments << "--no-playlist";
+        outputPath = location + "/%(title)s.%(ext)s";
     }
 
     QString appPath = QCoreApplication::applicationDirPath();
