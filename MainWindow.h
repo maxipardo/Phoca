@@ -1,7 +1,6 @@
 #pragma once
 #include "ServiceMaintainer.h"
 #include "Service.h"
-#include "About.h"
 #include <QMainWindow>
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -9,11 +8,11 @@
 #include <QRadioButton>
 #include <QLabel>
 #include <QFileDialog>
-#include <QFile>
 #include <QTextStream>
 #include <QStandardPaths>
 #include <QProgressBar>
 #include <QStatusBar>
+#include <QSettings>
 
 #include <QMenuBar>
 #include <QMenu>
