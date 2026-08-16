@@ -1,8 +1,6 @@
 #include "MainWindow.h"
 #include "Service.h"
 #include "About.h"
-#include <QSpacerItem>
-#include <QSizePolicy>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -71,6 +69,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   optionsLayout->addWidget(videoButton);
   optionsLayout->addWidget(audioButton);
 
+  qualityBox = new QComboBox(this);
+  qualityBox->setEditable(true);
+  qualityBox->setInsertPolicy(QComboBox::NoInsert);
+  qualityBox->addItem("Best");
+  qualityBox->addItem("2160p");
+  qualityBox->addItem("1440p");
+  qualityBox->addItem("1080p");
+  qualityBox->addItem("720p");
+  qualityBox->addItem("480p");
+  optionsLayout->addWidget(qualityBox);
+
+  conversionBox = new QComboBox(this);
+  conversionBox->setEditable(true);
+  conversionBox->setInsertPolicy(QComboBox::NoInsert);
+  conversionBox->addItem("Original");
+  conversionBox->addItem(".mp4");
+  conversionBox->addItem(".mkv");
+  conversionBox->addItem(".avi");
+  conversionBox->addItem(".webm");
+  optionsLayout->addWidget(conversionBox);
+
   QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
   optionsLayout->addItem(spacer);
 
@@ -85,6 +104,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   connect(linkBox, &QLineEdit::textChanged, this,
           &MainWindow::setDownloadReadiness);
+  connect(qualityBox, &QComboBox::editTextChanged, this,
+          &MainWindow::setDownloadReadiness);
+  connect(conversionBox, &QComboBox::editTextChanged, this,
+          &MainWindow::setDownloadReadiness);
   connect(getEngineButton, &QPushButton::clicked, this,
           &MainWindow::getServiceSlot);
   connect(maintainer, &ServiceMaintainer::started, this,
@@ -97,7 +120,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::getServiceSlot);
   connect(chooseLocationAction, &QAction::triggered, this,
           &MainWindow::changeLocation);
-  connect(aboutAction, &QAction::triggered, this, &MainWindow::aboutPage);
+  connect(aboutAction, &QAction::triggered, this, 
+          &MainWindow::aboutPage);
+
+  connect(bothButton, &QPushButton::clicked, this, 
+          &MainWindow::toggleQualityOptions);
+  connect(videoButton, &QPushButton::clicked, this, 
+          &MainWindow::toggleQualityOptions);
+  connect(audioButton, &QPushButton::clicked, this, 
+          &MainWindow::toggleQualityOptions);
+
+  connect(bothButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear();
+    conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"}); 
+});
+  connect(videoButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear();
+    conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"}); 
+});
+connect(audioButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear();
+    conversionBox->addItems({"Original", ".mp3", ".wav", ".flac", ".m4a"}); 
+});
 
   /* Service */
   downloadPhase = "";
@@ -139,7 +183,11 @@ void MainWindow::engineDownloaded(int exit) {
 }
 
 void MainWindow::setDownloadReadiness() {
-  if (!linkBox->text().isEmpty() && maintainer->exists()) {
+  // search quality in qualityBox
+  bool validQuality = qualityBox->findText(qualityBox->currentText()) != -1;
+  bool validConversion = conversionBox->findText(conversionBox->currentText()) != -1;
+
+  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality && validConversion) {
     downloadButton->setEnabled(true);
   } else {
     downloadButton->setEnabled(false);
@@ -175,12 +223,16 @@ void MainWindow::startDownload() {
     format = 2;
   }
 
-  service->startDownload(linkBox->text(), downloadLocation, format);
+  service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText(), conversionBox->currentText());
+
   titleLabel->hide();
 }
 
 void MainWindow::downloadStarted() {
   statusLabel->setText("Download started");
+  if (progressBar->maximum() == 0) {
+        progressBar->setRange(0, 100);
+    }
   progressBar->setValue(0);
   progressBar->show();
 }
@@ -205,7 +257,15 @@ void MainWindow::downloadProcessFailed(QString error) {
   progressBar->hide();
 }
 
-void MainWindow::downloadPhaseUpdated(QString phase) { downloadPhase = phase; }
+void MainWindow::downloadPhaseUpdated(QString phase) {
+    downloadPhase = phase;
+
+    if (phase == "Processing...") {
+        progressBar->setRange(0, 0);
+    } else {
+        progressBar->setRange(0, 100);
+    }
+}
 
 void MainWindow::onTitleUpdated(QString title) {
   this->statusBar()->showMessage(title.toUpper());
@@ -214,4 +274,13 @@ void MainWindow::onTitleUpdated(QString title) {
 void MainWindow::aboutPage() {
   About aboutWindow(this);
   aboutWindow.exec();
+}
+
+void MainWindow::toggleQualityOptions() {
+  if (!audioButton->isChecked()) {
+    qualityBox->setEnabled(true);
+  } else {
+    qualityBox->setCurrentIndex(0);
+    qualityBox->setEnabled(false);
+  }
 }
