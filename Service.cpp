@@ -116,6 +116,8 @@ void Service::readOutput() {
             QString current = matchPlaylist.captured(1);
             QString total = matchPlaylist.captured(2);
             playlistStatus = QString("(%1/%2)").arg(current, total);
+            
+            partCounter = 0; 
             continue;
         }
 
@@ -143,7 +145,7 @@ void Service::readOutput() {
 
             if (partCounter == 1) {
                 emit phaseUpdated("Downloading...");
-            } else if (partCounter == 2) {
+            } else if (partCounter > 1) {
                 emit phaseUpdated("Downloading audio...");
             }
             continue;
@@ -154,7 +156,8 @@ void Service::readOutput() {
             QString textNumber = matchProgress.captured(1);
             int percentage = qRound(textNumber.toDouble());
             
-            QString currentPhase = (partCounter == 2) ? "Downloading audio..." : "Downloading...";
+            bool isAudioPart = (partCounter > 1);
+            QString currentPhase = isAudioPart ? "Downloading audio..." : "Downloading...";
             
             if (!matchProgress.captured(2).isEmpty()) {
                 double totalSize = matchProgress.captured(2).toDouble();
