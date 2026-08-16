@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "Service.h"
+#include "About.h"
 #include <qaction.h>
 #include <qcombobox.h>
 #include <qobject.h>
@@ -121,6 +122,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::setDownloadReadiness);
   connect(qualityBox, &QComboBox::editTextChanged, this,
           &MainWindow::setDownloadReadiness);
+  connect(conversionBox, &QComboBox::editTextChanged, this,
+          &MainWindow::setDownloadReadiness);
   connect(getEngineButton, &QPushButton::clicked, this,
           &MainWindow::getServiceSlot);
   connect(maintainer, &ServiceMaintainer::started, this,
@@ -142,7 +145,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::toggleQualityOptions);
   connect(audioButton, &QPushButton::clicked, this, 
           &MainWindow::toggleQualityOptions);
-          
+
+  connect(bothButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear();
+    conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"}); 
+});
+  connect(videoButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear();
+    conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"}); 
+});
+connect(audioButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear();
+    conversionBox->addItems({"Original", ".mp3", ".wav", ".flac", ".m4a"}); 
+});
 
   /* Service */
   downloadPhase = "";
@@ -186,8 +201,9 @@ void MainWindow::engineDownloaded(int exit) {
 void MainWindow::setDownloadReadiness() {
   // search quality in qualityBox
   bool validQuality = qualityBox->findText(qualityBox->currentText()) != -1;
+  bool validConversion = conversionBox->findText(conversionBox->currentText()) != -1;
 
-  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality) {
+  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality && validConversion) {
     downloadButton->setEnabled(true);
   } else {
     downloadButton->setEnabled(false);
