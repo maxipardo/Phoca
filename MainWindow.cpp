@@ -226,14 +226,22 @@ void MainWindow::startDownload() {
   QString link = linkBox->text();
   bool playlist = false;
   if (link.contains("list=") || link.contains("/playlist/") || link.contains("/album/")) {
-    QMessageBox::StandardButton answer;
-    answer = QMessageBox::question(this, "Playlist detected", 
-                                          "This link contains a playlist.\n¿Download the whole list?",
-                                          QMessageBox::Yes | QMessageBox::No);
+    QMessageBox msgBox(this);
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setWindowTitle("Playlist detected");
+    msgBox.setText("This link contains a playlist.\n¿Download the whole list?");
+    
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    msgBox.button(QMessageBox::Cancel)->hide();
+
+    int answer = msgBox.exec();
+
     if (answer == QMessageBox::Yes) {
       playlist = true;
-    } else {
+    } else if (answer == QMessageBox::No) {
       playlist = false;
+    } else {
+      return; 
     }
   }
 
