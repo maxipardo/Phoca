@@ -105,15 +105,17 @@ void Service::readOutput() {
     QRegularExpression regexExtract("^\\[(ExtractAudio|ffmpeg|Fixup[a-zA-Z0-9]+)\\]"); 
     QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
     
-    QRegularExpression regexPlaylist("^\\[download\\] Downloading (?:video|item) (\\d+ of \\d+)");
+    QRegularExpression regexPlaylist("^\\[download\\] Downloading (?:video|item) (\\d+) of (\\d+)");
 
     while (downloadProcess->canReadLine()) {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
 
-        // Check if has playlist info
+        // Format (1/50)
         QRegularExpressionMatch matchPlaylist = regexPlaylist.match(line);
         if (matchPlaylist.hasMatch()) {
-            playlistStatus = matchPlaylist.captured(1);
+            QString current = matchPlaylist.captured(1);
+            QString total = matchPlaylist.captured(2);
+            playlistStatus = QString("(%1/%2)").arg(current, total);
             continue;
         }
 
@@ -121,7 +123,6 @@ void Service::readOutput() {
         if (matchDestination.hasMatch()) {
             partCounter++;
 
-            // get title
             QString fullPath = matchDestination.captured(1);
             QString fileName = QFileInfo(fullPath).fileName();
             
@@ -134,8 +135,9 @@ void Service::readOutput() {
                 cleanTitle = fileName;
             }
 
+            // 2. Lo pegamos adelante del título
             if (!playlistStatus.isEmpty()) {
-                cleanTitle = QString("[%1] %2").arg(playlistStatus, cleanTitle);
+                cleanTitle = QString("%1 %2").arg(playlistStatus, cleanTitle);
             }
 
             emit titleUpdated(cleanTitle);
