@@ -4,6 +4,7 @@
 #include <qobject.h>
 #include <QSpacerItem>
 #include <QSizePolicy>
+#include <qpushbutton.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -121,7 +122,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::getServiceSlot);
   connect(chooseLocationAction, &QAction::triggered, this,
           &MainWindow::changeLocation);
-  connect(aboutAction, &QAction::triggered, this, &MainWindow::aboutPage);
+  connect(aboutAction, &QAction::triggered, this, 
+          &MainWindow::aboutPage);
+
+  connect(bothButton, &QPushButton::clicked, this, 
+          &MainWindow::toggleQualityOptions);
+  connect(videoButton, &QPushButton::clicked, this, 
+          &MainWindow::toggleQualityOptions);
+  connect(audioButton, &QPushButton::clicked, this, 
+          &MainWindow::toggleQualityOptions);
+          
 
   /* Service */
   downloadPhase = "";
@@ -249,4 +259,13 @@ void MainWindow::onTitleUpdated(QString title) {
 void MainWindow::aboutPage() {
   About aboutWindow(this);
   aboutWindow.exec();
+}
+
+void MainWindow::toggleQualityOptions() {
+  if (!audioButton->isChecked()) {
+    qualityBox->setEnabled(true);
+  } else {
+    qualityBox->setCurrentIndex(0);
+    qualityBox->setEnabled(false);
+  }
 }
