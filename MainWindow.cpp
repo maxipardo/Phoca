@@ -231,7 +231,7 @@ void MainWindow::startDownload() {
     QMessageBox msgBox(this);
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setWindowTitle("Playlist detected");
-    msgBox.setText("This link contains a playlist.\n¿Download the whole list?");
+    msgBox.setText("This link contains a playlist.\nDownload the whole list?");
     
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     msgBox.button(QMessageBox::Cancel)->hide();
@@ -246,7 +246,7 @@ void MainWindow::startDownload() {
       return; 
     }
   }
-
+  downloadButton->setEnabled(false);
   service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText(), conversionBox->currentText(), playlist, savePlaylistInFolder);
 
   titleLabel->hide();
@@ -274,6 +274,7 @@ void MainWindow::downloadFinished(int exit) {
                          QString::number(exit));
   }
   progressBar->hide();
+  downloadButton->setEnabled(true);
 }
 
 void MainWindow::downloadProcessFailed(QString error) {
