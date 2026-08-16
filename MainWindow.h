@@ -63,6 +63,7 @@ private:
 private slots:
     void getServiceSlot();
     void setDownloadReadiness(); // Updates downloadButton status
+    void toggleQualityOptions();
     void engineDownloading();
     void engineDownloaded(int exit);
     void changeLocation();
