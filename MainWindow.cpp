@@ -25,8 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   audioButton = new QRadioButton("Audio", centralWidget);
 
   /* MainWindow size */
-  this->resize(500, 100);
-  this->setMinimumWidth(400);
+  this->resize(465, 100);
 
   /* Download location */
   QSettings settings("MaximoPardo", "Phoca");
@@ -111,6 +110,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   this->setWindowTitle("Phoca");
   setCentralWidget(centralWidget);
+  this->layout->setSizeConstraint(QLayout::SetMinimumSize);
 
   connect(linkBox, &QLineEdit::textChanged, this,
           &MainWindow::setDownloadReadiness);
