@@ -13,6 +13,9 @@
 #include <QProgressBar>
 #include <QStatusBar>
 #include <QSettings>
+#include <QComboBox>
+#include <QSpacerItem>
+#include <QSizePolicy>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -45,6 +48,9 @@ private:
     QRadioButton *videoButton;
     QRadioButton *audioButton;
 
+    QComboBox *qualityBox;
+    QComboBox *conversionBox;
+
     QAction *chooseLocationAction;
     QAction *chooseNightlyAction;
     QAction *chooseStableAction;
@@ -59,6 +65,7 @@ private:
 private slots:
     void getServiceSlot();
     void setDownloadReadiness(); // Updates downloadButton status
+    void toggleQualityOptions();
     void engineDownloading();
     void engineDownloaded(int exit);
     void changeLocation();

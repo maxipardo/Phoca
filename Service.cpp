@@ -4,31 +4,64 @@
 Service::Service(QObject *parent) {
     downloadProcess = new QProcess(this);
 
+    downloadProcess->setProcessChannelMode(QProcess::MergedChannels);
+
     /* Connections */
     connect(downloadProcess, &QProcess::started, this, &Service::downloadStarted);
     connect(downloadProcess, &QProcess::finished, this, &Service::onProcessFinish);
     connect(downloadProcess, &QProcess::errorOccurred, this, &Service::downloadFailed);
     
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
-};
+}
 
-void Service::startDownload(QString link, QString location, int format) {
+void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath = location + "/%(title)s.%(ext)s";
     
+    QString appPath = QCoreApplication::applicationDirPath();
+    QString ffmpegPath = appPath + "/bin"; 
+    
     arguments << "--newline" << "--no-colors" << "-o" << outputPath;
+    
+    arguments << "--ffmpeg-location" << ffmpegPath;
+
+    QString videoFilter = "bv*"; 
+    
+    if (quality != "Best" && !quality.isEmpty()) {
+        QString height = quality;
+        height.remove("p");
+        videoFilter = "bv*[height<=" + height + "]";
+    }
 
     switch (format) {
         case 0: // both
-            arguments << "-f" << "bestvideo+bestaudio/best";
+            arguments << "-f" << videoFilter + "+ba/b";
             break;
+            
         case 1: // video only
-            arguments << "-f" << "bestvideo";
+            arguments << "-f" << videoFilter;
             break;
+            
         case 2: // audio only
-            arguments << "-x" << "--audio-format" << "mp3";
+            arguments << "-x"; 
+            
+            if (conversion != "Original" && !conversion.isEmpty()) {
+                QString targetFormat = conversion;
+                targetFormat.remove(".");
+                
+                arguments << "--audio-format" << targetFormat;
+            }
             break;
+    }
+
+    if (conversion != "Original" && !conversion.isEmpty() && format != 2) {
+        
+        QString targetFormat = conversion;
+        targetFormat.remove("."); 
+
+        arguments << "--merge-output-format" << targetFormat;
+        arguments << "--remux-video" << targetFormat;
     }
 
     arguments << link;
@@ -40,8 +73,8 @@ void Service::startDownload(QString link, QString location, int format) {
 void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
     if (exitCode == 0) {
         emit downloadFinished(0);
-    } else if (exitCode == 1) {
-        emit downloadFinished(1);
+    } else {
+        emit downloadFinished(exitCode);
     }
 }
 
@@ -57,6 +90,8 @@ void Service::readOutput() {
     QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
     QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%");
     QRegularExpression regexMerger("^\\[Merger\\]");
+    
+    QRegularExpression regexExtract("^\\[(ExtractAudio|ffmpeg|Fixup[a-zA-Z0-9]+)\\]"); 
     
     QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
 
@@ -96,12 +131,10 @@ void Service::readOutput() {
             int percentage = qRound(textNumber.toDouble());
             
             emit percentageUpdated(percentage);
-            continue;
-        }
-
-        QRegularExpressionMatch matchMerger = regexMerger.match(line);
-        if (matchMerger.hasMatch()) {
-            emit phaseUpdated("Merging formats...");
+            
+            if (percentage == 100) {
+                emit phaseUpdated("Processing...");
+            }
             continue;
         }
     }
