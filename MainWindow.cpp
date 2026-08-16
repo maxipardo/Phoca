@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "Service.h"
 #include "About.h"
+#include <qmessagebox.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -222,8 +223,21 @@ void MainWindow::startDownload() {
   } else if (audioButton->isChecked()) {
     format = 2;
   }
+  QString link = linkBox->text();
+  bool playlist = false;
+  if (link.contains("list=") || link.contains("/playlist/") || link.contains("/album/")) {
+    QMessageBox::StandardButton answer;
+    answer = QMessageBox::question(this, "Playlist detected", 
+                                          "This link contains a playlist.\n¿Download the whole list?",
+                                          QMessageBox::Yes | QMessageBox::No);
+    if (answer == QMessageBox::Yes) {
+      playlist = true;
+    } else {
+      playlist = false;
+    }
+  }
 
-  service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText(), conversionBox->currentText());
+  service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText(), conversionBox->currentText(), playlist);
 
   titleLabel->hide();
 }

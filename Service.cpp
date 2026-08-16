@@ -14,16 +14,21 @@ Service::Service(QObject *parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 }
 
-void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion) {
+void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath = location + "/%(title)s.%(ext)s";
     
+    if (playlist) {
+        arguments << "--yes-playlist";
+    } else {
+        arguments << "--no-playlist";
+    }
+
     QString appPath = QCoreApplication::applicationDirPath();
     QString ffmpegPath = appPath + "/bin"; 
     
     arguments << "--newline" << "--no-colors" << "-o" << outputPath;
-    
     arguments << "--ffmpeg-location" << ffmpegPath;
 
     QString videoFilter = "bv*"; 
