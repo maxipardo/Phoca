@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 #include "Service.h"
-#include <qaction.h>
-#include <qobject.h>
+#include "About.h"
 #include <QSpacerItem>
 #include <QSizePolicy>
 
@@ -81,18 +80,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   setCentralWidget(centralWidget);
 
   /* Download location */
-  QFile file("config.txt");
-
-  if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QTextStream entrada(&file);
-    downloadLocation = entrada.readAll().trimmed();
-    file.close();
-    qDebug() << "Download location found:" << downloadLocation;
-  } else {
-    downloadLocation =
-        QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
-    qDebug() << "file not found. Using: " << downloadLocation;
-  }
+  QSettings settings("MaximoPardo", "Phoca");
+  downloadLocation = settings.value("downloadLocation", QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).toString();
 
   connect(linkBox, &QLineEdit::textChanged, this,
           &MainWindow::setDownloadReadiness);
@@ -167,20 +156,13 @@ void MainWindow::changeLocation() {
   downloadLocation = QFileDialog::getExistingDirectory(
       this, "Choose where to save files", QDir::homePath(),
       QFileDialog::ShowDirsOnly);
+
   if (!downloadLocation.isEmpty()) {
-    QFile file("config.txt");
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    QSettings settings("MaximoPardo", "Phoca");
+    
+    settings.setValue("downloadLocation", downloadLocation);
 
-      QTextStream salida(&file);
-      salida << downloadLocation;
-      file.close();
-      qDebug() << "Settings saved.";
-
-    } else {
-      qDebug() << "Error: Couldn't create settings file.";
-    }
-
-    qDebug() << "Chosen folder:" << downloadLocation;
+    qDebug() << "Settings saved. Chosen folder:" << downloadLocation;
     this->statusBar()->showMessage("Download location: " + downloadLocation);
   }
 }
