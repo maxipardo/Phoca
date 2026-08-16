@@ -85,22 +85,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   qualityBox = new QComboBox(this);
   qualityBox->setEditable(true);
   qualityBox->setInsertPolicy(QComboBox::NoInsert);
-  qualityBox->addItem("Best");
-  qualityBox->addItem("2160p");
-  qualityBox->addItem("1440p");
-  qualityBox->addItem("1080p");
-  qualityBox->addItem("720p");
-  qualityBox->addItem("480p");
+  qualityBox->addItems({"Best", "2160p", "1440p", "1080p", "720p", "480p"});
   optionsLayout->addWidget(qualityBox);
 
   conversionBox = new QComboBox(this);
   conversionBox->setEditable(true);
   conversionBox->setInsertPolicy(QComboBox::NoInsert);
-  conversionBox->addItem("Original");
-  conversionBox->addItem(".mp4");
-  conversionBox->addItem(".mkv");
-  conversionBox->addItem(".avi");
-  conversionBox->addItem(".webm");
+  conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"});
   optionsLayout->addWidget(conversionBox);
 
   QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
