@@ -100,7 +100,7 @@ void Service::downloadFailed(QProcess::ProcessError error) {
 
 void Service::readOutput() {
     QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
-    QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%");
+    QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%(?:\\s+of\\s+~?\\s*([0-9.]+)([a-zA-Z]+))?");
     QRegularExpression regexMerger("^\\[Merger\\]");
     QRegularExpression regexExtract("^\\[(ExtractAudio|ffmpeg|Fixup[a-zA-Z0-9]+)\\]"); 
     QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
@@ -135,7 +135,6 @@ void Service::readOutput() {
                 cleanTitle = fileName;
             }
 
-            // 2. Lo pegamos adelante del título
             if (!playlistStatus.isEmpty()) {
                 cleanTitle = QString("%1 %2").arg(playlistStatus, cleanTitle);
             }
@@ -155,6 +154,23 @@ void Service::readOutput() {
             QString textNumber = matchProgress.captured(1);
             int percentage = qRound(textNumber.toDouble());
             
+            QString currentPhase = (partCounter == 2) ? "Downloading audio..." : "Downloading...";
+            
+            if (!matchProgress.captured(2).isEmpty()) {
+                double totalSize = matchProgress.captured(2).toDouble();
+                QString unit = matchProgress.captured(3); 
+                
+                double downloaded = (textNumber.toDouble() / 100.0) * totalSize;
+                
+                QString strDownloaded = QString::number(downloaded, 'f', 2);
+                QString strTotal = matchProgress.captured(2); 
+                
+                QString statsText = QString("(%1 %2 / %3 %2)").arg(strDownloaded, unit, strTotal);
+                emit phaseUpdated(currentPhase + " " + statsText);
+            } else {
+                emit phaseUpdated(currentPhase);
+            }
+
             emit percentageUpdated(percentage);
             
             if (percentage == 100) {
