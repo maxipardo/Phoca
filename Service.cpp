@@ -18,6 +18,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath;
+    playlistStatus = "";
     
     if (playlist) {
         arguments << "--yes-playlist";
@@ -101,13 +102,20 @@ void Service::readOutput() {
     QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
     QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%");
     QRegularExpression regexMerger("^\\[Merger\\]");
-    
     QRegularExpression regexExtract("^\\[(ExtractAudio|ffmpeg|Fixup[a-zA-Z0-9]+)\\]"); 
-    
     QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
+    
+    QRegularExpression regexPlaylist("^\\[download\\] Downloading (?:video|item) (\\d+ of \\d+)");
 
     while (downloadProcess->canReadLine()) {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
+
+        // Check if has playlist info
+        QRegularExpressionMatch matchPlaylist = regexPlaylist.match(line);
+        if (matchPlaylist.hasMatch()) {
+            playlistStatus = matchPlaylist.captured(1);
+            continue;
+        }
 
         QRegularExpressionMatch matchDestination = regexDestination.match(line);
         if (matchDestination.hasMatch()) {
@@ -124,6 +132,10 @@ void Service::readOutput() {
                 cleanTitle = matchTitle.captured(1);
             } else {
                 cleanTitle = fileName;
+            }
+
+            if (!playlistStatus.isEmpty()) {
+                cleanTitle = QString("[%1] %2").arg(playlistStatus, cleanTitle);
             }
 
             emit titleUpdated(cleanTitle);

@@ -16,6 +16,7 @@ public:
 private:
     QProcess *downloadProcess;
     int partCounter;
+    QString playlistStatus;
 private slots:
     void onProcessFinish(int exitCode, QProcess::ExitStatus status);
     void downloadFailed(QProcess::ProcessError error);
