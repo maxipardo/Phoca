@@ -1,7 +1,6 @@
 #pragma once
 #include "ServiceMaintainer.h"
 #include "Service.h"
-#include "About.h"
 #include <QMainWindow>
 #include <QVBoxLayout>
 #include <QLineEdit>
