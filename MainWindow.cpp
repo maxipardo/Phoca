@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   audioButton = new QRadioButton("Audio", centralWidget);
 
   /* MainWindow size */
-  this->resize(465, 100);
+  this->resize(462, 100);
 
   /* Download location */
   QSettings settings("MaximoPardo", "Phoca");
