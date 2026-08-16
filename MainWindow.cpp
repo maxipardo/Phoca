@@ -237,6 +237,9 @@ void MainWindow::startDownload() {
 
 void MainWindow::downloadStarted() {
   statusLabel->setText("Download started");
+  if (progressBar->maximum() == 0) {
+        progressBar->setRange(0, 100);
+    }
   progressBar->setValue(0);
   progressBar->show();
 }
@@ -261,7 +264,16 @@ void MainWindow::downloadProcessFailed(QString error) {
   progressBar->hide();
 }
 
-void MainWindow::downloadPhaseUpdated(QString phase) { downloadPhase = phase; }
+void MainWindow::downloadPhaseUpdated(QString phase) {
+    downloadPhase = phase; // O el nombre que tenga tu QLabel
+
+    // Si entramos en las phases de post-procesamiento...
+    if (phase == "Processing..." || phase == "Converting to MP3..." || phase == "Merging formats...") {
+        progressBar->setRange(0, 0); // ¡Modo vaivén activado!
+    } else {
+        progressBar->setRange(0, 100); // Modo normal
+    }
+}
 
 void MainWindow::onTitleUpdated(QString title) {
   this->statusBar()->showMessage(title.toUpper());

@@ -4,20 +4,27 @@
 Service::Service(QObject *parent) {
     downloadProcess = new QProcess(this);
 
+    downloadProcess->setProcessChannelMode(QProcess::MergedChannels);
+
     /* Connections */
     connect(downloadProcess, &QProcess::started, this, &Service::downloadStarted);
     connect(downloadProcess, &QProcess::finished, this, &Service::onProcessFinish);
     connect(downloadProcess, &QProcess::errorOccurred, this, &Service::downloadFailed);
     
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
-};
+}
 
 void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath = location + "/%(title)s.%(ext)s";
     
+    QString appPath = QCoreApplication::applicationDirPath();
+    QString ffmpegPath = appPath + "/bin"; 
+    
     arguments << "--newline" << "--no-colors" << "-o" << outputPath;
+    
+    arguments << "--ffmpeg-location" << ffmpegPath;
 
     QString videoFilter = "bv*"; 
     
@@ -37,7 +44,14 @@ void Service::startDownload(QString link, QString location, int format, QString 
             break;
             
         case 2: // audio only
-            arguments << "-x" << "--audio-format" << "mp3";
+            arguments << "-x"; 
+            
+            if (conversion != "Original" && !conversion.isEmpty()) {
+                QString targetFormat = conversion;
+                targetFormat.remove("."); // Limpiamos por si tu menú manda ".mp3" o "mp3"
+                
+                arguments << "--audio-format" << targetFormat;
+            }
             break;
     }
 
@@ -59,8 +73,8 @@ void Service::startDownload(QString link, QString location, int format, QString 
 void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
     if (exitCode == 0) {
         emit downloadFinished(0);
-    } else if (exitCode == 1) {
-        emit downloadFinished(1);
+    } else {
+        emit downloadFinished(exitCode);
     }
 }
 
@@ -76,6 +90,9 @@ void Service::readOutput() {
     QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
     QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%");
     QRegularExpression regexMerger("^\\[Merger\\]");
+    
+    // Ampliamos la red para atrapar cualquier etiqueta que yt-dlp use al convertir
+    QRegularExpression regexExtract("^\\[(ExtractAudio|ffmpeg|Fixup[a-zA-Z0-9]+)\\]"); 
     
     QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
 
@@ -115,12 +132,10 @@ void Service::readOutput() {
             int percentage = qRound(textNumber.toDouble());
             
             emit percentageUpdated(percentage);
-            continue;
-        }
-
-        QRegularExpressionMatch matchMerger = regexMerger.match(line);
-        if (matchMerger.hasMatch()) {
-            emit phaseUpdated("Merging formats...");
+            
+            if (percentage == 100) {
+                emit phaseUpdated("Processing...");
+            }
             continue;
         }
     }

@@ -6,6 +6,7 @@
 #include <QStringList>
 #include <QRegularExpression>
 #include <QFileInfo>
+#include <QCoreApplication>
 
 class Service : public QObject {
 Q_OBJECT
