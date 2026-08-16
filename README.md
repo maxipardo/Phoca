@@ -37,12 +37,12 @@ make -j$(nproc)
 <tr>
   <td style="vertical-align: middle; text-align: center;">
     <p align="center">
-      <img src="https://github.com/user-attachments/assets/c86d8f9f-7fa5-4bee-8245-e01c3e564c40" width="350" />
+      <img src="https://github.com/user-attachments/assets/0e7692b9-3be2-4483-9259-c3ddb239dd10" width="550" />
     </p>
   </td>
   <td style="vertical-align: middle; text-align: center;">
     <p align="center">
-      <img src="https://github.com/user-attachments/assets/e83062ec-5f9b-4de9-94fb-60d511c6993d" width="350" />
+      <img src="https://github.com/user-attachments/assets/76ab05bd-b78e-45f4-ac17-eb201b05d547" width="550" />
     </p>
   </td>
 </tr>
