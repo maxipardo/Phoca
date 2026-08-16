@@ -14,14 +14,18 @@ Service::Service(QObject *parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 }
 
-void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist) {
+void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath;
     
     if (playlist) {
         arguments << "--yes-playlist";
-        outputPath = location + "/%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s";
+        if (savePlaylistInFolder) {
+            outputPath = location + "/%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s";
+        } else {
+            outputPath = location + "/%(title)s.%(ext)s";
+        }
     } else {
         arguments << "--no-playlist";
         outputPath = location + "/%(title)s.%(ext)s";
