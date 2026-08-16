@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "Service.h"
 #include <qaction.h>
+#include <qcombobox.h>
 #include <qobject.h>
 #include <QSpacerItem>
 #include <QSizePolicy>
@@ -83,6 +84,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   qualityBox->addItem("720p");
   qualityBox->addItem("480p");
   optionsLayout->addWidget(qualityBox);
+
+  conversionBox = new QComboBox(this);
+  conversionBox->setEditable(true);
+  conversionBox->setInsertPolicy(QComboBox::NoInsert);
+  conversionBox->addItem("Original");
+  conversionBox->addItem(".mp4");
+  conversionBox->addItem(".mkv");
+  conversionBox->addItem(".avi");
+  conversionBox->addItem(".webm");
+  optionsLayout->addWidget(conversionBox);
 
   QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
   optionsLayout->addItem(spacer);
@@ -218,9 +229,9 @@ void MainWindow::startDownload() {
   } else if (audioButton->isChecked()) {
     format = 2;
   }
-  if (qualityBox->currentIndex() == -1) {
-    service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText());
-  }
+
+  service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText(), conversionBox->currentText());
+
   titleLabel->hide();
 }
 

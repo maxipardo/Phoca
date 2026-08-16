@@ -12,7 +12,7 @@ Service::Service(QObject *parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 };
 
-void Service::startDownload(QString link, QString location, int format, QString quality) {
+void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath = location + "/%(title)s.%(ext)s";
@@ -28,17 +28,26 @@ void Service::startDownload(QString link, QString location, int format, QString 
     }
 
     switch (format) {
-        case 0: // both (Video + Audio)
+        case 0: // both
             arguments << "-f" << videoFilter + "+ba/b";
             break;
             
-        case 1: // video only (Video mudo)
+        case 1: // video only
             arguments << "-f" << videoFilter;
             break;
             
         case 2: // audio only
             arguments << "-x" << "--audio-format" << "mp3";
             break;
+    }
+
+    if (conversion != "Original" && !conversion.isEmpty() && format != 2) {
+        
+        QString targetFormat = conversion;
+        targetFormat.remove("."); 
+
+        arguments << "--merge-output-format" << targetFormat;
+        arguments << "--remux-video" << targetFormat;
     }
 
     arguments << link;

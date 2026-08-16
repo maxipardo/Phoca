@@ -48,6 +48,7 @@ private:
     QRadioButton *audioButton;
 
     QComboBox *qualityBox;
+    QComboBox *conversionBox;
 
     QAction *chooseLocationAction;
     QAction *chooseNightlyAction;
