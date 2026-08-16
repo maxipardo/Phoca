@@ -142,7 +142,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::toggleQualityOptions);
   connect(audioButton, &QPushButton::clicked, this, 
           &MainWindow::toggleQualityOptions);
-          
+
+  connect(bothButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear(); // 1. Limpiamos la lista por completo
+    // 2. Le inyectamos de una todos los formatos de video
+    conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"}); 
+});
+  connect(videoButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear(); // 1. Limpiamos la lista por completo
+    // 2. Le inyectamos de una todos los formatos de video
+    conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"}); 
+});
+connect(audioButton, &QRadioButton::clicked, this, [this]() {
+    conversionBox->clear(); // 1. Limpiamos
+    // 2. Le inyectamos solo los formatos de música
+    conversionBox->addItems({"Original", ".mp3", ".wav", ".flac", ".m4a"}); 
+});
 
   /* Service */
   downloadPhase = "";
