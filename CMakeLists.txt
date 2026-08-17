@@ -10,7 +10,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 COMPONENTS Widgets Core Network REQUIRED)
+find_package(Qt6 COMPONENTS Widgets Core Network LinguistTools REQUIRED)
+
 
 add_executable(phoca
     WIN32
@@ -30,5 +31,7 @@ if(WIN32)
     target_sources(phoca PRIVATE icon.rc)
 endif()
 
-# Enlazamos las librerías de Qt al ejecutable
 target_link_libraries(phoca PRIVATE Qt6::Widgets Qt6::Core Qt6::Network)
+
+set(TS_FILES i18n/phoca_es.ts)
+qt_add_translations(phoca TS_FILES ${TS_FILES})

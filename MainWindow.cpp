@@ -32,18 +32,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   savePlaylistInFolder = settings.value("savePlaylistInFolder", true).toBool();
 
   /* Menu */
-  optionsMenu = new QMenu("Options", this);
-  aboutAction = new QAction("About", this);
-  buildMenu = new QMenu("Choose yt-dlp version", optionsMenu);
+  optionsMenu = new QMenu(tr("Options"), this);
+  aboutAction = new QAction(tr("About"), this);
+  buildMenu = new QMenu(tr("Choose yt-dlp version"), optionsMenu);
   menuBar()->addMenu(optionsMenu);
   optionsMenu->addMenu(buildMenu);
   menuBar()->addAction(aboutAction);
 
-  chooseLocationAction = new QAction("Change download location...", this);
-  chooseNightlyAction = new QAction("Use yt-dlp nightly (recommended)", this);
-  chooseStableAction = new QAction("Use yt-dlp stable", this);
+  chooseLocationAction = new QAction(tr("Change download location..."), this);
+  chooseNightlyAction = new QAction(tr("Use yt-dlp nightly (recommended)"), this);
+  chooseStableAction = new QAction(tr("Use yt-dlp stable"), this);
   versionGroup = new QActionGroup(this);
-  savePlaylistInFolderAction = new QAction("Save playlists in folder", this);
+  savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
 
   savePlaylistInFolderAction->setCheckable(true);
   savePlaylistInFolderAction->setChecked(savePlaylistInFolder);
@@ -58,11 +58,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   buildMenu->addAction(chooseNightlyAction);
   buildMenu->addAction(chooseStableAction);
 
-  linkBox->setPlaceholderText("Enter link...");
-  downloadButton->setText("Download");
+  linkBox->setPlaceholderText(tr("Enter link..."));
+  downloadButton->setText(tr("Download"));
   downloadButton->setEnabled(false);
 
-  getEngineButton->setText("Update yt-dlp");
+  getEngineButton->setText(tr("Update yt-dlp"));
   
   layout->addLayout(linkLayout);
   linkLayout->addWidget(linkBox);
@@ -82,13 +82,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   qualityBox = new QComboBox(this);
   qualityBox->setEditable(true);
   qualityBox->setInsertPolicy(QComboBox::NoInsert);
-  qualityBox->addItems({"Best", "2160p", "1440p", "1080p", "720p", "480p"});
+  qualityBox->addItems({tr("Best"), "2160p", "1440p", "1080p", "720p", "480p"});
   optionsLayout->addWidget(qualityBox);
 
   conversionBox = new QComboBox(this);
   conversionBox->setEditable(true);
   conversionBox->setInsertPolicy(QComboBox::NoInsert);
-  conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"});
+  conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"});
   optionsLayout->addWidget(conversionBox);
 
   QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -129,15 +129,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   connect(bothButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->clear();
-    conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"}); 
+    conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
 });
   connect(videoButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->clear();
-    conversionBox->addItems({"Original", ".mp4", ".mkv", ".webm"}); 
+    conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
 });
 connect(audioButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->clear();
-    conversionBox->addItems({"Original", ".mp3", ".wav", ".flac", ".m4a"}); 
+    conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
 });
 
 connect(savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::changeSavePlaylistInFolder);
@@ -161,7 +161,7 @@ connect(savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::chan
   connect(service, &Service::titleUpdated, this, 
           &MainWindow::onTitleUpdated);
 
-  this->statusBar()->showMessage("Download location: " + downloadLocation);
+  this->statusBar()->showMessage(tr("Download location: %1").arg(downloadLocation));
   this->adjustSize();
 }
 
@@ -170,13 +170,13 @@ void MainWindow::engineDownloading() { statusLabel->setText("Downloading..."); }
 void MainWindow::engineDownloaded(int exit) {
   switch (exit) {
   case 0:
-    statusLabel->setText("yt-dlp downloaded successfully");
+    statusLabel->setText(tr("yt-dlp downloaded successfully"));
     break;
   case 1:
-    statusLabel->setText("Download failed: Network error");
+    statusLabel->setText(tr("Download failed: Network error"));
     break;
   case 2:
-    statusLabel->setText("Download failed: Need permissions to write");
+    statusLabel->setText(tr("Download failed: Need permissions to write"));
     break;
   }
   setDownloadReadiness();
@@ -202,7 +202,7 @@ void MainWindow::getServiceSlot() {
 
 void MainWindow::changeLocation() {
   downloadLocation = QFileDialog::getExistingDirectory(
-      this, "Choose where to save files", QDir::homePath(),
+      this, tr("Choose where to save files"), QDir::homePath(),
       QFileDialog::ShowDirsOnly);
 
   if (!downloadLocation.isEmpty()) {
@@ -211,7 +211,7 @@ void MainWindow::changeLocation() {
     settings.setValue("downloadLocation", downloadLocation);
 
     qDebug() << "Settings saved. Chosen folder:" << downloadLocation;
-    this->statusBar()->showMessage("Download location: " + downloadLocation);
+    this->statusBar()->showMessage(tr("Download location: %1").arg(downloadLocation));
   }
 }
 
@@ -227,8 +227,8 @@ void MainWindow::startDownload() {
   if (link.contains("list=") || link.contains("/playlist/") || link.contains("/album/")) {
     QMessageBox msgBox(this);
     msgBox.setIcon(QMessageBox::Question);
-    msgBox.setWindowTitle("Playlist detected");
-    msgBox.setText("This link contains a playlist.\nDownload the whole list?");
+    msgBox.setWindowTitle(tr("Playlist detected"));
+    msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?"));
     
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     msgBox.button(QMessageBox::Cancel)->hide();
@@ -250,7 +250,7 @@ void MainWindow::startDownload() {
 }
 
 void MainWindow::downloadStarted() {
-  statusLabel->setText("Download started");
+  statusLabel->setText(tr("Download started"));
   if (progressBar->maximum() == 0) {
         progressBar->setRange(0, 100);
     }
@@ -270,10 +270,9 @@ void MainWindow::downloadProgress(int percentage) { // Percentage updated
 
 void MainWindow::downloadFinished(int exit) {
   if (exit == 0) {
-    statusLabel->setText("Download finished successfully at: " + downloadLocation);
+    statusLabel->setText(tr("Download finished successfully at: %1").arg(downloadLocation));
   } else if (exit == 1) {
-    statusLabel->setText("Download failed, error code: " +
-                         QString::number(exit));
+    statusLabel->setText(tr("Download failed, error code: %1").arg(QString::number(exit)));
   }
   progressBar->hide();
   downloadButton->setEnabled(true);
@@ -287,7 +286,7 @@ void MainWindow::downloadProcessFailed(QString error) {
 void MainWindow::downloadPhaseUpdated(QString phase) {
     downloadPhase = phase;
 
-    if (phase == "Processing...") {
+    if (phase == tr("Processing...")) {
         progressBar->setRange(0, 0);
     } else {
         progressBar->setRange(0, 100);

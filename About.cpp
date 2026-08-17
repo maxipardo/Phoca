@@ -9,12 +9,11 @@
 #include <QMessageBox>
 
 About::About(QWidget *parent) : QDialog(parent) {
-    this->setWindowTitle("About Phoca");
+    this->setWindowTitle(tr("About Phoca"));
     this->resize(300, 300);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     
-    // Lo instanciamos sin padre, el layout principal lo adopta después
     QHBoxLayout *sourceLayout = new QHBoxLayout(); 
     layout->setAlignment(Qt::AlignCenter);
 
@@ -26,14 +25,14 @@ About::About(QWidget *parent) : QDialog(parent) {
     QLabel *title = new QLabel("<h2>Phoca</h2>", this);
     title->setAlignment(Qt::AlignCenter);
 
-    QLabel *description = new QLabel("Download any video/audio through yt-dlp.", this);
+    QLabel *description = new QLabel(tr("Download any video/audio through yt-dlp."), this);
     description->setAlignment(Qt::AlignCenter);
 
     QLabel *author = new QLabel("<br><b>Máximo Pardo</b>", this);
     author->setAlignment(Qt::AlignCenter);
 
-    QPushButton *repoButton = new QPushButton("Source on GitHub", this);
-    QPushButton *licensesButton = new QPushButton("Licenses", this);
+    QPushButton *repoButton = new QPushButton(tr("Source on GitHub"), this);
+    QPushButton *licensesButton = new QPushButton(tr("Licenses"), this);
     layout->addStretch();
     layout->addWidget(icon);
     layout->addStretch();
