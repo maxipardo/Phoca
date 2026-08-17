@@ -15,7 +15,7 @@ sudo apt update
 sudo apt install build-essential cmake qt6-base-dev ffmpeg
 curl -fsSL https://deno.land/install.sh | sh
 ```
-**Compilación:**
+**Compiling:**
 ```bash
 git clone https://github.com/maxipardo/Phoca.git
 cd Phoca
