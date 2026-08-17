@@ -27,6 +27,21 @@
 <context>
     <name>MainWindow</name>
     <message>
+        <location filename="../MainWindow.cpp" line="20"/>
+        <source>Both</source>
+        <translation>Ambos</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="21"/>
+        <source>Video</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="22"/>
+        <source>Audio</source>
+        <translation>Audio</translation>
+    </message>
+    <message>
         <location filename="../MainWindow.cpp" line="35"/>
         <source>Options</source>
         <translation>Opciones</translation>
@@ -44,7 +59,7 @@
     <message>
         <location filename="../MainWindow.cpp" line="42"/>
         <source>Change download location...</source>
-        <translation>Cambiar ubicación de descarga...</translation>
+        <translation>Cambiar carpeta de destino...</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="43"/>
@@ -64,7 +79,7 @@
     <message>
         <location filename="../MainWindow.cpp" line="61"/>
         <source>Enter link...</source>
-        <translation>Insertar enlace...</translation>
+        <translation>Ingresar enlace...</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="62"/>
@@ -79,7 +94,7 @@
     <message>
         <location filename="../MainWindow.cpp" line="85"/>
         <source>Best</source>
-        <translation>La mejor</translation>
+        <translation>Máxima</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="91"/>
@@ -94,6 +109,11 @@
         <location filename="../MainWindow.cpp" line="214"/>
         <source>Download location: %1</source>
         <translation>Ubicación de descarga: %1</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="168"/>
+        <source>Downloading...</source>
+        <translation>Descargando...</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="173"/>
@@ -124,7 +144,8 @@
         <location filename="../MainWindow.cpp" line="231"/>
         <source>This link contains a playlist.
 Download the whole list?</source>
-        <translation>Este enlace contiene una lista. Descargar la lista entera?</translation>
+        <translation>Este enlace contiene una lista.
+¿Descargar la lista entera?</translation>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="253"/>
@@ -143,6 +164,47 @@ Download the whole list?</source>
     </message>
     <message>
         <location filename="../MainWindow.cpp" line="289"/>
+        <source>Processing...</source>
+        <translation>Procesando...</translation>
+    </message>
+</context>
+<context>
+    <name>Service</name>
+    <message>
+        <location filename="../Service.cpp" line="43"/>
+        <source>Best</source>
+        <translation>Máxima</translation>
+    </message>
+    <message>
+        <location filename="../Service.cpp" line="61"/>
+        <location filename="../Service.cpp" line="70"/>
+        <source>Original</source>
+        <translation>Original</translation>
+    </message>
+    <message>
+        <location filename="../Service.cpp" line="95"/>
+        <source>Couldn&apos;t find yt-dlp</source>
+        <translation>No se encontró yt-dlp</translation>
+    </message>
+    <message>
+        <location filename="../Service.cpp" line="97"/>
+        <source>Unexpected error</source>
+        <translation>Error inesperado</translation>
+    </message>
+    <message>
+        <location filename="../Service.cpp" line="147"/>
+        <location filename="../Service.cpp" line="160"/>
+        <source>Downloading...</source>
+        <translation>Descargando...</translation>
+    </message>
+    <message>
+        <location filename="../Service.cpp" line="149"/>
+        <location filename="../Service.cpp" line="160"/>
+        <source>Downloading audio...</source>
+        <translation>Descargando audio...</translation>
+    </message>
+    <message>
+        <location filename="../Service.cpp" line="180"/>
         <source>Processing...</source>
         <translation>Procesando...</translation>
     </message>
