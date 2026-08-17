@@ -187,7 +187,7 @@ void MainWindow::setDownloadReadiness() {
   bool validQuality = qualityBox->findText(qualityBox->currentText()) != -1;
   bool validConversion = conversionBox->findText(conversionBox->currentText()) != -1;
 
-  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality && validConversion) {
+  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality && validConversion && progressBar->isHidden()) { // TEMPORAL SOLUTION, BEFORE MULTIPLE DOWNLOADS SUPPORT
     downloadButton->setEnabled(true);
   } else {
     downloadButton->setEnabled(false);
