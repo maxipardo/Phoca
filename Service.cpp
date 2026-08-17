@@ -40,7 +40,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
 
     QString videoFilter = "bv*"; 
     
-    if (quality != "Best" && !quality.isEmpty()) {
+    if (quality != tr("Best") && !quality.isEmpty()) {
         QString height = quality;
         height.remove("p");
         videoFilter = "bv*[height<=" + height + "]";
@@ -58,7 +58,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
         case 2: // audio only
             arguments << "-x"; 
             
-            if (conversion != "Original" && !conversion.isEmpty()) {
+            if (conversion != tr("Original") && !conversion.isEmpty()) {
                 QString targetFormat = conversion;
                 targetFormat.remove(".");
                 
@@ -67,7 +67,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
             break;
     }
 
-    if (conversion != "Original" && !conversion.isEmpty() && format != 2) {
+    if (conversion != tr("Original") && !conversion.isEmpty() && format != 2) {
         
         QString targetFormat = conversion;
         targetFormat.remove("."); 
@@ -92,9 +92,9 @@ void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
 
 void Service::downloadFailed(QProcess::ProcessError error) {
     if (error == QProcess::FailedToStart) {
-        emit processFailed("Couldn't find yt-dlp");
+        emit processFailed(tr("Couldn't find yt-dlp"));
     } else {
-        emit processFailed("Unexpected error");
+        emit processFailed(tr("Unexpected error"));
     }
 }
 
@@ -109,7 +109,10 @@ void Service::readOutput() {
 
     while (downloadProcess->canReadLine()) {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
-
+        if (line.startsWith("ERROR:")) {
+            qDebug() << "yt-dlp [ERROR]:" << line;
+            emit processFailed(line); // Opcional: para que se vea en el statusLabel
+        }
         // Format (1/50)
         QRegularExpressionMatch matchPlaylist = regexPlaylist.match(line);
         if (matchPlaylist.hasMatch()) {
@@ -144,9 +147,9 @@ void Service::readOutput() {
             emit titleUpdated(cleanTitle);
 
             if (partCounter == 1) {
-                emit phaseUpdated("Downloading...");
+                emit phaseUpdated(tr("Downloading..."));
             } else if (partCounter > 1) {
-                emit phaseUpdated("Downloading audio...");
+                emit phaseUpdated(tr("Downloading audio..."));
             }
             continue;
         }
@@ -157,7 +160,7 @@ void Service::readOutput() {
             int percentage = qRound(textNumber.toDouble());
             
             bool isAudioPart = (partCounter > 1);
-            QString currentPhase = isAudioPart ? "Downloading audio..." : "Downloading...";
+            QString currentPhase = isAudioPart ? tr("Downloading audio...") : tr("Downloading...");
             
             if (!matchProgress.captured(2).isEmpty()) {
                 double totalSize = matchProgress.captured(2).toDouble();
@@ -177,7 +180,7 @@ void Service::readOutput() {
             emit percentageUpdated(percentage);
             
             if (percentage == 100) {
-                emit phaseUpdated("Processing...");
+                emit phaseUpdated(tr("Processing..."));
             }
             continue;
         }

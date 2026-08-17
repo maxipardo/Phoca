@@ -17,9 +17,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   maintainer = new ServiceMaintainer(this);
   chosenDirectory = QDir::homePath();
 
-  bothButton = new QRadioButton("Both", centralWidget);
-  videoButton = new QRadioButton("Video", centralWidget);
-  audioButton = new QRadioButton("Audio", centralWidget);
+  bothButton = new QRadioButton(tr("Both"), centralWidget);
+  videoButton = new QRadioButton(tr("Video"), centralWidget);
+  audioButton = new QRadioButton(tr("Audio"), centralWidget);
 
   /* MainWindow size */
   this->setMinimumWidth(462);
@@ -165,7 +165,7 @@ connect(savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::chan
   this->adjustSize();
 }
 
-void MainWindow::engineDownloading() { statusLabel->setText("Downloading..."); }
+void MainWindow::engineDownloading() { statusLabel->setText(tr("Downloading...")); }
 
 void MainWindow::engineDownloaded(int exit) {
   switch (exit) {
@@ -271,7 +271,7 @@ void MainWindow::downloadProgress(int percentage) { // Percentage updated
 void MainWindow::downloadFinished(int exit) {
   if (exit == 0) {
     statusLabel->setText(tr("Download finished successfully at: %1").arg(downloadLocation));
-  } else if (exit == 1) {
+  } else {
     statusLabel->setText(tr("Download failed, error code: %1").arg(QString::number(exit)));
   }
   progressBar->hide();
