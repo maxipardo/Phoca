@@ -259,7 +259,7 @@ void MainWindow::downloadStarted() {
 
   // Insane approach because of Qt resizing problems
   QCoreApplication::processEvents();
-  this->resize(this->width(), this->sizeHint().height());
+  this->resize(this->width(), this->sizeHint().height() + 50);
   this->adjustSize();
 }
 
@@ -276,6 +276,12 @@ void MainWindow::downloadFinished(int exit) {
   }
   progressBar->hide();
   downloadButton->setEnabled(true);
+
+  // Temporal approach, delete on MULTI-DOWNLOAD implementation
+  QCoreApplication::processEvents();
+  this->resize(this->width(), this->sizeHint().height() - 50);
+  this->adjustSize();
+  
 }
 
 void MainWindow::downloadProcessFailed(QString error) {
