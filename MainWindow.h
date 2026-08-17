@@ -16,6 +16,7 @@
 #include <QComboBox>
 #include <QSpacerItem>
 #include <QSizePolicy>
+#include <QCoreApplication>
 
 #include <QMenuBar>
 #include <QMenu>

@@ -1,9 +1,6 @@
 #include "MainWindow.h"
 #include "Service.h"
 #include "About.h"
-#include <qaction.h>
-#include <qmessagebox.h>
-#include <qstandardpaths.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -25,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   audioButton = new QRadioButton("Audio", centralWidget);
 
   /* MainWindow size */
-  this->resize(462, 100);
+  this->setMinimumWidth(462);
 
   /* Download location */
   QSettings settings("MaximoPardo", "Phoca");
@@ -101,7 +98,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   this->setWindowTitle("Phoca");
   setCentralWidget(centralWidget);
-  this->layout->setSizeConstraint(QLayout::SetMinimumSize);
 
   connect(linkBox, &QLineEdit::textChanged, this,
           &MainWindow::setDownloadReadiness);
@@ -166,6 +162,7 @@ connect(savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::chan
           &MainWindow::onTitleUpdated);
 
   this->statusBar()->showMessage("Download location: " + downloadLocation);
+  this->adjustSize();
 }
 
 void MainWindow::engineDownloading() { statusLabel->setText("Downloading..."); }
@@ -248,8 +245,8 @@ void MainWindow::startDownload() {
   }
   downloadButton->setEnabled(false);
   service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText(), conversionBox->currentText(), playlist, savePlaylistInFolder);
-
   titleLabel->hide();
+  
 }
 
 void MainWindow::downloadStarted() {
@@ -259,6 +256,11 @@ void MainWindow::downloadStarted() {
     }
   progressBar->setValue(0);
   progressBar->show();
+
+  // Insane approach because of Qt resizing problems
+  QCoreApplication::processEvents();
+  this->resize(this->width(), this->sizeHint().height());
+  this->adjustSize();
 }
 
 void MainWindow::downloadProgress(int percentage) { // Percentage updated
