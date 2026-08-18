@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "Service.h"
 #include "About.h"
+#include <qaction.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -24,12 +25,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   /* MainWindow size */
   this->setMinimumWidth(462);
 
-  /* Download location */
+  /* Persistent settings */
   QSettings settings("MaximoPardo", "Phoca");
   downloadLocation = settings.value("downloadLocation", QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).toString();
-
-  /* Persistent playlist in folder */
   savePlaylistInFolder = settings.value("savePlaylistInFolder", true).toBool();
+  saveThumbnail = settings.value("saveThumbnail", false).toBool();
 
   /* Menu */
   optionsMenu = new QMenu(tr("Options"), this);
@@ -44,9 +44,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   chooseStableAction = new QAction(tr("Use yt-dlp stable"), this);
   versionGroup = new QActionGroup(this);
   savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
+  saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
 
   savePlaylistInFolderAction->setCheckable(true);
   savePlaylistInFolderAction->setChecked(savePlaylistInFolder);
+  saveThumbnailAction->setCheckable(true);
+  saveThumbnailAction->setChecked(saveThumbnail);
   chooseNightlyAction->setCheckable(true);
   chooseStableAction->setCheckable(true);
   chooseNightlyAction->setChecked(true);
@@ -55,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   optionsMenu->addAction(chooseLocationAction);
   optionsMenu->addAction(savePlaylistInFolderAction);
+  optionsMenu->addAction(saveThumbnailAction);
   buildMenu->addAction(chooseNightlyAction);
   buildMenu->addAction(chooseStableAction);
 
@@ -140,7 +144,11 @@ connect(audioButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
 });
 
-connect(savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::changeSavePlaylistInFolder);
+connect(savePlaylistInFolderAction, &QAction::triggered, this,
+         &MainWindow::changeSavePlaylistInFolder);
+
+connect(saveThumbnailAction, &QAction::triggered, this,
+         &MainWindow::changeSaveThumbnail);
 
   /* Service */
   downloadPhase = "";
@@ -243,8 +251,13 @@ void MainWindow::startDownload() {
       return; 
     }
   }
+
+  bool parSaveThumbnail{saveThumbnail && !playlist};
+
   downloadButton->setEnabled(false);
-  service->startDownload(linkBox->text(), downloadLocation, format, qualityBox->currentText(), conversionBox->currentText(), playlist, savePlaylistInFolder);
+  service->startDownload(linkBox->text(), downloadLocation, format, 
+                         qualityBox->currentText(), conversionBox->currentText(), 
+                         playlist, savePlaylistInFolder, parSaveThumbnail);
   titleLabel->hide();
   
 }
@@ -321,4 +334,10 @@ void MainWindow::changeSavePlaylistInFolder() {
     savePlaylistInFolder = savePlaylistInFolderAction->isChecked();
     QSettings settings("MaximoPardo", "Phoca");
     settings.setValue("savePlaylistInFolder", savePlaylistInFolderAction->isChecked());
+}
+
+void MainWindow::changeSaveThumbnail() {
+    saveThumbnail = saveThumbnailAction->isChecked();
+    QSettings settings("MaximoPardo", "Phoca");
+    settings.setValue("saveThumbnail", saveThumbnailAction->isChecked());
 }

@@ -9,7 +9,7 @@
 #include <QMessageBox>
 
 About::About(QWidget *parent) : QDialog(parent) {
-    this->setWindowTitle(tr("About Phoca"));
+    this->setWindowTitle(tr("About Phoca") + " " + PROJECT_VERSION);
     this->resize(300, 300);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
