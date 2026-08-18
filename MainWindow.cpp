@@ -236,7 +236,11 @@ void MainWindow::startDownload() {
     QMessageBox msgBox(this);
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setWindowTitle(tr("Playlist detected"));
-    msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?"));
+    if (saveThumbnail) {
+      msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?\nThumbnails will not be saved"));
+    } else {
+      msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?"));
+    }
     
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     msgBox.button(QMessageBox::Cancel)->hide();
