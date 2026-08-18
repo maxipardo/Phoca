@@ -18,7 +18,9 @@
 !icon.rc
 !phoca.ico
 !phoca.png
+!phoca256.png
 !resources.qrc
 !About.cpp
 !About.h
 !i18n/*
+!phoca.desktop
