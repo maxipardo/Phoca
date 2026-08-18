@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Phoca VERSION 0.2)
+project(Phoca VERSION 0.3)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -11,7 +11,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 COMPONENTS Widgets Core Network LinguistTools REQUIRED)
-
 
 add_executable(phoca
     WIN32
@@ -37,3 +36,38 @@ set(TS_FILES i18n/phoca_es.ts)
 qt_add_translations(phoca TS_FILES ${TS_FILES})
 
 target_compile_definitions(phoca PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
+
+# ==========================================
+# /usr/bin
+install(TARGETS phoca DESTINATION bin)
+# deno
+install(PROGRAMS ext_bin/deno DESTINATION bin)
+
+install(FILES phoca.desktop DESTINATION share/applications)
+
+install(FILES phoca256.png DESTINATION share/icons/hicolor/256x256/apps RENAME phoca.png)
+# ==========================================
+
+set(CPACK_GENERATOR "DEB")
+# Package info
+set(CPACK_PACKAGE_NAME "phoca")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_VENDOR "Maximo Pardo")
+set(CPACK_PACKAGE_CONTACT "Maximo Pardo <maxipardo@proton.me>")
+# Title and category
+set(CPACK_DEBIAN_PACKAGE_NAME "Phoca")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utility")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/maxipardo/Phoca")
+
+# Descriptions
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Download any video/audio through yt-dlp")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Phoca is a GUI app for yt-dlp to allow for simple and easy downloads from most internet services like YouTube and other social media.\n\nIt supports playlists, audio extraction, format conversion and saving thumbnails.")
+
+# LICENSE
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "ffmpeg")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+include(CPack)

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Phoca
+GenericName=Media Downloader
+GenericName[es]=Descargador multimedia
+Comment=Download any video/audio through yt-dlp
+Comment[es]=Descarga cualquier video/audio a través de yt-dlp
+Exec=phoca
+Icon=phoca
+Type=Application
+Categories=Utility;Network;AudioVideo;
