@@ -27,148 +27,167 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="21"/>
+        <location filename="../MainWindow.cpp" line="23"/>
         <source>Both</source>
         <translation>Ambos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="22"/>
+        <location filename="../MainWindow.cpp" line="24"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="23"/>
+        <location filename="../MainWindow.cpp" line="25"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="35"/>
+        <location filename="../MainWindow.cpp" line="37"/>
         <source>Options</source>
         <translation>Opciones</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="36"/>
+        <location filename="../MainWindow.cpp" line="38"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="37"/>
+        <location filename="../MainWindow.cpp" line="39"/>
         <source>Choose yt-dlp version</source>
         <translation>Elegir versión de yt-dlp</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="42"/>
+        <location filename="../MainWindow.cpp" line="44"/>
         <source>Change download location...</source>
         <translation>Cambiar carpeta de destino...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="43"/>
+        <location filename="../MainWindow.cpp" line="45"/>
         <source>Use yt-dlp nightly (recommended)</source>
         <translation>Usar yt-dlp nightly (recomendado)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="44"/>
+        <location filename="../MainWindow.cpp" line="46"/>
         <source>Use yt-dlp stable</source>
         <translation>Usar yt-dlp estable</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="46"/>
+        <location filename="../MainWindow.cpp" line="48"/>
         <source>Save playlists in folder</source>
         <translation>Guardar listas en carpeta</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="47"/>
+        <location filename="../MainWindow.cpp" line="49"/>
         <source>Save thumbnail</source>
         <translation>Guardar miniatura</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="65"/>
+        <location filename="../MainWindow.cpp" line="67"/>
         <source>Enter link...</source>
         <translation>Ingresar enlace...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="66"/>
+        <location filename="../MainWindow.cpp" line="68"/>
         <source>Download</source>
         <translation>Descargar</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="69"/>
+        <location filename="../MainWindow.cpp" line="70"/>
+        <source>Stop download</source>
+        <translation>Detener descarga</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="71"/>
         <source>Update yt-dlp</source>
         <translation>Actualizar yt-dlp</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="89"/>
+        <location filename="../MainWindow.cpp" line="95"/>
         <source>Best</source>
         <translation>Máxima</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="95"/>
-        <location filename="../MainWindow.cpp" line="136"/>
-        <location filename="../MainWindow.cpp" line="140"/>
-        <location filename="../MainWindow.cpp" line="144"/>
+        <location filename="../MainWindow.cpp" line="101"/>
+        <location filename="../MainWindow.cpp" line="142"/>
+        <location filename="../MainWindow.cpp" line="146"/>
+        <location filename="../MainWindow.cpp" line="150"/>
         <source>Original</source>
         <translation>Original</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="172"/>
-        <location filename="../MainWindow.cpp" line="222"/>
+        <location filename="../MainWindow.cpp" line="180"/>
+        <location filename="../MainWindow.cpp" line="230"/>
         <source>Download location: %1</source>
         <translation>Ubicación de descarga: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="176"/>
+        <location filename="../MainWindow.cpp" line="184"/>
         <source>Downloading...</source>
         <translation>Descargando...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="181"/>
+        <location filename="../MainWindow.cpp" line="189"/>
         <source>yt-dlp downloaded successfully</source>
         <translation>yt-dlp descargado exitosamente</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="184"/>
+        <location filename="../MainWindow.cpp" line="192"/>
         <source>Download failed: Network error</source>
         <translation>Descarga fallida: Error de red</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="187"/>
+        <location filename="../MainWindow.cpp" line="195"/>
         <source>Download failed: Need permissions to write</source>
         <translation>Descarga fallida: Faltan permisos de escritura</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="213"/>
+        <location filename="../MainWindow.cpp" line="221"/>
         <source>Choose where to save files</source>
         <translation>Elegir carpeta de destino</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="238"/>
+        <location filename="../MainWindow.cpp" line="246"/>
         <source>Playlist detected</source>
         <translation>Lista de reproducción detectada</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="239"/>
+        <location filename="../MainWindow.cpp" line="248"/>
+        <source>This link contains a playlist.
+Download the whole list?
+Thumbnails will not be saved</source>
+        <translation>Este enlace contiene una lista.
+¿Descargar la lista entera?
+Las miniaturas no se guardarán</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="250"/>
         <source>This link contains a playlist.
 Download the whole list?</source>
         <translation>Este enlace contiene una lista.
 ¿Descargar la lista entera?</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="266"/>
+        <location filename="../MainWindow.cpp" line="278"/>
         <source>Download started</source>
         <translation>Descarga iniciada</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="286"/>
+        <location filename="../MainWindow.cpp" line="298"/>
         <source>Download finished successfully at: %1</source>
         <translation>Descarga finalizada exitosamente en: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="288"/>
+        <location filename="../MainWindow.cpp" line="300"/>
+        <source>Download stopped</source>
+        <translation>Descarga detenida</translation>
+    </message>
+    <message>
+        <location filename="../MainWindow.cpp" line="302"/>
         <source>Download failed, error code: %1</source>
         <translation>Descarga fallida, código de error: %1</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="308"/>
+        <location filename="../MainWindow.cpp" line="322"/>
         <source>Processing...</source>
         <translation>Procesando...</translation>
     </message>
