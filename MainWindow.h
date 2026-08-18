@@ -57,9 +57,11 @@ private:
     QAction *chooseStableAction;
     QActionGroup *versionGroup;
     QAction *savePlaylistInFolderAction;
+    QAction *saveThumbnailAction;
 
     QString downloadLocation;
     bool savePlaylistInFolder;
+    bool saveThumbnail;
 
     Service *service;
     QString downloadPhase;
@@ -73,6 +75,7 @@ private slots:
     void engineDownloaded(int exit);
     void changeLocation();
     void changeSavePlaylistInFolder();
+    void changeSaveThumbnail();
 
     void startDownload();
     void downloadStarted();

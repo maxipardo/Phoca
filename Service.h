@@ -12,7 +12,7 @@ class Service : public QObject {
 Q_OBJECT
 public:
     explicit Service(QObject *parent = nullptr);
-    void startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder);
+    void startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail);
 private:
     QProcess *downloadProcess;
     int partCounter;

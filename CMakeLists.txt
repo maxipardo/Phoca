@@ -35,3 +35,5 @@ target_link_libraries(phoca PRIVATE Qt6::Widgets Qt6::Core Qt6::Network)
 
 set(TS_FILES i18n/phoca_es.ts)
 qt_add_translations(phoca TS_FILES ${TS_FILES})
+
+target_compile_definitions(phoca PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")

@@ -14,7 +14,7 @@ Service::Service(QObject *parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 }
 
-void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder) {
+void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath;
@@ -30,6 +30,10 @@ void Service::startDownload(QString link, QString location, int format, QString 
     } else {
         arguments << "--no-playlist";
         outputPath = location + "/%(title)s.%(ext)s";
+    }
+
+    if (saveThumbnail) {
+        arguments << "--write-thumbnail";
     }
 
     QString appPath = QCoreApplication::applicationDirPath();
