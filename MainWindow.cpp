@@ -296,6 +296,8 @@ void MainWindow::downloadProgress(int percentage) { // Percentage updated
 void MainWindow::downloadFinished(int exit) {
   if (exit == 0) {
     statusLabel->setText(tr("Download finished successfully at: %1").arg(downloadLocation));
+  } else if (exit == 9) {
+    statusLabel->setText(tr("Download stopped"));
   } else {
     statusLabel->setText(tr("Download failed, error code: %1").arg(QString::number(exit)));
   }
@@ -309,7 +311,7 @@ void MainWindow::downloadFinished(int exit) {
   
 }
 
-void MainWindow::downloadProcessFailed(QString error) {
+void MainWindow::downloadProcessFailed(QString error) { // Can't start yt-dlp process
   statusLabel->setText(error);
   progressBar->hide();
 }
