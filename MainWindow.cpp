@@ -2,6 +2,7 @@
 #include "Service.h"
 #include "About.h"
 #include <qaction.h>
+#include <qpushbutton.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -11,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   optionsLayout = new QHBoxLayout();
   linkBox = new QLineEdit(centralWidget);
   downloadButton = new QPushButton(centralWidget);
+  stopDownloadButton = new QPushButton(centralWidget);
   getEngineButton = new QPushButton(centralWidget);
   statusLabel = new QLabel(centralWidget);
   titleLabel = new QLabel(centralWidget);
@@ -65,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   linkBox->setPlaceholderText(tr("Enter link..."));
   downloadButton->setText(tr("Download"));
   downloadButton->setEnabled(false);
-
+  stopDownloadButton->setText(tr("Stop download"));
   getEngineButton->setText(tr("Update yt-dlp"));
   
   layout->addLayout(linkLayout);
@@ -75,7 +77,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   layout->addWidget(titleLabel);
   layout->addWidget(statusLabel);
   layout->addWidget(progressBar);
-  layout->addWidget(getEngineButton);
+  QHBoxLayout *bottomLayout = new QHBoxLayout();
+  bottomLayout->addWidget(stopDownloadButton);
+  stopDownloadButton->setEnabled(false);
+  bottomLayout->addWidget(getEngineButton);
+  layout->addLayout(bottomLayout);
   titleLabel->hide();
   progressBar->hide();
 
@@ -156,6 +162,8 @@ connect(saveThumbnailAction, &QAction::triggered, this,
 
   connect(downloadButton, &QPushButton::clicked, this,
           &MainWindow::startDownload);
+  connect(stopDownloadButton, &QPushButton::clicked, this,
+          &MainWindow::stopDownload);
   connect(service, &Service::downloadStarted, this,
           &MainWindow::downloadStarted);
   connect(service, &Service::downloadFinished, this,
@@ -273,7 +281,7 @@ void MainWindow::downloadStarted() {
     }
   progressBar->setValue(0);
   progressBar->show();
-
+  stopDownloadButton->setEnabled(true);
   // Insane approach because of Qt resizing problems
   QCoreApplication::processEvents();
   this->resize(this->width(), this->sizeHint().height() + 50);
@@ -293,7 +301,7 @@ void MainWindow::downloadFinished(int exit) {
   }
   progressBar->hide();
   downloadButton->setEnabled(true);
-
+  stopDownloadButton->setEnabled(false);
   // Temporal approach, delete on MULTI-DOWNLOAD implementation
   QCoreApplication::processEvents();
   this->resize(this->width(), this->sizeHint().height() - 50);
@@ -344,4 +352,8 @@ void MainWindow::changeSaveThumbnail() {
     saveThumbnail = saveThumbnailAction->isChecked();
     QSettings settings("MaximoPardo", "Phoca");
     settings.setValue("saveThumbnail", saveThumbnailAction->isChecked());
+}
+
+void MainWindow::stopDownload() { // Using slot in MainWindow for easier future refactoring
+  service->stopDownload();
 }

@@ -190,3 +190,9 @@ void Service::readOutput() {
         }
     }
 }
+
+void Service::stopDownload() {
+    if (downloadProcess->state() == QProcess::Running) {
+        downloadProcess->kill();
+    }
+}

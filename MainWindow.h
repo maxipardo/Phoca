@@ -35,6 +35,7 @@ private:
     QHBoxLayout *optionsLayout;
     QLineEdit *linkBox;
     QPushButton *downloadButton;
+    QPushButton *stopDownloadButton;
     QPushButton *getEngineButton;
     QLabel *statusLabel; // General: download and service
     QLabel *titleLabel;
@@ -84,6 +85,7 @@ private slots:
     void downloadProgress(int percentage);
     void downloadPhaseUpdated(QString phase);
     void onTitleUpdated(QString title);
+    void stopDownload();
 
     void aboutPage();
 };
