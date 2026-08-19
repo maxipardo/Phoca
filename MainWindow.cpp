@@ -282,15 +282,17 @@ void MainWindow::downloadStarted() {
   progressBar->setValue(0);
   progressBar->show();
   stopDownloadButton->setEnabled(true);
-  // Insane approach because of Qt resizing problems
+  // Change on v0.4+
   QCoreApplication::processEvents();
   this->resize(this->width(), this->sizeHint().height() + 50);
   this->adjustSize();
 }
 
-void MainWindow::downloadProgress(int percentage) { // Percentage updated
+void MainWindow::downloadProgress(int percentage) { // Percentage jumping glitch fix
   statusLabel->setText(downloadPhase);
-  progressBar->setValue(percentage);
+  if (percentage >= progressBar->value() || (progressBar->value() - percentage) > 50) {
+      progressBar->setValue(percentage);
+  }
 }
 
 void MainWindow::downloadFinished(int exit) {
@@ -303,8 +305,8 @@ void MainWindow::downloadFinished(int exit) {
   }
   progressBar->hide();
   downloadButton->setEnabled(true);
-  stopDownloadButton->setEnabled(false);
-  // Temporal approach, delete on MULTI-DOWNLOAD implementation
+  stopDownloadButton->setEnabled(false); // Change on v0.4+
+    // Change on v0.4+
   QCoreApplication::processEvents();
   this->resize(this->width(), this->sizeHint().height() - 50);
   this->adjustSize();
@@ -312,7 +314,7 @@ void MainWindow::downloadFinished(int exit) {
 }
 
 void MainWindow::downloadProcessFailed(QString error) { // Can't start yt-dlp process
-  statusLabel->setText(error);
+  this->statusBar()->showMessage(error);
   progressBar->hide();
 }
 
@@ -358,4 +360,22 @@ void MainWindow::changeSaveThumbnail() {
 
 void MainWindow::stopDownload() { // Using slot in MainWindow for easier future refactoring
   service->stopDownload();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if (stopDownloadButton->isEnabled()) { // Change on v0.4+
+        QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
+            tr("There is a download in progress.\nAre you sure you want to close Phoca?\nThe download will be cancelled."),
+            QMessageBox::No | QMessageBox::Yes,
+            QMessageBox::No);
+
+        if (resBtn != QMessageBox::Yes) {
+            event->ignore(); 
+            return;
+        } else {
+            service->stopDownload();
+        }
+    }
+    
+    event->accept(); 
 }

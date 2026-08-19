@@ -17,6 +17,8 @@
 #include <QSpacerItem>
 #include <QSizePolicy>
 #include <QCoreApplication>
+#include <QCloseEvent>
+#include <QMessageBox>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -66,7 +68,8 @@ private:
 
     Service *service;
     QString downloadPhase;
-
+protected:
+    void closeEvent(QCloseEvent *event) override;
     
 private slots:
     void getServiceSlot();
