@@ -5,6 +5,8 @@
 
 A minimalistic program to download video and audio from most social media platforms.
 
+(Stable version will support multiple downloads simultaneously, like a download manager)
+
 ## 📥 Download
 AppImage binaries and Windows installer are available on [Releases](https://github.com/maxipardo/Phoca/releases).
 
