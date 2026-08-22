@@ -29,4 +29,5 @@ signals:
     void processFailed(QString error);
     void percentageUpdated(int percentage);
     void phaseUpdated(QString phase);
+    void sizeUpdated(QString size);
 };
