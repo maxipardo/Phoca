@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   audioButton = new QRadioButton(tr("Audio"), centralWidget);
 
   /* MainWindow size */
+  this->resize(800, 200);
   this->setMinimumWidth(462);
 
   /* Persistent settings */
@@ -183,7 +184,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   this->statusBar()->addWidget(locationLabel);
   updateLocationLabel();
 
-  this->adjustSize();
 }
 
 void MainWindow::updateLocationLabel() {
@@ -305,9 +305,20 @@ void MainWindow::startDownload() {
   DownloadItem *newDownload = new DownloadItem(config, this);
   QListWidgetItem *item = new QListWidgetItem();
 
-  connect(newDownload, &DownloadItem::removeRequested, [item]() {
-        delete item;
-    });
+  connect(newDownload, &DownloadItem::removeRequested, [this, item]() {
+          delete item; 
+          
+          // Check for finished items
+          bool hasFinishedItems = false;
+          for (int i = 0; i < list->count(); ++i) {
+              DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(list->item(i)));
+              if (di && di->isFinished()) {
+                  hasFinishedItems = true;
+                  break;
+              }
+          }
+          clearFinishedButton->setEnabled(hasFinishedItems);
+      });
 
   connect(newDownload, &DownloadItem::finishedSignal, this, &MainWindow::itemFinished);
 
@@ -347,7 +358,18 @@ void MainWindow::changeSaveThumbnail() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    if (list->count() > 0) {
+    // Check for active downloads
+    bool hasActiveDownloads = false;
+    for (int i = 0; i < list->count(); ++i) {
+        DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(list->item(i)));
+
+        if (di && !di->isFinished()) {
+            hasActiveDownloads = true;
+            break;
+        }
+    }
+
+    if (hasActiveDownloads) {
         QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
             tr("There is a download in progress.\nAre you sure you want to close Phoca?\nThe download will be cancelled."),
             QMessageBox::No | QMessageBox::Yes,
