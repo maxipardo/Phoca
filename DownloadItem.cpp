@@ -37,6 +37,9 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
             &DownloadItem::downloadPhaseUpdated);
       connect(service, &Service::titleUpdated, this, 
             &DownloadItem::onTitleUpdated);
+
+      connect(service, &Service::sizeUpdated, this, 
+            &DownloadItem::onSizeUpdated);
 }
 
 
@@ -51,9 +54,11 @@ void DownloadItem::downloadStarted() {
 
 void DownloadItem::downloadFinished(int exit) {
       if (exit == 0) {
+            progressBar->setRange(0, 100);
             progressBar->setValue(100);
             if (titleLabel->text() == tr("Download started")) {
                   titleLabel->setText("Download finished"); // Already downloaded or couldn't get title
+                  progressBar->setTextVisible(false);
             }
       } else if (exit == 9) {
             titleLabel->setText(tr("Download stopped"));
@@ -64,11 +69,16 @@ void DownloadItem::downloadFinished(int exit) {
 };
 
 void DownloadItem::downloadProgress(int percentage) {
-      sizeLabel->setText(downloadPhase);
-      if (percentage >= progressBar->value() || (progressBar->value() - percentage) > 50) {
-            progressBar->setValue(percentage);
-      }
-};
+    if (percentage >= progressBar->value() || (progressBar->value() - percentage) > 50) {
+        progressBar->setValue(percentage);
+    }
+}
+
+void DownloadItem::onSizeUpdated(QString cleanSize) {
+    downloadedSize = cleanSize;
+    
+    sizeLabel->setText(downloadedSize);
+}
 
 void DownloadItem::onTitleUpdated(QString title) {
       titleLabel->setText(title);

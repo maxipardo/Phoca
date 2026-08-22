@@ -21,7 +21,7 @@ private:
 
     QString downloadPhase;
     QString downloadLocation;
-    QString totalSize;
+    QString downloadedSize;
 
 private slots:
     void downloadStarted();
@@ -30,6 +30,8 @@ private slots:
     void onTitleUpdated(QString title);
     void downloadPhaseUpdated(QString phase);
     void downloadProcessFailed(QString error);
+
+    void onSizeUpdated(QString cleanSize);
 
     void stopDownload();
 };
