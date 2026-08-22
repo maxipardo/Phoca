@@ -19,6 +19,8 @@
 #include <QCoreApplication>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QListWidget>
+#include <QListWidgetItem>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -32,12 +34,13 @@ Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
 private:
+    QHBoxLayout *fullLayout;
     QVBoxLayout *layout;
     QHBoxLayout *linkLayout;
     QHBoxLayout *optionsLayout;
     QLineEdit *linkBox;
     QPushButton *downloadButton;
-    QPushButton *stopDownloadButton;
+    QPushButton *clearFinishedButton;
     QPushButton *getEngineButton;
     QLabel *statusLabel; // General: download and service
     QLabel *titleLabel;
@@ -47,6 +50,8 @@ private:
     QMenu *buildMenu;
     QAction *aboutAction;
     QProgressBar *progressBar;
+
+    QListWidget *list;
     
     QRadioButton *bothButton;
     QRadioButton *videoButton;
@@ -68,6 +73,7 @@ private:
 
     Service *service;
     QString downloadPhase;
+    QLabel *locationLabel;
 protected:
     void closeEvent(QCloseEvent *event) override;
     
@@ -80,15 +86,11 @@ private slots:
     void changeLocation();
     void changeSavePlaylistInFolder();
     void changeSaveThumbnail();
+    void updateLocationLabel();
 
     void startDownload();
-    void downloadStarted();
-    void downloadFinished(int exit);
-    void downloadProcessFailed(QString error);
-    void downloadProgress(int percentage);
-    void downloadPhaseUpdated(QString phase);
-    void onTitleUpdated(QString title);
-    void stopDownload();
+    void clearFinishedDownloads();
+    void itemFinished();
 
     void aboutPage();
 };

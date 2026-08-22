@@ -177,6 +177,9 @@ void Service::readOutput() {
                 
                 QString statsText = QString("(%1 %2 / %3 %2)").arg(strDownloaded, unit, strTotal);
                 emit phaseUpdated(currentPhase + " " + statsText);
+
+                emit sizeUpdated(strDownloaded + " " + unit);
+
             } else {
                 emit phaseUpdated(currentPhase);
             }

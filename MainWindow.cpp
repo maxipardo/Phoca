@@ -1,24 +1,24 @@
 #include "MainWindow.h"
-#include "Service.h"
+#include "DownloadItem.h"
 #include "About.h"
-#include <qaction.h>
-#include <qpushbutton.h>
-
+#include "DownloadConfig.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
-
-  layout = new QVBoxLayout(centralWidget);
+  fullLayout = new QHBoxLayout(centralWidget);
+  layout = new QVBoxLayout();
   linkLayout = new QHBoxLayout();
   optionsLayout = new QHBoxLayout();
   linkBox = new QLineEdit(centralWidget);
   downloadButton = new QPushButton(centralWidget);
-  stopDownloadButton = new QPushButton(centralWidget);
+  clearFinishedButton = new QPushButton(centralWidget);
   getEngineButton = new QPushButton(centralWidget);
   statusLabel = new QLabel(centralWidget);
   titleLabel = new QLabel(centralWidget);
   progressBar = new QProgressBar(centralWidget);
   maintainer = new ServiceMaintainer(this);
   chosenDirectory = QDir::homePath();
+
+  list = new QListWidget(centralWidget);
 
   bothButton = new QRadioButton(tr("Both"), centralWidget);
   videoButton = new QRadioButton(tr("Video"), centralWidget);
@@ -67,8 +67,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   linkBox->setPlaceholderText(tr("Enter link..."));
   downloadButton->setText(tr("Download"));
   downloadButton->setEnabled(false);
-  stopDownloadButton->setText(tr("Stop download"));
+  clearFinishedButton->setText(tr("Clear finished"));
   getEngineButton->setText(tr("Update yt-dlp"));
+
+  fullLayout->addWidget(list);
+  fullLayout->addLayout(layout);
   
   layout->addLayout(linkLayout);
   linkLayout->addWidget(linkBox);
@@ -78,8 +81,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   layout->addWidget(statusLabel);
   layout->addWidget(progressBar);
   QHBoxLayout *bottomLayout = new QHBoxLayout();
-  bottomLayout->addWidget(stopDownloadButton);
-  stopDownloadButton->setEnabled(false);
+  bottomLayout->addWidget(clearFinishedButton);
+  clearFinishedButton->setEnabled(false);
   bottomLayout->addWidget(getEngineButton);
   layout->addLayout(bottomLayout);
   titleLabel->hide();
@@ -129,6 +132,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::changeLocation);
   connect(aboutAction, &QAction::triggered, this, 
           &MainWindow::aboutPage);
+  connect(clearFinishedButton, &QPushButton::clicked, this,
+          &MainWindow::clearFinishedDownloads);
+
+  connect(linkBox, &QLineEdit::textChanged, this, [this](const QString &text) {
+        static int lastLength = 0;
+        int currentLength = text.length();
+        
+        if (qAbs(currentLength - lastLength) > 1 && currentLength > 0) {
+            linkBox->setCursorPosition(0);
+        }
+        
+        lastLength = currentLength;
+    });
 
   connect(bothButton, &QPushButton::clicked, this, 
           &MainWindow::toggleQualityOptions);
@@ -145,54 +161,49 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     conversionBox->clear();
     conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
 });
-connect(audioButton, &QRadioButton::clicked, this, [this]() {
+  connect(audioButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->clear();
     conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
 });
 
-connect(savePlaylistInFolderAction, &QAction::triggered, this,
+  connect(savePlaylistInFolderAction, &QAction::triggered, this,
          &MainWindow::changeSavePlaylistInFolder);
 
-connect(saveThumbnailAction, &QAction::triggered, this,
+  connect(saveThumbnailAction, &QAction::triggered, this,
          &MainWindow::changeSaveThumbnail);
-
-  /* Service */
-  downloadPhase = "";
-  service = new Service(this);
 
   connect(downloadButton, &QPushButton::clicked, this,
           &MainWindow::startDownload);
-  connect(stopDownloadButton, &QPushButton::clicked, this,
-          &MainWindow::stopDownload);
-  connect(service, &Service::downloadStarted, this,
-          &MainWindow::downloadStarted);
-  connect(service, &Service::downloadFinished, this,
-          &MainWindow::downloadFinished);
-  connect(service, &Service::processFailed, this,
-          &MainWindow::downloadProcessFailed);
-  connect(service, &Service::percentageUpdated, this,
-          &MainWindow::downloadProgress);
-  connect(service, &Service::phaseUpdated, this,
-          &MainWindow::downloadPhaseUpdated);
-  connect(service, &Service::titleUpdated, this, 
-          &MainWindow::onTitleUpdated);
 
-  this->statusBar()->showMessage(tr("Download location: %1").arg(downloadLocation));
+  connect(linkBox, &QLineEdit::returnPressed,
+         downloadButton, &QPushButton::click);
+
+  locationLabel = new QLabel(this);
+  locationLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  this->statusBar()->addWidget(locationLabel);
+  updateLocationLabel();
+
   this->adjustSize();
 }
 
-void MainWindow::engineDownloading() { statusLabel->setText(tr("Downloading...")); }
+void MainWindow::updateLocationLabel() {
+  const QString shown = QDir::toNativeSeparators(downloadLocation);
+  locationLabel->setText(tr("Download location: %1").arg(shown));
+  locationLabel->setToolTip(shown);
+}
+
+void MainWindow::engineDownloading() { this->statusBar()->showMessage(tr("[yt-dlp] Downloading...")); }
 
 void MainWindow::engineDownloaded(int exit) {
   switch (exit) {
   case 0:
-    statusLabel->setText(tr("yt-dlp downloaded successfully"));
+    this->statusBar()->showMessage(tr("[yt-dlp] Downloaded successfully"), 5000);
     break;
   case 1:
-    statusLabel->setText(tr("Download failed: Network error"));
+    this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Network error"), 5000);
     break;
   case 2:
-    statusLabel->setText(tr("Download failed: Need permissions to write"));
+    this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Need permissions to write"), 5000);
     break;
   }
   setDownloadReadiness();
@@ -203,7 +214,7 @@ void MainWindow::setDownloadReadiness() {
   bool validQuality = qualityBox->findText(qualityBox->currentText()) != -1;
   bool validConversion = conversionBox->findText(conversionBox->currentText()) != -1;
 
-  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality && validConversion && progressBar->isHidden()) { // TEMPORAL SOLUTION, BEFORE MULTIPLE DOWNLOADS SUPPORT
+  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality && validConversion) {
     downloadButton->setEnabled(true);
   } else {
     downloadButton->setEnabled(false);
@@ -217,17 +228,18 @@ void MainWindow::getServiceSlot() {
 }
 
 void MainWindow::changeLocation() {
-  downloadLocation = QFileDialog::getExistingDirectory(
-      this, tr("Choose where to save files"), QDir::homePath(),
+  const QString dir = QFileDialog::getExistingDirectory(
+      this, tr("Choose where to save files"), downloadLocation,
       QFileDialog::ShowDirsOnly);
 
-  if (!downloadLocation.isEmpty()) {
+  if (!dir.isEmpty()) {
+    downloadLocation = dir;
+
     QSettings settings("MaximoPardo", "Phoca");
-    
     settings.setValue("downloadLocation", downloadLocation);
 
     qDebug() << "Settings saved. Chosen folder:" << downloadLocation;
-    this->statusBar()->showMessage(tr("Download location: %1").arg(downloadLocation));
+    updateLocationLabel();
   }
 }
 
@@ -252,9 +264,9 @@ void MainWindow::startDownload() {
     
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     msgBox.button(QMessageBox::Cancel)->hide();
-
+    
     int answer = msgBox.exec();
-
+    
     if (answer == QMessageBox::Yes) {
       playlist = true;
     } else if (answer == QMessageBox::No) {
@@ -263,7 +275,7 @@ void MainWindow::startDownload() {
       return; 
     }
   }
-
+  
   bool parSaveThumbnail{saveThumbnail && !playlist};
 
   QString quality;
@@ -278,70 +290,34 @@ void MainWindow::startDownload() {
   } else {
     conversion = conversionBox->currentText();
   }
+  
+  // Config struct
+  DownloadConfig config;
+  config.link = link;
+  config.downloadLocation = downloadLocation;
+  config.format = format;
+  config.quality = quality;
+  config.conversion = conversion;
+  config.playlist = playlist;
+  config.savePlaylistInFolder = savePlaylistInFolder;
+  config.saveThumbnail = parSaveThumbnail;
 
-  downloadButton->setEnabled(false);
-  service->startDownload(linkBox->text(), downloadLocation, format, 
-                         quality, conversion, playlist, savePlaylistInFolder, parSaveThumbnail);
+  DownloadItem *newDownload = new DownloadItem(config, this);
+  QListWidgetItem *item = new QListWidgetItem();
+
+  connect(newDownload, &DownloadItem::removeRequested, [item]() {
+        delete item;
+    });
+
+  connect(newDownload, &DownloadItem::finishedSignal, this, &MainWindow::itemFinished);
+
+  item->setSizeHint(newDownload->sizeHint());
+  list->addItem(item);
+  list->setItemWidget(item, newDownload);
+                         
   titleLabel->hide();
-  
-}
+  linkBox->clear();
 
-void MainWindow::downloadStarted() {
-  statusLabel->setText(tr("Download started"));
-  if (progressBar->maximum() == 0) {
-        progressBar->setRange(0, 100);
-    }
-  progressBar->setValue(0);
-  progressBar->show();
-  stopDownloadButton->setEnabled(true);
-  // Change on v0.4+
-  QCoreApplication::processEvents();
-  this->resize(this->width(), this->sizeHint().height() + 50);
-  this->adjustSize();
-}
-
-void MainWindow::downloadProgress(int percentage) { // Percentage jumping glitch fix
-  statusLabel->setText(downloadPhase);
-  if (percentage >= progressBar->value() || (progressBar->value() - percentage) > 50) {
-      progressBar->setValue(percentage);
-  }
-}
-
-void MainWindow::downloadFinished(int exit) {
-  if (exit == 0) {
-    statusLabel->setText(tr("Download finished successfully at: %1").arg(downloadLocation));
-  } else if (exit == 9) {
-    statusLabel->setText(tr("Download stopped"));
-  } else {
-    statusLabel->setText(tr("Download failed, error code: %1").arg(QString::number(exit)));
-  }
-  progressBar->hide();
-  downloadButton->setEnabled(true);
-  stopDownloadButton->setEnabled(false); // Change on v0.4+
-    // Change on v0.4+
-  QCoreApplication::processEvents();
-  this->resize(this->width(), this->sizeHint().height() - 50);
-  this->adjustSize();
-  
-}
-
-void MainWindow::downloadProcessFailed(QString error) { // Can't start yt-dlp process
-  this->statusBar()->showMessage(error);
-  progressBar->hide();
-}
-
-void MainWindow::downloadPhaseUpdated(QString phase) {
-    downloadPhase = phase;
-
-    if (phase == tr("Processing...")) {
-        progressBar->setRange(0, 0);
-    } else {
-        progressBar->setRange(0, 100);
-    }
-}
-
-void MainWindow::onTitleUpdated(QString title) {
-  this->statusBar()->showMessage(title.toUpper());
 }
 
 void MainWindow::aboutPage() {
@@ -370,12 +346,8 @@ void MainWindow::changeSaveThumbnail() {
     settings.setValue("saveThumbnail", saveThumbnailAction->isChecked());
 }
 
-void MainWindow::stopDownload() { // Using slot in MainWindow for easier future refactoring
-  service->stopDownload();
-}
-
 void MainWindow::closeEvent(QCloseEvent *event) {
-    if (stopDownloadButton->isEnabled()) { // Change on v0.4+
+    if (list->count() > 0) {
         QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
             tr("There is a download in progress.\nAre you sure you want to close Phoca?\nThe download will be cancelled."),
             QMessageBox::No | QMessageBox::Yes,
@@ -384,10 +356,27 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         if (resBtn != QMessageBox::Yes) {
             event->ignore(); 
             return;
-        } else {
-            service->stopDownload();
         }
     }
     
     event->accept(); 
+}
+
+void MainWindow::clearFinishedDownloads() {
+  for (int i = list->count() - 1; i >= 0; --i) {
+      
+      QListWidgetItem *item = list->item(i);
+      QWidget *widget = list->itemWidget(item);
+      // Casting to class
+      DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
+      
+      if (downloadItem && downloadItem->isFinished()) {
+          delete item; 
+      }
+  }
+  clearFinishedButton->setEnabled(false);
+}
+
+void MainWindow::itemFinished() {
+  clearFinishedButton->setEnabled(true);
 }
