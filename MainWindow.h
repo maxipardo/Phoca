@@ -19,6 +19,8 @@
 #include <QCoreApplication>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QListWidget>
+#include <QListWidgetItem>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -32,6 +34,7 @@ Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
 private:
+    QHBoxLayout *fullLayout;
     QVBoxLayout *layout;
     QHBoxLayout *linkLayout;
     QHBoxLayout *optionsLayout;
@@ -47,6 +50,8 @@ private:
     QMenu *buildMenu;
     QAction *aboutAction;
     QProgressBar *progressBar;
+
+    QListWidget *list;
     
     QRadioButton *bothButton;
     QRadioButton *videoButton;

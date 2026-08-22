@@ -13,6 +13,9 @@
 !Service.h
 !ServiceMaintainer.cpp
 !ServiceMaintainer.h
+!DownloadItem.h
+!DownloadItem.cpp
+!DownloadConfig.h
 !.github/
 !.github/workflows/
 !.github/workflows/windows-build.yml
