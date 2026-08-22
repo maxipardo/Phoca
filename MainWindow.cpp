@@ -134,6 +134,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   connect(aboutAction, &QAction::triggered, this, 
           &MainWindow::aboutPage);
 
+  connect(linkBox, &QLineEdit::textChanged, this, [this]() {
+    linkBox->setCursorPosition(0); // Linkbox on pos 0 on pasting
+});
+
   connect(bothButton, &QPushButton::clicked, this, 
           &MainWindow::toggleQualityOptions);
   connect(videoButton, &QPushButton::clicked, this, 
@@ -278,63 +282,7 @@ void MainWindow::startDownload() {
   list->setItemWidget(item, newDownload);
                          
   titleLabel->hide();
-}
-
-void MainWindow::downloadStarted() {
-  statusLabel->setText(tr("Download started"));
-  if (progressBar->maximum() == 0) {
-        progressBar->setRange(0, 100);
-    }
-  progressBar->setValue(0);
-  progressBar->show();
-  stopDownloadButton->setEnabled(true);
-  // Change on v0.4+
-  QCoreApplication::processEvents();
-  this->resize(this->width(), this->sizeHint().height() + 50);
-  this->adjustSize();
-}
-
-void MainWindow::downloadProgress(int percentage) { // Percentage jumping glitch fix
-  statusLabel->setText(downloadPhase);
-  if (percentage >= progressBar->value() || (progressBar->value() - percentage) > 50) {
-      progressBar->setValue(percentage);
-  }
-}
-
-void MainWindow::downloadFinished(int exit) {
-  if (exit == 0) {
-    statusLabel->setText(tr("Download finished successfully at: %1").arg(downloadLocation));
-  } else if (exit == 9) {
-    statusLabel->setText(tr("Download stopped"));
-  } else {
-    statusLabel->setText(tr("Download failed, error code: %1").arg(QString::number(exit)));
-  }
-  progressBar->hide();
-  downloadButton->setEnabled(true);
-    // Change on v0.4+
-  QCoreApplication::processEvents();
-  this->resize(this->width(), this->sizeHint().height() - 50);
-  this->adjustSize();
-  
-}
-
-void MainWindow::downloadProcessFailed(QString error) { // Can't start yt-dlp process
-  this->statusBar()->showMessage(error);
-  progressBar->hide();
-}
-
-void MainWindow::downloadPhaseUpdated(QString phase) {
-    downloadPhase = phase;
-
-    if (phase == tr("Processing...")) {
-        progressBar->setRange(0, 0);
-    } else {
-        progressBar->setRange(0, 100);
-    }
-}
-
-void MainWindow::onTitleUpdated(QString title) {
-  this->statusBar()->showMessage(title.toUpper());
+  linkBox->clear();
 }
 
 void MainWindow::aboutPage() {
@@ -368,7 +316,7 @@ void MainWindow::stopDownload() { // Using slot in MainWindow for easier future 
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    if (list->count() > 0) { // Change on v0.4+
+    if (list->count() > 0) {
         QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
             tr("There is a download in progress.\nAre you sure you want to close Phoca?\nThe download will be cancelled."),
             QMessageBox::No | QMessageBox::Yes,

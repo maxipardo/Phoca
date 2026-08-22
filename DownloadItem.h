@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QProgressBar>
 #include <QContextMenuEvent>
+#include <QResizeEvent>
 
 class DownloadItem : public QWidget {
 Q_OBJECT
@@ -12,6 +13,7 @@ public:
     explicit DownloadItem (DownloadConfig config, QWidget *parent = nullptr);
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 private:
     Service *service;
 
@@ -22,6 +24,7 @@ private:
     QString downloadPhase;
     QString downloadLocation;
     QString downloadedSize;
+    QString fullTitle;
 
 private slots:
     void downloadStarted();
@@ -34,4 +37,7 @@ private slots:
     void onSizeUpdated(QString cleanSize);
 
     void stopDownload();
+
+    void updateElidedText();
+    void updateTitleText(const QString &text);
 };
