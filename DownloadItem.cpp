@@ -30,7 +30,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     downloadLocation = config.downloadLocation;
     downloadPhase = "";
 
-    /* Service */
+      /* Service */
       connect(service, &Service::downloadStarted, this,
             &DownloadItem::downloadStarted);
       connect(service, &Service::downloadFinished, this,
@@ -43,17 +43,11 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
             &DownloadItem::downloadPhaseUpdated);
       connect(service, &Service::titleUpdated, this, 
             &DownloadItem::onTitleUpdated);
-
       connect(service, &Service::sizeUpdated, this, 
             &DownloadItem::onSizeUpdated);
 }
 
-// Nueva función de ayuda para centralizar los cambios de texto
-void DownloadItem::updateTitleText(const QString &text) {
-    fullTitle = text;
-    updateElidedText();
-}
-
+// Service
 void DownloadItem::downloadStarted() {
       progressBar->setTextVisible(true);
       updateTitleText(tr("Download started"));
@@ -68,7 +62,7 @@ void DownloadItem::downloadFinished(int exit) {
             progressBar->setRange(0, 100);
             progressBar->setValue(100);
             if (fullTitle == tr("Download started")) {
-                  updateTitleText(tr("Download finished")); // Ya bajado o sin título
+                  updateTitleText(tr("Download finished")); // Already downloaded or without title
             }
             progressBar->setTextVisible(false);
       } else if (exit == 9) {
@@ -76,6 +70,8 @@ void DownloadItem::downloadFinished(int exit) {
       } else {
             updateTitleText(tr("Download failed, error code: %1").arg(QString::number(exit)));
       }
+      downloadFinishedState = true;
+      emit finishedSignal();
 };
 
 void DownloadItem::downloadProgress(int percentage) {
@@ -109,8 +105,30 @@ void DownloadItem::downloadProcessFailed(QString error) {
 
 void DownloadItem::stopDownload() {
       service->stopDownload();
+      emit removeRequested();
 }
 
+// Text changes centralized
+void DownloadItem::updateTitleText(const QString &text) {
+    fullTitle = text;
+    updateElidedText();
+}
+
+void DownloadItem::resizeEvent(QResizeEvent *event) {
+    QWidget::resizeEvent(event); 
+    updateElidedText();          
+}
+
+void DownloadItem::updateElidedText() {
+    if (fullTitle.isEmpty()) return;
+    
+    QFontMetrics metrics(titleLabel->font());
+    QString elidedTitle = metrics.elidedText(fullTitle, Qt::ElideRight, titleLabel->width());
+    
+    titleLabel->setText(elidedTitle);
+}
+
+// Conext menu actions
 void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       QMenu menu(this);
       
@@ -119,7 +137,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       if (folderIcon.isNull()) {
             folderIcon = style()->standardIcon(QStyle::SP_DirOpenIcon);
       }
-      openLocation->setIcon(folderIcon); 
+      openLocation->setIcon(folderIcon);
 
       QAction *cancelAction = menu.addAction(tr("Cancel download"));
       QIcon cancelIcon = QIcon::fromTheme("process-stop");
@@ -135,18 +153,4 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       } else if (selectedAction == openLocation) {
             QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
       }
-}
-
-void DownloadItem::resizeEvent(QResizeEvent *event) {
-    QWidget::resizeEvent(event); 
-    updateElidedText();          
-}
-
-void DownloadItem::updateElidedText() {
-    if (fullTitle.isEmpty()) return;
-    
-    QFontMetrics metrics(titleLabel->font());
-    QString elidedTitle = metrics.elidedText(fullTitle, Qt::ElideRight, titleLabel->width());
-    
-    titleLabel->setText(elidedTitle);
 }

@@ -40,7 +40,7 @@ private:
     QHBoxLayout *optionsLayout;
     QLineEdit *linkBox;
     QPushButton *downloadButton;
-    QPushButton *stopDownloadButton;
+    QPushButton *clearFinishedButton;
     QPushButton *getEngineButton;
     QLabel *statusLabel; // General: download and service
     QLabel *titleLabel;
@@ -73,6 +73,7 @@ private:
 
     Service *service;
     QString downloadPhase;
+    QLabel *locationLabel;
 protected:
     void closeEvent(QCloseEvent *event) override;
     
@@ -85,9 +86,11 @@ private slots:
     void changeLocation();
     void changeSavePlaylistInFolder();
     void changeSaveThumbnail();
+    void updateLocationLabel();
 
     void startDownload();
-    void stopDownload();
+    void clearFinishedDownloads();
+    void itemFinished();
 
     void aboutPage();
 };
