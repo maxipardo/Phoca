@@ -87,12 +87,6 @@ private slots:
     void changeSaveThumbnail();
 
     void startDownload();
-    void downloadStarted();
-    void downloadFinished(int exit);
-    void downloadProcessFailed(QString error);
-    void downloadProgress(int percentage);
-    void downloadPhaseUpdated(QString phase);
-    void onTitleUpdated(QString title);
     void stopDownload();
 
     void aboutPage();

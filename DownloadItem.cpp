@@ -1,6 +1,8 @@
 #include "DownloadItem.h"
 #include <QLayout>
 #include <QMenu>
+#include <QDesktopServices>
+#include <QStyle>
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
     service = new Service(this);
@@ -9,15 +11,19 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
                         config.playlist, config.savePlaylistInFolder, config.saveThumbnail);
 
     titleLabel = new QLabel(this);
+    titleLabel->setMinimumWidth(50); 
+    
     sizeLabel = new QLabel(this);
     progressBar = new QProgressBar(this);
     progressBar->setMaximumWidth(100);
     progressBar->setTextVisible(false);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(titleLabel);
-    QSpacerItem *spacer = new QSpacerItem(40, 1, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    layout->addItem(spacer);
+    
+    layout->setContentsMargins(6, 0, 6, 0);
+
+    layout->addWidget(titleLabel, 1); 
+
     layout->addWidget(sizeLabel);
     layout->addWidget(progressBar);
 
@@ -42,10 +48,15 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
             &DownloadItem::onSizeUpdated);
 }
 
+// Nueva función de ayuda para centralizar los cambios de texto
+void DownloadItem::updateTitleText(const QString &text) {
+    fullTitle = text;
+    updateElidedText();
+}
 
 void DownloadItem::downloadStarted() {
       progressBar->setTextVisible(true);
-      titleLabel->setText(tr("Download started"));
+      updateTitleText(tr("Download started"));
       if (progressBar->maximum() == 0) {
             progressBar->setRange(0, 100);
       }
@@ -56,16 +67,15 @@ void DownloadItem::downloadFinished(int exit) {
       if (exit == 0) {
             progressBar->setRange(0, 100);
             progressBar->setValue(100);
-            if (titleLabel->text() == tr("Download started")) {
-                  titleLabel->setText("Download finished"); // Already downloaded or couldn't get title
-                  progressBar->setTextVisible(false);
+            if (fullTitle == tr("Download started")) {
+                  updateTitleText(tr("Download finished")); // Ya bajado o sin título
             }
+            progressBar->setTextVisible(false);
       } else if (exit == 9) {
-            titleLabel->setText(tr("Download stopped"));
+            updateTitleText(tr("Download stopped"));
       } else {
-            titleLabel->setText(tr("Download failed, error code: %1").arg(QString::number(exit)));
+            updateTitleText(tr("Download failed, error code: %1").arg(QString::number(exit)));
       }
-
 };
 
 void DownloadItem::downloadProgress(int percentage) {
@@ -76,13 +86,13 @@ void DownloadItem::downloadProgress(int percentage) {
 
 void DownloadItem::onSizeUpdated(QString cleanSize) {
     downloadedSize = cleanSize;
-    
     sizeLabel->setText(downloadedSize);
 }
 
 void DownloadItem::onTitleUpdated(QString title) {
-      titleLabel->setText(title);
-};
+      updateTitleText(title);
+}
+
 void DownloadItem::downloadPhaseUpdated(QString phase) {
       downloadPhase = phase;
 
@@ -91,10 +101,10 @@ void DownloadItem::downloadPhaseUpdated(QString phase) {
       } else {
             progressBar->setRange(0, 100);
       }
-};
+}
 
 void DownloadItem::downloadProcessFailed(QString error) {
-      titleLabel->setText(tr("Process failed: %1").arg(error));
+      updateTitleText(tr("Process failed: %1").arg(error));
 }
 
 void DownloadItem::stopDownload() {
@@ -104,10 +114,39 @@ void DownloadItem::stopDownload() {
 void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       QMenu menu(this);
       
-      QAction *cancelAction = menu.addAction(tr("Cancel download"));
-      QAction *accionSeleccionada = menu.exec(event->globalPos());
-
-      if (accionSeleccionada == cancelAction) {
-            stopDownload();
+      QAction *openLocation = menu.addAction(tr("Open file location"));
+      QIcon folderIcon = QIcon::fromTheme("document-open-folder");
+      if (folderIcon.isNull()) {
+            folderIcon = style()->standardIcon(QStyle::SP_DirOpenIcon);
       }
+      openLocation->setIcon(folderIcon); 
+
+      QAction *cancelAction = menu.addAction(tr("Cancel download"));
+      QIcon cancelIcon = QIcon::fromTheme("process-stop");
+      if (cancelIcon.isNull()) {
+            cancelIcon = style()->standardIcon(QStyle::SP_BrowserStop);
+      }
+      cancelAction->setIcon(cancelIcon); 
+
+      QAction *selectedAction = menu.exec(event->globalPos());
+
+      if (selectedAction == cancelAction) {
+            stopDownload();
+      } else if (selectedAction == openLocation) {
+            QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
+      }
+}
+
+void DownloadItem::resizeEvent(QResizeEvent *event) {
+    QWidget::resizeEvent(event); 
+    updateElidedText();          
+}
+
+void DownloadItem::updateElidedText() {
+    if (fullTitle.isEmpty()) return;
+    
+    QFontMetrics metrics(titleLabel->font());
+    QString elidedTitle = metrics.elidedText(fullTitle, Qt::ElideRight, titleLabel->width());
+    
+    titleLabel->setText(elidedTitle);
 }
