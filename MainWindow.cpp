@@ -266,10 +266,22 @@ void MainWindow::startDownload() {
 
   bool parSaveThumbnail{saveThumbnail && !playlist};
 
+  QString quality;
+  QString conversion;
+  if (qualityBox->currentIndex() == 0) {
+    quality = "0";
+  } else {
+    quality = qualityBox->currentText();
+  }
+  if (conversionBox->currentIndex() == 0) {
+    conversion = "0";
+  } else {
+    conversion = conversionBox->currentText();
+  }
+
   downloadButton->setEnabled(false);
   service->startDownload(linkBox->text(), downloadLocation, format, 
-                         qualityBox->currentText(), conversionBox->currentText(), 
-                         playlist, savePlaylistInFolder, parSaveThumbnail);
+                         quality, conversion, playlist, savePlaylistInFolder, parSaveThumbnail);
   titleLabel->hide();
   
 }

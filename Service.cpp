@@ -44,7 +44,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
 
     QString videoFilter = "bv*"; 
     
-    if (quality != tr("Best") && !quality.isEmpty()) {
+    if (quality != "0" && !quality.isEmpty()) {
         QString height = quality;
         height.remove("p");
         videoFilter = "bv*[height<=" + height + "]";
@@ -62,7 +62,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
         case 2: // audio only
             arguments << "-x"; 
             
-            if (conversion != tr("Original") && !conversion.isEmpty()) {
+            if (conversion != "0" && !conversion.isEmpty()) {
                 QString targetFormat = conversion;
                 targetFormat.remove(".");
                 
@@ -71,7 +71,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
             break;
     }
 
-    if (conversion != tr("Original") && !conversion.isEmpty() && format != 2) {
+    if (conversion != "0" && !conversion.isEmpty() && format != 2) {
         
         QString targetFormat = conversion;
         targetFormat.remove("."); 
