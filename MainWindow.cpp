@@ -1,13 +1,12 @@
 #include "MainWindow.h"
+#include "DownloadItem.h"
 #include "Service.h"
 #include "About.h"
-#include <qaction.h>
-#include <qpushbutton.h>
-
+#include "DownloadConfig.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
-
-  layout = new QVBoxLayout(centralWidget);
+  fullLayout = new QHBoxLayout(centralWidget);
+  layout = new QVBoxLayout();
   linkLayout = new QHBoxLayout();
   optionsLayout = new QHBoxLayout();
   linkBox = new QLineEdit(centralWidget);
@@ -19,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   progressBar = new QProgressBar(centralWidget);
   maintainer = new ServiceMaintainer(this);
   chosenDirectory = QDir::homePath();
+
+  list = new QListWidget(centralWidget);
 
   bothButton = new QRadioButton(tr("Both"), centralWidget);
   videoButton = new QRadioButton(tr("Video"), centralWidget);
@@ -69,6 +70,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   downloadButton->setEnabled(false);
   stopDownloadButton->setText(tr("Stop download"));
   getEngineButton->setText(tr("Update yt-dlp"));
+
+  fullLayout->addWidget(list);
+  fullLayout->addLayout(layout);
   
   layout->addLayout(linkLayout);
   linkLayout->addWidget(linkBox);
@@ -164,18 +168,7 @@ connect(saveThumbnailAction, &QAction::triggered, this,
           &MainWindow::startDownload);
   connect(stopDownloadButton, &QPushButton::clicked, this,
           &MainWindow::stopDownload);
-  connect(service, &Service::downloadStarted, this,
-          &MainWindow::downloadStarted);
-  connect(service, &Service::downloadFinished, this,
-          &MainWindow::downloadFinished);
-  connect(service, &Service::processFailed, this,
-          &MainWindow::downloadProcessFailed);
-  connect(service, &Service::percentageUpdated, this,
-          &MainWindow::downloadProgress);
-  connect(service, &Service::phaseUpdated, this,
-          &MainWindow::downloadPhaseUpdated);
-  connect(service, &Service::titleUpdated, this, 
-          &MainWindow::onTitleUpdated);
+
 
   this->statusBar()->showMessage(tr("Download location: %1").arg(downloadLocation));
   this->adjustSize();
@@ -252,9 +245,9 @@ void MainWindow::startDownload() {
     
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
     msgBox.button(QMessageBox::Cancel)->hide();
-
+    
     int answer = msgBox.exec();
-
+    
     if (answer == QMessageBox::Yes) {
       playlist = true;
     } else if (answer == QMessageBox::No) {
@@ -263,15 +256,28 @@ void MainWindow::startDownload() {
       return; 
     }
   }
-
-  bool parSaveThumbnail{saveThumbnail && !playlist};
-
-  downloadButton->setEnabled(false);
-  service->startDownload(linkBox->text(), downloadLocation, format, 
-                         qualityBox->currentText(), conversionBox->currentText(), 
-                         playlist, savePlaylistInFolder, parSaveThumbnail);
-  titleLabel->hide();
   
+  bool parSaveThumbnail{saveThumbnail && !playlist};
+  
+  // Config struct
+  DownloadConfig config;
+  config.link = link;
+  config.downloadLocation = downloadLocation;
+  config.format = format;
+  config.quality = qualityBox->currentText();
+  config.conversion = conversionBox->currentText();
+  config.playlist = playlist;
+  config.savePlaylistInFolder = savePlaylistInFolder;
+  config.saveThumbnail = parSaveThumbnail;
+
+  DownloadItem *newDownload = new DownloadItem(config, this);
+  QListWidgetItem *item = new QListWidgetItem();
+
+  item->setSizeHint(newDownload->sizeHint());
+  list->addItem(item);
+  list->setItemWidget(item, newDownload);
+                         
+  titleLabel->hide();
 }
 
 void MainWindow::downloadStarted() {
@@ -305,7 +311,6 @@ void MainWindow::downloadFinished(int exit) {
   }
   progressBar->hide();
   downloadButton->setEnabled(true);
-  stopDownloadButton->setEnabled(false); // Change on v0.4+
     // Change on v0.4+
   QCoreApplication::processEvents();
   this->resize(this->width(), this->sizeHint().height() - 50);
@@ -363,7 +368,7 @@ void MainWindow::stopDownload() { // Using slot in MainWindow for easier future 
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    if (stopDownloadButton->isEnabled()) { // Change on v0.4+
+    if (list->count() > 0) { // Change on v0.4+
         QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
             tr("There is a download in progress.\nAre you sure you want to close Phoca?\nThe download will be cancelled."),
             QMessageBox::No | QMessageBox::Yes,

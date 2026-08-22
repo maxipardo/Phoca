@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(Phoca VERSION 0.3)
+project(Phoca VERSION 0.4)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -24,6 +24,9 @@ add_executable(phoca
     resources.qrc
     About.h
     About.cpp
+    DownloadItem.h
+    DownloadItem.cpp
+    DownloadConfig.h
 )
 
 if(WIN32)
