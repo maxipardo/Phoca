@@ -217,13 +217,14 @@ void MainWindow::getServiceSlot() {
 }
 
 void MainWindow::changeLocation() {
-  downloadLocation = QFileDialog::getExistingDirectory(
-      this, tr("Choose where to save files"), QDir::homePath(),
+  const QString dir = QFileDialog::getExistingDirectory(
+      this, tr("Choose where to save files"), downloadLocation,
       QFileDialog::ShowDirsOnly);
 
-  if (!downloadLocation.isEmpty()) {
+  if (!dir.isEmpty()) {
+    downloadLocation = dir;
+
     QSettings settings("MaximoPardo", "Phoca");
-    
     settings.setValue("downloadLocation", downloadLocation);
 
     qDebug() << "Settings saved. Chosen folder:" << downloadLocation;
