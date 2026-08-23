@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   deleteAction->setShortcutContext(Qt::WidgetShortcut);
   list->addAction(deleteAction);
 
+  // Del key
   connect(deleteAction, &QAction::triggered, this, [this]() {
       QListWidgetItem *currentItem = list->currentItem();
       if (!currentItem) return;
@@ -203,6 +204,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
          downloadButton, &QPushButton::click);
 
   //connect(list, &QListWidget::itemDoubleClicked, this, &MainWindow::openDirectory);
+         
          
          
   locationLabel = new QLabel(this);
