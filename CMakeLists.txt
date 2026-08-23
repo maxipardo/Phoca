@@ -41,14 +41,20 @@ qt_add_translations(phoca TS_FILES ${TS_FILES})
 target_compile_definitions(phoca PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
 # ==========================================
-# /usr/bin
+# /usr/bin (/app/bin on Flatpak)
 install(TARGETS phoca DESTINATION bin)
+
 # deno
-install(PROGRAMS ext_bin/deno DESTINATION bin)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ext_bin/deno")
+    install(PROGRAMS ext_bin/deno DESTINATION bin)
+endif()
 
-install(FILES phoca.desktop DESTINATION share/applications)
+install(FILES phoca.desktop 
+        DESTINATION share/applications)
 
-install(FILES phoca256.png DESTINATION share/icons/hicolor/256x256/apps RENAME phoca.png)
+install(FILES phoca256.png 
+        DESTINATION share/icons/hicolor/256x256/apps
+        RENAME phoca.png)
 # ==========================================
 
 set(CPACK_GENERATOR "DEB")

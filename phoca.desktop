@@ -7,4 +7,4 @@ Comment[es]=Descarga cualquier video/audio a través de yt-dlp
 Exec=phoca
 Icon=phoca
 Type=Application
-Categories=Utility;Network;AudioVideo;
+Categories=Utility
