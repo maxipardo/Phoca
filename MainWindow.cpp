@@ -2,6 +2,7 @@
 #include "DownloadItem.h"
 #include "About.h"
 #include "DownloadConfig.h"
+#include "ServiceMaintainer.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
   fullLayout = new QHBoxLayout(centralWidget);
@@ -33,6 +34,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   downloadLocation = settings.value("downloadLocation", QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).toString();
   savePlaylistInFolder = settings.value("savePlaylistInFolder", true).toBool();
   saveThumbnail = settings.value("saveThumbnail", false).toBool();
+  firstLaunch = settings.value("firstLaunch", true).toBool();
+  lastEngineUpdate = settings.value("lastEngineUpdate", QDateTime::currentDateTime()).toDateTime();
+  QDateTime now = QDateTime::currentDateTime();
+
+  if (lastEngineUpdate.daysTo(now) >= 3) {
+    getServiceSlot();
+}
 
   /* Menu */
   optionsMenu = new QMenu(tr("Options"), this);
@@ -178,11 +186,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   connect(linkBox, &QLineEdit::returnPressed,
          downloadButton, &QPushButton::click);
-
+         
   locationLabel = new QLabel(this);
   locationLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   this->statusBar()->addWidget(locationLabel);
   updateLocationLabel();
+
+  if (firstLaunch) {
+    QTimer::singleShot(500, [this]() {
+      getServiceSlot();
+    });
+    settings.setValue("firstLaunch", false);
+  }
 }
 
 void MainWindow::updateLocationLabel() {
@@ -224,6 +239,9 @@ void MainWindow::getServiceSlot() {
   downloadButton->setEnabled(false);
   bool nightly{chooseNightlyAction->isChecked()};
   maintainer->getService(nightly);
+  QSettings settings("MaximoPardo", "Phoca");
+  QDateTime now = QDateTime::currentDateTime();
+  settings.setValue("lastEngineUpdate", now);
 }
 
 void MainWindow::changeLocation() {

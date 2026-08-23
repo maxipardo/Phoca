@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     }
 
     app.setWindowIcon(QIcon(":/phoca.png"));
-    app.setDesktopFileName("phoca.desktop");
+    app.setDesktopFileName("phoca");
 
     MainWindow window;
 

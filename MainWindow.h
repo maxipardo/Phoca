@@ -28,6 +28,8 @@
 #include <QActionGroup>
 
 #include <QList>
+#include <QTimer>
+#include <QDateTime>
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
@@ -70,6 +72,8 @@ private:
     QString downloadLocation;
     bool savePlaylistInFolder;
     bool saveThumbnail;
+    bool firstLaunch;
+    QDateTime lastEngineUpdate;
 
     Service *service;
     QString downloadPhase;
