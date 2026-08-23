@@ -89,22 +89,6 @@ void Service::startDownload(QString link, QString location, int format, QString 
     downloadProcess->start(executable, arguments);
 }
 
-void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
-    if (exitCode == 0) {
-        emit downloadFinished(0);
-    } else {
-        emit downloadFinished(exitCode);
-    }
-}
-
-void Service::downloadFailed(QProcess::ProcessError error) {
-    if (error == QProcess::FailedToStart) {
-        emit processFailed(tr("Couldn't find yt-dlp"));
-    } else {
-        emit processFailed(tr("Unexpected error"));
-    }
-}
-
 void Service::readOutput() {
     QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
     QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%(?:\\s+of\\s+~?\\s*([0-9.]+)([a-zA-Z]+))?");
@@ -118,7 +102,7 @@ void Service::readOutput() {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
         if (line.startsWith("ERROR:")) {
             qDebug() << "yt-dlp [ERROR]:" << line;
-            emit processFailed(line); // Opcional: para que se vea en el statusLabel
+            emit processFailed(line);
         }
         // Format (1/50)
         QRegularExpressionMatch matchPlaylist = regexPlaylist.match(line);
@@ -150,9 +134,9 @@ void Service::readOutput() {
             if (!playlistStatus.isEmpty()) {
                 cleanTitle = QString("%1 %2").arg(playlistStatus, cleanTitle);
             }
-
+            
             emit titleUpdated(cleanTitle);
-
+            
             if (partCounter == 1) {
                 emit phaseUpdated(tr("Downloading..."));
             } else if (partCounter > 1) {
@@ -160,7 +144,7 @@ void Service::readOutput() {
             }
             continue;
         }
-
+        
         QRegularExpressionMatch matchProgress = regexProgress.match(line);
         if (matchProgress.hasMatch()) {
             QString textNumber = matchProgress.captured(1);
@@ -180,13 +164,13 @@ void Service::readOutput() {
                 
                 QString statsText = QString("(%1 %2 / %3 %2)").arg(strDownloaded, unit, strTotal);
                 emit phaseUpdated(currentPhase + " " + statsText);
-
+                
                 emit sizeUpdated(strDownloaded + " " + unit);
-
+                
             } else {
                 emit phaseUpdated(currentPhase);
             }
-
+            
             emit percentageUpdated(percentage);
             
             if (percentage == 100) {
@@ -194,6 +178,22 @@ void Service::readOutput() {
             }
             continue;
         }
+    }
+}
+
+void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
+    if (exitCode == 0) {
+        emit downloadFinished(0);
+    } else {
+        emit downloadFinished(exitCode);
+    }
+}
+
+void Service::downloadFailed(QProcess::ProcessError error) {
+    if (error == QProcess::FailedToStart) {
+        emit processFailed(tr("Couldn't find yt-dlp"));
+    } else {
+        emit processFailed(tr("Unexpected error"));
     }
 }
 

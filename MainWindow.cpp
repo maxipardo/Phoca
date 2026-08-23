@@ -157,15 +157,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   connect(bothButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->clear();
     conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
-});
+  });
   connect(videoButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->clear();
     conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
-});
+  });
   connect(audioButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->clear();
     conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
-});
+  });
 
   connect(savePlaylistInFolderAction, &QAction::triggered, this,
          &MainWindow::changeSavePlaylistInFolder);
@@ -183,7 +183,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   locationLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   this->statusBar()->addWidget(locationLabel);
   updateLocationLabel();
-
 }
 
 void MainWindow::updateLocationLabel() {
