@@ -140,7 +140,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       }
       openLocation->setIcon(folderIcon);
 
-      QAction *cancelAction = menu.addAction(tr("Cancel download"));
+      QAction *cancelAction = menu.addAction(tr("Delete download\tDel"));
       QIcon cancelIcon = QIcon::fromTheme("process-stop");
       if (cancelIcon.isNull()) {
             cancelIcon = style()->standardIcon(QStyle::SP_BrowserStop);

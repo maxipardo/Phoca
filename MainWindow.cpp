@@ -21,12 +21,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   list = new QListWidget(centralWidget);
 
+  QAction *deleteAction = new QAction(list);
+  deleteAction->setShortcut(QKeySequence::Delete);
+  deleteAction->setShortcutContext(Qt::WidgetShortcut);
+  list->addAction(deleteAction);
+
+  // Supr key
+  connect(deleteAction, &QAction::triggered, this, [this]() {
+      QListWidgetItem *currentItem = list->currentItem();
+      if (!currentItem) return;
+
+      DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(currentItem));
+      if (di) {
+          di->stopDownload(); 
+      }
+  });
+
   bothButton = new QRadioButton(tr("Both"), centralWidget);
   videoButton = new QRadioButton(tr("Video"), centralWidget);
   audioButton = new QRadioButton(tr("Audio"), centralWidget);
 
   /* MainWindow size */
-  this->resize(800, 200);
+  this->resize(200, 200);
   this->setMinimumWidth(462);
 
   /* Persistent settings */
@@ -186,6 +202,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   connect(linkBox, &QLineEdit::returnPressed,
          downloadButton, &QPushButton::click);
+         
          
   locationLabel = new QLabel(this);
   locationLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);

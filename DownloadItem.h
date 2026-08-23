@@ -28,6 +28,8 @@ private:
     QString fullTitle;
 
     bool downloadFinishedState = false;
+public slots:
+    void stopDownload();
 private slots:
     void downloadStarted();
     void downloadFinished(int exit);
@@ -37,8 +39,6 @@ private slots:
     void downloadProcessFailed(QString error);
 
     void onSizeUpdated(QString cleanSize);
-
-    void stopDownload();
 
     void updateElidedText();
     void updateTitleText(const QString &text);
