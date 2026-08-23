@@ -15,17 +15,17 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     
     sizeLabel = new QLabel(this);
     progressBar = new QProgressBar(this);
-    progressBar->setMaximumWidth(100);
+    //progressBar->setMaximumWidth(100);
     progressBar->setTextVisible(false);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     
     layout->setContentsMargins(6, 0, 6, 0);
 
-    layout->addWidget(titleLabel, 1); 
+    layout->addWidget(titleLabel, 3); 
 
     layout->addWidget(sizeLabel);
-    layout->addWidget(progressBar);
+    layout->addWidget(progressBar, 1);
 
     downloadLocation = config.downloadLocation;
     downloadPhase = "";
@@ -86,6 +86,7 @@ void DownloadItem::onSizeUpdated(QString cleanSize) {
 }
 
 void DownloadItem::onTitleUpdated(QString title) {
+      title.remove(QRegularExpression("\\.f\\d+.*$"));
       updateTitleText(title);
 }
 

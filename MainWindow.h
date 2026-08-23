@@ -36,7 +36,7 @@ Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
 private:
-    QHBoxLayout *fullLayout;
+    QVBoxLayout *fullLayout;
     QVBoxLayout *layout;
     QHBoxLayout *linkLayout;
     QHBoxLayout *optionsLayout;

@@ -5,7 +5,7 @@
 #include "ServiceMaintainer.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
-  fullLayout = new QHBoxLayout(centralWidget);
+  fullLayout = new QVBoxLayout(centralWidget);
   layout = new QVBoxLayout();
   linkLayout = new QHBoxLayout();
   optionsLayout = new QHBoxLayout();
@@ -79,8 +79,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   clearFinishedButton->setText(tr("Clear finished"));
   getEngineButton->setText(tr("Update yt-dlp"));
 
-  fullLayout->addWidget(list);
   fullLayout->addLayout(layout);
+  fullLayout->addWidget(list);
   
   layout->addLayout(linkLayout);
   linkLayout->addWidget(linkBox);
