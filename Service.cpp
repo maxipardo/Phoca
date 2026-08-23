@@ -38,11 +38,17 @@ void Service::startDownload(QString link, QString location, int format, QString 
 
     arguments << "--newline" << "--no-colors" << "-o" << outputPath;
 
-    QString appPath = QCoreApplication::applicationDirPath();
-    QString ffmpegPath = appPath + "/bin"; 
+    // PATH flatpak or .deb
+    QString ffmpegPath = QStandardPaths::findExecutable("ffmpeg");
     
-    if (QDir(ffmpegPath).exists()) {
-        arguments << "--ffmpeg-location" << ffmpegPath;
+    // Windows, AppImage, binary
+    if (ffmpegPath.isEmpty()) {
+        QString appPath = QCoreApplication::applicationDirPath();
+        ffmpegPath = QStandardPaths::findExecutable("ffmpeg", QStringList() << appPath + "/bin");
+    }
+
+    if (!ffmpegPath.isEmpty()) {
+        arguments << "--ffmpeg-location" << ffmpegPath; 
     }
 
     QString videoFilter = "bv*"; 
