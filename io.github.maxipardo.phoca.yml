@@ -1,0 +1,43 @@
+app-id: io.github.maxipardo.phoca
+runtime: org.kde.Platform
+runtime-version: '6.6'
+sdk: org.kde.Sdk
+command: phoca
+finish-args:
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+
+  - --share=network
+  - --filesystem=home
+
+modules:
+  # ffmpeg, ffmprobe
+  - name: ffmpeg-full
+    buildsystem: simple
+    build-commands:
+      - install -D -m 755 bin/ffmpeg /app/bin/ffmpeg
+      - install -D -m 755 bin/ffprobe /app/bin/ffprobe
+    sources:
+      - type: archive
+        url: https://github.com/yt-dlp/FFmpeg-Builds/releases/download/autobuild-2026-08-23-14-27/ffmpeg-N-126250-gdea13cca4f-linux64-gpl.tar.xz
+        sha256: c74ea8ea31206b7e8f42169e87662c885512968d9c5d0bfd2b851f848cf676e0
+  # Deno
+  - name: deno
+    buildsystem: simple
+    build-commands:
+      - install -D -m 755 deno /app/bin/deno
+    sources:
+      - type: archive
+        url: https://github.com/denoland/deno/releases/download/v2.9.5/deno-x86_64-unknown-linux-gnu.zip
+        sha256: 8b010a3b1a4a0188a67cdb8a7a27348b2a501af78aec7fc74f2ace167368d530
+
+  # Phoca
+  - name: phoca
+    buildsystem: cmake
+    config-opts:
+      - -DFLATPAK_BUILD=ON
+    sources:
+      - type: git
+        url: https://github.com/maxipardo/Phoca.git
+        branch: main

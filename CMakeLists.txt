@@ -40,21 +40,33 @@ qt_add_translations(phoca TS_FILES ${TS_FILES})
 
 target_compile_definitions(phoca PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
+# Flatpak icon
+option(FLATPAK_BUILD "Set names for Flatpak" OFF)
+
+if(FLATPAK_BUILD)
+    set(APP_ID "io.github.maxipardo.phoca")
+else()
+    set(APP_ID "phoca")
+endif()
+
+target_compile_definitions(phoca PRIVATE DESKTOP_FILE_NAME="${APP_ID}")
+
 # ==========================================
-# /usr/bin (/app/bin on Flatpak)
 install(TARGETS phoca DESTINATION bin)
 
-# deno
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ext_bin/deno")
     install(PROGRAMS ext_bin/deno DESTINATION bin)
 endif()
 
-install(FILES phoca.desktop 
-        DESTINATION share/applications)
+configure_file(phoca.desktop.in phoca.desktop @ONLY)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/phoca.desktop
+        DESTINATION share/applications
+        RENAME ${APP_ID}.desktop)
 
 install(FILES phoca256.png 
         DESTINATION share/icons/hicolor/256x256/apps
-        RENAME phoca.png)
+        RENAME ${APP_ID}.png)
 # ==========================================
 
 set(CPACK_GENERATOR "DEB")

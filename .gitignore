@@ -27,4 +27,5 @@
 !About.cpp
 !About.h
 !i18n/*
-!phoca.desktop
+!phoca.desktop.in
+!io.github.maxipardo.phoca.yml
