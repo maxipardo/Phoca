@@ -1,0 +1,25 @@
+name: Build and Release Flatpak
+
+on:
+  push:
+    tags:
+      - 'v*' # On tag upload
+  workflow_dispatch: # Manual
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:kde-6.6
+      options: --privileged
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and package Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: phoca-x86_64.flatpak
+          manifest-path: io.github.maxipardo.phoca.yml
+          cache-key: flatpak-builder-${{ github.run_id }}

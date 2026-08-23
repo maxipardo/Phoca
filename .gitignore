@@ -29,4 +29,4 @@
 !i18n/*
 !phoca.desktop.in
 !io.github.maxipardo.phoca.yml
-flatpak-build.yml
+!.github/workflows/flatpak-build.yml
