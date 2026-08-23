@@ -36,11 +36,14 @@ void Service::startDownload(QString link, QString location, int format, QString 
         arguments << "--write-thumbnail";
     }
 
+    arguments << "--newline" << "--no-colors" << "-o" << outputPath;
+
     QString appPath = QCoreApplication::applicationDirPath();
     QString ffmpegPath = appPath + "/bin"; 
     
-    arguments << "--newline" << "--no-colors" << "-o" << outputPath;
-    arguments << "--ffmpeg-location" << ffmpegPath;
+    if (QDir(ffmpegPath).exists()) {
+        arguments << "--ffmpeg-location" << ffmpegPath;
+    }
 
     QString videoFilter = "bv*"; 
     
