@@ -38,6 +38,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
 
     QString appPath = QCoreApplication::applicationDirPath();
     QString ffmpegPath = appPath + "/bin"; 
+    arguments << "--newline" << "--no-colors" << "-o" << outputPath;
     
     if (QDir(ffmpegPath).exists()) {
         arguments << "--ffmpeg-location" << ffmpegPath;
@@ -116,7 +117,7 @@ void Service::readOutput() {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
         if (line.startsWith("ERROR:")) {
             qDebug() << "yt-dlp [ERROR]:" << line;
-            emit processFailed(line); // Opcional: para que se vea en el statusLabel
+            emit processFailed(line);
         }
         // Format (1/50)
         QRegularExpressionMatch matchPlaylist = regexPlaylist.match(line);
