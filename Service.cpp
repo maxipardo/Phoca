@@ -123,6 +123,8 @@ void Service::readOutput() {
 
         QRegularExpressionMatch matchDestination = regexDestination.match(line);
         if (matchDestination.hasMatch()) {
+            savedSizeMiB += currentPartMiB;
+            currentPartMiB = 0.0;
             partCounter++;
 
             QString fullPath = matchDestination.captured(1);
@@ -162,6 +164,11 @@ void Service::readOutput() {
             if (!matchProgress.captured(2).isEmpty()) {
                 double totalSize = matchProgress.captured(2).toDouble();
                 QString unit = matchProgress.captured(3); 
+
+                double sizeInMiB = totalSize;
+                if (unit == "KiB") sizeInMiB /= 1024.0;
+                else if (unit == "GiB") sizeInMiB *= 1024.0;
+                currentPartMiB = sizeInMiB;
                 
                 double downloaded = (textNumber.toDouble() / 100.0) * totalSize;
                 
@@ -189,6 +196,8 @@ void Service::readOutput() {
 
 void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
     if (exitCode == 0) {
+        double pesoTotal = savedSizeMiB + currentPartMiB;
+        emit sizeUpdated(QString::number(pesoTotal, 'f', 2) + " MiB");
         emit downloadFinished(0);
     } else {
         emit downloadFinished(exitCode);

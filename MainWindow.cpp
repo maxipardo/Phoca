@@ -202,6 +202,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   connect(linkBox, &QLineEdit::returnPressed,
          downloadButton, &QPushButton::click);
+
+  //connect(list, &QListWidget::itemDoubleClicked, this, &MainWindow::openDirectory);
          
          
   locationLabel = new QLabel(this);

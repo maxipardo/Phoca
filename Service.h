@@ -18,6 +18,8 @@ private:
     QProcess *downloadProcess;
     int partCounter;
     QString playlistStatus;
+    double savedSizeMiB = 0.0;
+    double currentPartMiB = 0.0;
 private slots:
     void onProcessFinish(int exitCode, QProcess::ExitStatus status);
     void downloadFailed(QProcess::ProcessError error);
