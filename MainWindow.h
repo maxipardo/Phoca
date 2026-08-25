@@ -91,7 +91,6 @@ private slots:
     void changeSavePlaylistInFolder();
     void changeSaveThumbnail();
     void updateLocationLabel();
-    void openDirectory();
 
     void startDownload();
     void clearFinishedDownloads();

@@ -110,6 +110,12 @@ void Service::readOutput() {
             qDebug() << "yt-dlp [ERROR]:" << line;
             emit processFailed(line);
         }
+
+        if (line.contains("has already been downloaded")) {
+            emit phaseUpdated(tr("Already downloaded"));
+            continue;
+        }
+        
         // Format (1/50)
         QRegularExpressionMatch matchPlaylist = regexPlaylist.match(line);
         if (matchPlaylist.hasMatch()) {
@@ -138,6 +144,8 @@ void Service::readOutput() {
             } else {
                 cleanTitle = fileName;
             }
+
+            cleanTitle.remove(QRegularExpression("^\\d+\\s*-\\s*"));
 
             if (!playlistStatus.isEmpty()) {
                 cleanTitle = QString("%1 %2").arg(playlistStatus, cleanTitle);

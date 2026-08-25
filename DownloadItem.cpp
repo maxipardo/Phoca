@@ -61,9 +61,13 @@ void DownloadItem::downloadFinished(int exit) {
       if (exit == 0) {
             progressBar->setRange(0, 100);
             progressBar->setValue(100);
-            if (fullTitle == tr("Download started")) {
-                  updateTitleText(tr("Download finished")); // Already downloaded or without title
+            
+            if (downloadPhase == tr("Already downloaded")) {
+                  updateTitleText(tr("Already downloaded")); 
+            } else {
+                  updateTitleText(tr("Download finished"));
             }
+            
             progressBar->setTextVisible(false);
       } else if (exit == 9) {
             updateTitleText(tr("Download stopped"));
