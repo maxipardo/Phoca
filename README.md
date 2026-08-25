@@ -30,21 +30,21 @@ make -j$(nproc)
 <table>
   <tr>
     <td valign="center">
-      <img src="https://github.com/user-attachments/assets/1b9aa9a4-9a5b-4e9f-8c2e-227e2f6e7157" width="550" />
+      <img src="https://github.com/user-attachments/assets/8eef139d-9485-4141-9359-5d5cb5a6310e" width="550" />
     </td>
     <td valign="center">
-      <img src="https://github.com/user-attachments/assets/4962f1b5-1dfc-4be3-8140-5d83ba8c24b4" width="550" />
+      <img src="https://github.com/user-attachments/assets/1d690e81-224a-4ff8-b25d-dadeacf89536" width="550" />
     </td>
   </tr>
 <tr>
   <td style="vertical-align: middle; text-align: center;">
     <p align="center">
-      <img src="https://github.com/user-attachments/assets/72777a54-20cd-4e2f-9eb4-759296d3b8a3" width="550" />
+      <img src="https://github.com/user-attachments/assets/7cb6eb72-7e8b-4eb3-80ac-c7ab884d45ab" width="550" />
     </p>
   </td>
   <td style="vertical-align: middle; text-align: center;">
     <p align="center">
-      <img src="https://github.com/user-attachments/assets/77be7a15-1b62-4cb5-b9a9-bbb33769125d" width="550" />
+      <img src="https://github.com/user-attachments/assets/b45043da-06e2-40e0-b447-25d8e359538e" width="550" />
     </p>
   </td>
 </tr>
