@@ -2,7 +2,8 @@ name: Build and Release Flatpak
 
 on:
   push:
-  branches: [ "main", "master" ]
+    tags:
+      - 'v*' # On tag upload
   workflow_dispatch: # Manual
 
 jobs:
