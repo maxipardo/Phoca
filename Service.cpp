@@ -97,11 +97,9 @@ void Service::startDownload(QString link, QString location, int format, QString 
 
 void Service::readOutput() {
     QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
+    QRegularExpression regexAlready("^\\[download\\]\\s+(.+)\\s+has already been downloaded");
     QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%(?:\\s+of\\s+~?\\s*([0-9.]+)([a-zA-Z]+))?");
-    QRegularExpression regexMerger("^\\[Merger\\]");
-    QRegularExpression regexExtract("^\\[(ExtractAudio|ffmpeg|Fixup[a-zA-Z0-9]+)\\]"); 
     QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
-    
     QRegularExpression regexPlaylist("^\\[download\\] Downloading (?:video|item) (\\d+) of (\\d+)");
 
     while (downloadProcess->canReadLine()) {
@@ -109,13 +107,34 @@ void Service::readOutput() {
         if (line.startsWith("ERROR:")) {
             qDebug() << "yt-dlp [ERROR]:" << line;
             emit processFailed(line);
-        }
-
-        if (line.contains("has already been downloaded")) {
-            emit phaseUpdated(tr("Already downloaded"));
             continue;
         }
         
+        QRegularExpressionMatch matchAlready = regexAlready.match(line);
+        if (matchAlready.hasMatch()) {
+            QString fullPath = matchAlready.captured(1);
+            QString fileName = QFileInfo(fullPath).fileName();
+            
+            QRegularExpressionMatch matchTitle = regexTitle.match(fileName);
+            QString cleanTitle;
+            
+            if (matchTitle.hasMatch()) {
+                cleanTitle = matchTitle.captured(1);
+            } else {
+                cleanTitle = fileName;
+            }
+
+            cleanTitle.remove(QRegularExpression("^\\d+\\s*-\\s*"));
+
+            if (!playlistStatus.isEmpty()) {
+                cleanTitle = QString("%1 %2").arg(playlistStatus, cleanTitle);
+            }
+            
+            emit titleUpdated(cleanTitle); 
+            emit phaseUpdated(tr("Already downloaded"));
+            continue;
+        }
+
         // Format (1/50)
         QRegularExpressionMatch matchPlaylist = regexPlaylist.match(line);
         if (matchPlaylist.hasMatch()) {

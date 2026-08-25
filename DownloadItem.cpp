@@ -55,6 +55,7 @@ void DownloadItem::downloadStarted() {
             progressBar->setRange(0, 100);
       }
       progressBar->setValue(0);
+      updateElidedText();
 }
 
 void DownloadItem::downloadFinished(int exit) {
@@ -62,12 +63,13 @@ void DownloadItem::downloadFinished(int exit) {
             progressBar->setRange(0, 100);
             progressBar->setValue(100);
             
-            if (downloadPhase == tr("Already downloaded")) {
-                  updateTitleText(tr("Already downloaded")); 
-            } else {
-                  updateTitleText(tr("Download finished"));
+            if (fullTitle == tr("Download started")) {
+                  if (downloadPhase == tr("Already downloaded")) {
+                        updateTitleText(tr("Already downloaded")); 
+                  } else {
+                        updateTitleText(tr("Download finished"));
+                  }
             }
-            
             progressBar->setTextVisible(false);
       } else if (exit == 9) {
             updateTitleText(tr("Download stopped"));
@@ -82,6 +84,7 @@ void DownloadItem::downloadProgress(int percentage) {
     if (percentage >= progressBar->value() || (progressBar->value() - percentage) > 50) {
         progressBar->setValue(percentage);
     }
+    updateElidedText();
 }
 
 void DownloadItem::onSizeUpdated(QString cleanSize) {
