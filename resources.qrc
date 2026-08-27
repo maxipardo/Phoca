@@ -1,5 +1,9 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource>
         <file>phoca.png</file>
+        <file>folder_dark.svg</file>
+        <file>cancel_dark.svg</file>
+        <file>folder_light.svg</file>
+        <file>cancel_light.svg</file>
     </qresource>
 </RCC>

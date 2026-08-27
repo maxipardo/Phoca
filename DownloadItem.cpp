@@ -3,6 +3,8 @@
 #include <QMenu>
 #include <QDesktopServices>
 #include <QStyle>
+#include <QGuiApplication>
+#include <QStyleHints>
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
     service = new Service(this);
@@ -140,17 +142,28 @@ void DownloadItem::updateElidedText() {
 void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       QMenu menu(this);
       
+      // Check if app is in dark mode
+      bool isDarkMode = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+      
       QAction *openLocation = menu.addAction(tr("Open file location"));
       QIcon folderIcon = QIcon::fromTheme("document-open-folder");
       if (folderIcon.isNull()) {
-            folderIcon = style()->standardIcon(QStyle::SP_DirOpenIcon);
+            if (isDarkMode) {
+                  folderIcon = QIcon(":/folder_light.svg");
+            } else {
+                  folderIcon = QIcon(":/folder_dark.svg");
+            }
       }
       openLocation->setIcon(folderIcon);
 
       QAction *cancelAction = menu.addAction(tr("Delete download\tDel"));
       QIcon cancelIcon = QIcon::fromTheme("process-stop");
       if (cancelIcon.isNull()) {
-            cancelIcon = style()->standardIcon(QStyle::SP_BrowserStop);
+            if (isDarkMode) {
+                  cancelIcon = QIcon(":/cancel_light.svg");
+            } else {
+                  cancelIcon = QIcon(":/cancel_dark.svg");
+            }
       }
       cancelAction->setIcon(cancelIcon); 
 
