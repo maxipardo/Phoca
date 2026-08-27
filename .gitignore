@@ -30,3 +30,7 @@
 !phoca.desktop.in
 !io.github.maxipardo.phoca.yml
 !.github/workflows/flatpak-build.yml
+!cancel_dark.svg
+!cancel_light.svg
+!folder_dark.svg
+!folder_light.svg
