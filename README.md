@@ -1,5 +1,5 @@
 <p align="left">
-  <img width="100" alt="icon" src="https://github.com/user-attachments/assets/ebfb3248-54cf-4f95-bab2-e51b68f795ba"/><br>
+  <img width="100" alt="icon" src="https://github.com/user-attachments/assets/82f886fd-2ac8-4ba4-9e9e-5b1aa35bca84"/><br>
   <h1>Phoca</h1>
 </p>
 
