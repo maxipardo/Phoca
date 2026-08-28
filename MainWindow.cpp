@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   deleteAction->setShortcutContext(Qt::WidgetShortcut);
   list->addAction(deleteAction);
 
-  // Supr key
   connect(deleteAction, &QAction::triggered, this, [this]() {
       QListWidgetItem *currentItem = list->currentItem();
       if (!currentItem) return;
@@ -51,11 +50,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   savePlaylistInFolder = settings.value("savePlaylistInFolder", true).toBool();
   saveThumbnail = settings.value("saveThumbnail", false).toBool();
   firstLaunch = settings.value("firstLaunch", true).toBool();
-  lastEngineUpdate = settings.value("lastEngineUpdate", QDateTime::currentDateTime()).toDateTime();
-  QDateTime now = QDateTime::currentDateTime();
+  // Fix date
+  QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
+  lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
 
-  if (lastEngineUpdate.daysTo(now) >= 3) {
-    getServiceSlot();
+  if (!lastEngineUpdate.isValid()) {
+    lastEngineUpdate = QDateTime::currentDateTime();
 }
 
   /* Menu */
@@ -161,7 +161,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::clearFinishedDownloads);
 
   connect(linkBox, &QLineEdit::textChanged, this, [this](const QString &text) {
-        static int lastLength = 0;
         int currentLength = text.length();
         
         if (qAbs(currentLength - lastLength) > 1 && currentLength > 0) {
@@ -211,11 +210,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   this->statusBar()->addWidget(locationLabel);
   updateLocationLabel();
 
-  if (firstLaunch) {
+  QDateTime now = QDateTime::currentDateTime();
+  bool needsUpdate = lastEngineUpdate.daysTo(now) >= 3;
+
+  if (firstLaunch || needsUpdate) {
     QTimer::singleShot(500, [this]() {
       getServiceSlot();
     });
-    settings.setValue("firstLaunch", false);
+    
+    if (firstLaunch) {
+      settings.setValue("firstLaunch", false);
+    }
   }
 }
 
@@ -259,8 +264,7 @@ void MainWindow::getServiceSlot() {
   bool nightly{chooseNightlyAction->isChecked()};
   maintainer->getService(nightly);
   QSettings settings("MaximoPardo", "Phoca");
-  QDateTime now = QDateTime::currentDateTime();
-  settings.setValue("lastEngineUpdate", now);
+  settings.setValue("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate));
 }
 
 void MainWindow::changeLocation() {

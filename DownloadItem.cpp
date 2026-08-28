@@ -138,14 +138,16 @@ void DownloadItem::updateElidedText() {
     titleLabel->setText(elidedTitle);
 }
 
-// Conext menu actions
+// Context menu actions
 void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
-      QMenu menu(this);
+      QMenu *menu = new QMenu(this);
+      
+      menu->setAttribute(Qt::WA_DeleteOnClose);
       
       // Check if app is in dark mode
       bool isDarkMode = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
       
-      QAction *openLocation = menu.addAction(tr("Open file location"));
+      QAction *openLocation = menu->addAction(tr("Open file location"));
       QIcon folderIcon = QIcon::fromTheme("document-open-folder");
       if (folderIcon.isNull()) {
             if (isDarkMode) {
@@ -156,7 +158,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       }
       openLocation->setIcon(folderIcon);
 
-      QAction *cancelAction = menu.addAction(tr("Delete download\tDel"));
+      QAction *cancelAction = menu->addAction(tr("Delete download\tDel"));
       QIcon cancelIcon = QIcon::fromTheme("process-stop");
       if (cancelIcon.isNull()) {
             if (isDarkMode) {
@@ -167,11 +169,11 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       }
       cancelAction->setIcon(cancelIcon); 
 
-      QAction *selectedAction = menu.exec(event->globalPos());
-
-      if (selectedAction == cancelAction) {
-            stopDownload();
-      } else if (selectedAction == openLocation) {
+      connect(cancelAction, &QAction::triggered, this, &DownloadItem::stopDownload);
+      connect(openLocation, &QAction::triggered, this, [this]() {
             QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
-      }
+      });
+
+      // Asyncronus menu
+      menu->popup(event->globalPos());
 }

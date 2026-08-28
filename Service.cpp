@@ -1,7 +1,7 @@
 #include "Service.h"
 #include "ServiceMaintainer.h"
 
-Service::Service(QObject *parent) {
+Service::Service(QObject *parent) : QObject(parent) {
     downloadProcess = new QProcess(this);
 
     downloadProcess->setProcessChannelMode(QProcess::MergedChannels);
@@ -92,6 +92,8 @@ void Service::startDownload(QString link, QString location, int format, QString 
     arguments << link;
     
     partCounter = 0;
+    savedSizeMiB = 0.0;
+    currentPartMiB = 0.0;
     downloadProcess->start(executable, arguments);
 }
 

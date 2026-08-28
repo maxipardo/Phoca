@@ -78,6 +78,8 @@ private:
     Service *service;
     QString downloadPhase;
     QLabel *locationLabel;
+    
+    int lastLength = 0;
 protected:
     void closeEvent(QCloseEvent *event) override;
     

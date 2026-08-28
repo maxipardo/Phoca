@@ -12,9 +12,9 @@ About::About(QWidget *parent) : QDialog(parent) {
     this->setWindowTitle(tr("About Phoca") + " " + PROJECT_VERSION);
     this->resize(300, 300);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    layout = new QVBoxLayout(this);
+    sourceLayout = new QHBoxLayout(); 
     
-    QHBoxLayout *sourceLayout = new QHBoxLayout(); 
     layout->setAlignment(Qt::AlignCenter);
 
     QLabel *icon = new QLabel(this);
