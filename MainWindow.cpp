@@ -13,11 +13,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   downloadButton = new QPushButton(centralWidget);
   clearFinishedButton = new QPushButton(centralWidget);
   getEngineButton = new QPushButton(centralWidget);
-  statusLabel = new QLabel(centralWidget);
-  titleLabel = new QLabel(centralWidget);
-  progressBar = new QProgressBar(centralWidget);
   maintainer = new ServiceMaintainer(this);
-  chosenDirectory = QDir::homePath();
 
   list = new QListWidget(centralWidget);
 
@@ -51,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   savePlaylistInFolder = settings.value("savePlaylistInFolder", true).toBool();
   saveThumbnail = settings.value("saveThumbnail", false).toBool();
   firstLaunch = settings.value("firstLaunch", true).toBool();
+  nightlyService = settings.value("nightlyService", true).toBool();
   // Fix date
   QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
   lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
@@ -80,7 +77,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   saveThumbnailAction->setChecked(saveThumbnail);
   chooseNightlyAction->setCheckable(true);
   chooseStableAction->setCheckable(true);
-  chooseNightlyAction->setChecked(true);
+  chooseNightlyAction->setChecked(nightlyService);
+  chooseStableAction->setChecked(!nightlyService);
   versionGroup->addAction(chooseNightlyAction);
   versionGroup->addAction(chooseStableAction);
 
@@ -103,16 +101,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   linkLayout->addWidget(linkBox);
   layout->addLayout(optionsLayout);
   linkLayout->addWidget(downloadButton);
-  layout->addWidget(titleLabel);
-  layout->addWidget(statusLabel);
-  layout->addWidget(progressBar);
   QHBoxLayout *bottomLayout = new QHBoxLayout();
   bottomLayout->addWidget(clearFinishedButton);
   clearFinishedButton->setEnabled(false);
   bottomLayout->addWidget(getEngineButton);
   layout->addLayout(bottomLayout);
-  titleLabel->hide();
-  progressBar->hide();
 
   optionsLayout->addWidget(bothButton);
   optionsLayout->addWidget(videoButton);
@@ -151,9 +144,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   connect(maintainer, &ServiceMaintainer::finished, this,
           &MainWindow::engineDownloaded);
   connect(chooseStableAction, &QAction::triggered, this,
-          &MainWindow::getServiceSlot);
+          &MainWindow::changeNightlyService);
   connect(chooseNightlyAction, &QAction::triggered, this,
-          &MainWindow::getServiceSlot);
+          &MainWindow::changeNightlyService);
   connect(chooseLocationAction, &QAction::triggered, this,
           &MainWindow::changeLocation);
   connect(aboutAction, &QAction::triggered, this, 
@@ -222,6 +215,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     
     if (firstLaunch) {
       settings.setValue("firstLaunch", false);
+      settings.setValue("nightlyService", nightlyService);
     }
   }
 }
@@ -263,8 +257,7 @@ void MainWindow::setDownloadReadiness() {
 
 void MainWindow::getServiceSlot() {
   downloadButton->setEnabled(false);
-  bool nightly{chooseNightlyAction->isChecked()};
-  maintainer->getService(nightly);
+  maintainer->getService(nightlyService);
   QSettings settings("MaximoPardo", "Phoca");
   settings.setValue("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate));
 }
@@ -376,7 +369,6 @@ void MainWindow::startDownload() {
   list->addItem(item);
   list->setItemWidget(item, newDownload);
                          
-  titleLabel->hide();
   linkBox->clear();
 
 }
@@ -451,4 +443,10 @@ void MainWindow::clearFinishedDownloads() {
 
 void MainWindow::itemFinished() {
   clearFinishedButton->setEnabled(true);
+}
+
+void MainWindow::changeNightlyService() {
+  QSettings settings("MaximoPardo", "Phoca");
+  settings.setValue("nightlyService", chooseNightlyAction->isChecked());
+  getServiceSlot();
 }

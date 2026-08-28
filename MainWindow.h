@@ -44,10 +44,8 @@ private:
     QPushButton *downloadButton;
     QPushButton *clearFinishedButton;
     QPushButton *getEngineButton;
-    QLabel *statusLabel; // General: download and service
     QLabel *titleLabel;
     ServiceMaintainer *maintainer;
-    QString chosenDirectory;
     QMenu *optionsMenu;
     QMenu *buildMenu;
     QAction *aboutAction;
@@ -73,6 +71,7 @@ private:
     bool savePlaylistInFolder;
     bool saveThumbnail;
     bool firstLaunch;
+    bool nightlyService;
     QDateTime lastEngineUpdate;
 
     Service *service;
@@ -93,6 +92,7 @@ private slots:
     void changeSavePlaylistInFolder();
     void changeSaveThumbnail();
     void updateLocationLabel();
+    void changeNightlyService();
 
     void startDownload();
     void clearFinishedDownloads();
