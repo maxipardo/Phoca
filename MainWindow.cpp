@@ -294,7 +294,15 @@ void MainWindow::startDownload() {
   }
   QString link = linkBox->text();
   bool playlist = false;
-  if (link.contains("list=") || link.contains("/playlist/") || link.contains("/album/")) {
+  if (link.contains("list=") || 
+    link.contains("/playlist/") || 
+    link.contains("/album/") || 
+    link.contains("/sets/") || 
+    link.contains("/showcase/") || 
+    link.contains("/series/") || 
+    link.contains("/collection/") || 
+    link.contains("/show/") || 
+    link.contains("&set=")) {
     QMessageBox msgBox(this);
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setWindowTitle(tr("Playlist detected"));
