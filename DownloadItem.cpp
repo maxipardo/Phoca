@@ -8,10 +8,7 @@
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
     service = new Service(this);
-    service->startDownload(config.link, config.downloadLocation, config.format, 
-                        config.quality, config.conversion, 
-                        config.playlist, config.savePlaylistInFolder, config.saveThumbnail);
-
+    
     titleLabel = new QLabel(this);
     titleLabel->setMinimumWidth(50); 
     
@@ -19,36 +16,39 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     progressBar = new QProgressBar(this);
     //progressBar->setMaximumWidth(100);
     progressBar->setTextVisible(false);
-
+    
     QHBoxLayout *layout = new QHBoxLayout(this);
     
     layout->setContentsMargins(6, 0, 6, 0);
-
+    
     layout->addWidget(titleLabel, 3); 
 
     layout->addWidget(sizeLabel);
     layout->addWidget(progressBar, 1);
-
+    
     downloadLocation = config.downloadLocation;
     downloadPhase = "";
-
-      /* Service */
+    
+    /* Service */
       connect(service, &Service::downloadStarted, this,
             &DownloadItem::downloadStarted);
-      connect(service, &Service::downloadFinished, this,
-            &DownloadItem::downloadFinished);
-      connect(service, &Service::processFailed, this,
+            connect(service, &Service::downloadFinished, this,
+                  &DownloadItem::downloadFinished);
+                  connect(service, &Service::processFailed, this,
             &DownloadItem::downloadProcessFailed);
-      connect(service, &Service::percentageUpdated, this,
-            &DownloadItem::downloadProgress);
-      connect(service, &Service::phaseUpdated, this,
+            connect(service, &Service::percentageUpdated, this,
+                  &DownloadItem::downloadProgress);
+                  connect(service, &Service::phaseUpdated, this,
             &DownloadItem::downloadPhaseUpdated);
-      connect(service, &Service::titleUpdated, this, 
-            &DownloadItem::onTitleUpdated);
-      connect(service, &Service::sizeUpdated, this, 
-            &DownloadItem::onSizeUpdated);
-}
+            connect(service, &Service::titleUpdated, this, 
+                  &DownloadItem::onTitleUpdated);
+                  connect(service, &Service::sizeUpdated, this, 
+                        &DownloadItem::onSizeUpdated);
 
+      service->startDownload(config.link, config.downloadLocation, config.format, 
+                              config.quality, config.conversion, 
+                              config.playlist, config.savePlaylistInFolder, config.saveThumbnail);
+}                  
 // Service
 void DownloadItem::downloadStarted() {
       progressBar->setTextVisible(true);
@@ -75,6 +75,8 @@ void DownloadItem::downloadFinished(int exit) {
             progressBar->setTextVisible(false);
       } else if (exit == 9) {
             updateTitleText(tr("Download stopped"));
+      } else if (exit == -1) {
+            updateTitleText(tr("Download failed: process crashed"));
       } else {
             updateTitleText(tr("Download failed, error code: %1").arg(QString::number(exit)));
       }

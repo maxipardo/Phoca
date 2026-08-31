@@ -4,10 +4,10 @@
 struct DownloadConfig {
     QString link;
     QString downloadLocation;
-    int format;
+    int format = 0;
     QString quality;
     QString conversion;
-    bool playlist;
-    bool savePlaylistInFolder;
-    bool saveThumbnail;
+    bool playlist = false;
+    bool savePlaylistInFolder = true;
+    bool saveThumbnail = false;
 };

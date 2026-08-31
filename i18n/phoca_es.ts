@@ -27,49 +27,49 @@
 <context>
     <name>DownloadItem</name>
     <message>
-        <location filename="../DownloadItem.cpp" line="53"/>
-        <location filename="../DownloadItem.cpp" line="66"/>
+        <location filename="../DownloadItem.cpp" line="55"/>
+        <location filename="../DownloadItem.cpp" line="68"/>
         <source>Download started</source>
         <translation>Descarga iniciada</translation>
     </message>
     <message>
-        <location filename="../DownloadItem.cpp" line="67"/>
-        <location filename="../DownloadItem.cpp" line="68"/>
+        <location filename="../DownloadItem.cpp" line="69"/>
+        <location filename="../DownloadItem.cpp" line="70"/>
         <source>Already downloaded</source>
         <translation>Ya descargado</translation>
     </message>
     <message>
-        <location filename="../DownloadItem.cpp" line="70"/>
+        <location filename="../DownloadItem.cpp" line="72"/>
         <source>Download finished</source>
         <translation>Descarga finalizada</translation>
     </message>
     <message>
-        <location filename="../DownloadItem.cpp" line="75"/>
+        <location filename="../DownloadItem.cpp" line="77"/>
         <source>Download stopped</source>
         <translation>Descarga detenida</translation>
     </message>
     <message>
-        <location filename="../DownloadItem.cpp" line="77"/>
+        <location filename="../DownloadItem.cpp" line="79"/>
         <source>Download failed, error code: %1</source>
         <translation>Descarga fallida, código de error: %1</translation>
     </message>
     <message>
-        <location filename="../DownloadItem.cpp" line="103"/>
+        <location filename="../DownloadItem.cpp" line="105"/>
         <source>Processing...</source>
         <translation>Procesando...</translation>
     </message>
     <message>
-        <location filename="../DownloadItem.cpp" line="111"/>
+        <location filename="../DownloadItem.cpp" line="113"/>
         <source>Process failed: %1</source>
         <translation>Proceso fallido: %1</translation>
     </message>
     <message>
-        <location filename="../DownloadItem.cpp" line="143"/>
+        <location filename="../DownloadItem.cpp" line="150"/>
         <source>Open file location</source>
         <translation>Abrir ubicación del archivo</translation>
     </message>
     <message>
-        <location filename="../DownloadItem.cpp" line="150"/>
+        <location filename="../DownloadItem.cpp" line="161"/>
         <source>Delete download	Del</source>
         <translation>Eliminar descarga	Supr</translation>
     </message>
@@ -81,102 +81,102 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../MainWindow.cpp" line="43"/>
+        <location filename="../MainWindow.cpp" line="36"/>
         <source>Both</source>
         <translation>Ambos</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="44"/>
+        <location filename="../MainWindow.cpp" line="37"/>
         <source>Video</source>
         <translation>Video</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="45"/>
+        <location filename="../MainWindow.cpp" line="38"/>
         <source>Audio</source>
         <translation>Audio</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="65"/>
+        <location filename="../MainWindow.cpp" line="60"/>
         <source>Options</source>
         <translation>Opciones</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="66"/>
+        <location filename="../MainWindow.cpp" line="61"/>
         <source>About</source>
         <translation>Acerca de</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="67"/>
+        <location filename="../MainWindow.cpp" line="62"/>
         <source>Choose yt-dlp version</source>
         <translation>Elegir versión de yt-dlp</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="72"/>
+        <location filename="../MainWindow.cpp" line="67"/>
         <source>Change download location...</source>
         <translation>Cambiar carpeta de destino...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="73"/>
+        <location filename="../MainWindow.cpp" line="68"/>
         <source>Use yt-dlp nightly (recommended)</source>
         <translation>Usar yt-dlp nightly (recomendado)</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="74"/>
+        <location filename="../MainWindow.cpp" line="69"/>
         <source>Use yt-dlp stable</source>
         <translation>Usar yt-dlp estable</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="76"/>
+        <location filename="../MainWindow.cpp" line="71"/>
         <source>Save playlists in folder</source>
         <translation>Guardar listas en carpeta</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="77"/>
+        <location filename="../MainWindow.cpp" line="72"/>
         <source>Save thumbnail</source>
         <translation>Guardar miniatura</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="95"/>
+        <location filename="../MainWindow.cpp" line="91"/>
         <source>Enter link...</source>
         <translation>Ingresar enlace...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="96"/>
+        <location filename="../MainWindow.cpp" line="92"/>
         <source>Download</source>
         <translation>Descargar</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="98"/>
+        <location filename="../MainWindow.cpp" line="94"/>
         <source>Clear finished</source>
         <translation>Limpiar finalizadas</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="231"/>
+        <location filename="../MainWindow.cpp" line="229"/>
         <source>[yt-dlp] Downloading...</source>
         <translation>[yt-dlp] Descargando...</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="236"/>
+        <location filename="../MainWindow.cpp" line="234"/>
         <source>[yt-dlp] Downloaded successfully</source>
         <translation>[yt-dlp] Descargado exitosamente</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="239"/>
+        <location filename="../MainWindow.cpp" line="237"/>
         <source>[yt-dlp] Download failed: Network error</source>
         <translation>[yt-dlp] Descarga fallida: Error de red</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="242"/>
+        <location filename="../MainWindow.cpp" line="240"/>
         <source>[yt-dlp] Download failed: Need permissions to write</source>
         <translation>[yt-dlp] Descarga fallida: Necesita permisos de escritura</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="412"/>
+        <location filename="../MainWindow.cpp" line="415"/>
         <source>Warning</source>
         <translation>Aviso</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="413"/>
+        <location filename="../MainWindow.cpp" line="416"/>
         <source>There is a download in progress.
 Are you sure you want to close Phoca?
 The download will be cancelled.</source>
@@ -187,25 +187,25 @@ The download will be cancelled.</source>
         <translation type="vanished">Detener descarga</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="99"/>
+        <location filename="../MainWindow.cpp" line="95"/>
         <source>Update yt-dlp</source>
         <translation>Actualizar yt-dlp</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="126"/>
+        <location filename="../MainWindow.cpp" line="117"/>
         <source>Best</source>
         <translation>Máxima</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="132"/>
-        <location filename="../MainWindow.cpp" line="186"/>
-        <location filename="../MainWindow.cpp" line="190"/>
-        <location filename="../MainWindow.cpp" line="194"/>
+        <location filename="../MainWindow.cpp" line="123"/>
+        <location filename="../MainWindow.cpp" line="176"/>
+        <location filename="../MainWindow.cpp" line="180"/>
+        <location filename="../MainWindow.cpp" line="184"/>
         <source>Original</source>
         <translation>Original</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="227"/>
+        <location filename="../MainWindow.cpp" line="225"/>
         <source>Download location: %1</source>
         <translation>Ubicación de descarga: %1</translation>
     </message>
@@ -226,17 +226,17 @@ The download will be cancelled.</source>
         <translation type="vanished">Descarga fallida: Faltan permisos de escritura</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="271"/>
+        <location filename="../MainWindow.cpp" line="267"/>
         <source>Choose where to save files</source>
         <translation>Elegir carpeta de destino</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="297"/>
+        <location filename="../MainWindow.cpp" line="301"/>
         <source>Playlist detected</source>
         <translation>Lista de reproducción detectada</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="299"/>
+        <location filename="../MainWindow.cpp" line="303"/>
         <source>This link contains a playlist.
 Download the whole list?
 Thumbnails will not be saved</source>
@@ -245,7 +245,7 @@ Thumbnails will not be saved</source>
 Las miniaturas no se guardarán</translation>
     </message>
     <message>
-        <location filename="../MainWindow.cpp" line="301"/>
+        <location filename="../MainWindow.cpp" line="305"/>
         <source>This link contains a playlist.
 Download the whole list?</source>
         <translation>Este enlace contiene una lista.
@@ -283,34 +283,34 @@ Download the whole list?</source>
         <translation type="vanished">Original</translation>
     </message>
     <message>
-        <location filename="../Service.cpp" line="236"/>
+        <location filename="../Service.cpp" line="238"/>
         <source>Couldn&apos;t find yt-dlp</source>
         <translation>No se encontró yt-dlp</translation>
     </message>
     <message>
-        <location filename="../Service.cpp" line="238"/>
+        <location filename="../Service.cpp" line="240"/>
         <source>Unexpected error</source>
         <translation>Error inesperado</translation>
     </message>
     <message>
-        <location filename="../Service.cpp" line="176"/>
-        <location filename="../Service.cpp" line="189"/>
+        <location filename="../Service.cpp" line="178"/>
+        <location filename="../Service.cpp" line="191"/>
         <source>Downloading...</source>
         <translation>Descargando...</translation>
     </message>
     <message>
-        <location filename="../Service.cpp" line="134"/>
+        <location filename="../Service.cpp" line="136"/>
         <source>Already downloaded</source>
         <translation>Ya descargado</translation>
     </message>
     <message>
-        <location filename="../Service.cpp" line="178"/>
-        <location filename="../Service.cpp" line="189"/>
+        <location filename="../Service.cpp" line="180"/>
+        <location filename="../Service.cpp" line="191"/>
         <source>Downloading audio...</source>
         <translation>Descargando audio...</translation>
     </message>
     <message>
-        <location filename="../Service.cpp" line="217"/>
+        <location filename="../Service.cpp" line="219"/>
         <source>Processing...</source>
         <translation>Procesando...</translation>
     </message>

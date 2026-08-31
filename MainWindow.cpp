@@ -201,7 +201,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
          
          
   locationLabel = new QLabel(this);
-  locationLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
   this->statusBar()->addWidget(locationLabel);
   updateLocationLabel();
 

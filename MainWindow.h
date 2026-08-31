@@ -44,12 +44,10 @@ private:
     QPushButton *downloadButton;
     QPushButton *clearFinishedButton;
     QPushButton *getEngineButton;
-    QLabel *titleLabel;
     ServiceMaintainer *maintainer;
     QMenu *optionsMenu;
     QMenu *buildMenu;
     QAction *aboutAction;
-    QProgressBar *progressBar;
 
     QListWidget *list;
     
@@ -74,8 +72,6 @@ private:
     bool nightlyService;
     QDateTime lastEngineUpdate;
 
-    Service *service;
-    QString downloadPhase;
     QLabel *locationLabel;
     
     int lastLength = 0;
