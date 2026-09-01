@@ -44,6 +44,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
       connect(service, &Service::sizeUpdated, this, 
                   &DownloadItem::onSizeUpdated);
 
+      progressBar->setTextVisible(false);
       service->startDownload(config.link, config.downloadLocation, config.format, 
                               config.quality, config.conversion, 
                               config.playlist, config.savePlaylistInFolder, config.saveThumbnail);
