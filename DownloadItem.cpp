@@ -5,6 +5,7 @@
 #include <QStyle>
 #include <QGuiApplication>
 #include <QStyleHints>
+#include <QTimer>
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
     service = new Service(this);
@@ -14,16 +15,21 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     
     sizeLabel = new QLabel(this);
     progressBar = new QProgressBar(this);
-    progressBar->setMinimumWidth(100);
+    progressBar->setTextVisible(false);
+
+    percentageLabel = new QLabel(this);
     
     QHBoxLayout *layout = new QHBoxLayout(this);
     
     layout->setContentsMargins(6, 0, 6, 0);
     
     layout->addWidget(titleLabel, 3); 
-
     layout->addWidget(sizeLabel);
     layout->addWidget(progressBar, 1);
+    layout->addWidget(percentageLabel);
+
+    percentageLabel->setVisible(false);
+    percentageLabel->setMargin(4);
     
     downloadLocation = config.downloadLocation;
     downloadPhase = "";
@@ -31,17 +37,17 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     /* Service */
       connect(service, &Service::downloadStarted, this,
             &DownloadItem::downloadStarted);
-            connect(service, &Service::downloadFinished, this,
+      connect(service, &Service::downloadFinished, this,
                   &DownloadItem::downloadFinished);
-                  connect(service, &Service::processFailed, this,
+      connect(service, &Service::processFailed, this,
             &DownloadItem::downloadProcessFailed);
-            connect(service, &Service::percentageUpdated, this,
+      connect(service, &Service::percentageUpdated, this,
                   &DownloadItem::downloadProgress);
-                  connect(service, &Service::phaseUpdated, this,
+      connect(service, &Service::phaseUpdated, this,
             &DownloadItem::downloadPhaseUpdated);
-            connect(service, &Service::titleUpdated, this, 
+      connect(service, &Service::titleUpdated, this, 
                   &DownloadItem::onTitleUpdated);
-                  connect(service, &Service::sizeUpdated, this, 
+      connect(service, &Service::sizeUpdated, this, 
                         &DownloadItem::onSizeUpdated);
 
       service->startDownload(config.link, config.downloadLocation, config.format, 
@@ -55,6 +61,8 @@ void DownloadItem::downloadStarted() {
             progressBar->setRange(0, 100);
       }
       progressBar->setValue(0);
+      percentageLabel->setText("0%");
+      percentageLabel->setVisible(true);
       updateElidedText();
 }
 
@@ -70,7 +78,8 @@ void DownloadItem::downloadFinished(int exit) {
                         updateTitleText(tr("Download finished"));
                   }
             }
-            progressBar->setTextVisible(false);
+            percentageLabel->setVisible(false);
+            QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
       } else if (exit == 9) {
             updateTitleText(tr("Download stopped"));
       } else if (exit == -1) {
@@ -86,6 +95,7 @@ void DownloadItem::downloadProgress(int percentage) {
     if (percentage >= progressBar->value() || (progressBar->value() - percentage) > 50) {
         progressBar->setValue(percentage);
     }
+    percentageLabel->setText(QString::number(percentage) + "%");
     updateElidedText();
 }
 

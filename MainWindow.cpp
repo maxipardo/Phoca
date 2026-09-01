@@ -170,7 +170,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::toggleQualityOptions);
   connect(audioButton, &QPushButton::clicked, this, 
           &MainWindow::toggleQualityOptions);
-
   connect(bothButton, &QRadioButton::clicked, this, [this]() {
     conversionBox->clear();
     conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 

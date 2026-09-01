@@ -21,6 +21,7 @@ private:
     QLabel *titleLabel;
     QLabel *sizeLabel;
     QProgressBar *progressBar;
+    QLabel *percentageLabel;
 
     QString downloadPhase;
     QString downloadLocation;
