@@ -16,6 +16,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     progressBar = new QProgressBar(this);
     //progressBar->setMaximumWidth(100);
     progressBar->setTextVisible(false);
+    progressBar->setMinimumHeight(fontMetrics().height());
     
     QHBoxLayout *layout = new QHBoxLayout(this);
     
