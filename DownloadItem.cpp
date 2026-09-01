@@ -14,14 +14,13 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     
     sizeLabel = new QLabel(this);
     progressBar = new QProgressBar(this);
-    //progressBar->setMaximumWidth(100);
     
     QHBoxLayout *layout = new QHBoxLayout(this);
     
     layout->setContentsMargins(6, 0, 6, 0);
     
     layout->addWidget(titleLabel, 3); 
-    
+
     layout->addWidget(sizeLabel);
     layout->addWidget(progressBar, 1);
     
@@ -31,28 +30,25 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     /* Service */
       connect(service, &Service::downloadStarted, this,
             &DownloadItem::downloadStarted);
-      connect(service, &Service::downloadFinished, this,
-            &DownloadItem::downloadFinished);
-      connect(service, &Service::processFailed, this,
-      &DownloadItem::downloadProcessFailed);
-      connect(service, &Service::percentageUpdated, this,
-            &DownloadItem::downloadProgress);
-      connect(service, &Service::phaseUpdated, this,
-      &DownloadItem::downloadPhaseUpdated);
-      connect(service, &Service::titleUpdated, this, 
-            &DownloadItem::onTitleUpdated);
-      connect(service, &Service::sizeUpdated, this, 
-                  &DownloadItem::onSizeUpdated);
+            connect(service, &Service::downloadFinished, this,
+                  &DownloadItem::downloadFinished);
+                  connect(service, &Service::processFailed, this,
+            &DownloadItem::downloadProcessFailed);
+            connect(service, &Service::percentageUpdated, this,
+                  &DownloadItem::downloadProgress);
+                  connect(service, &Service::phaseUpdated, this,
+            &DownloadItem::downloadPhaseUpdated);
+            connect(service, &Service::titleUpdated, this, 
+                  &DownloadItem::onTitleUpdated);
+                  connect(service, &Service::sizeUpdated, this, 
+                        &DownloadItem::onSizeUpdated);
 
-      progressBar->setTextVisible(false);
       service->startDownload(config.link, config.downloadLocation, config.format, 
                               config.quality, config.conversion, 
                               config.playlist, config.savePlaylistInFolder, config.saveThumbnail);
-      progressBar->setTextVisible(false);
 }                  
 // Service
 void DownloadItem::downloadStarted() {
-      progressBar->setTextVisible(true);
       updateTitleText(tr("Download started"));
       if (progressBar->maximum() == 0) {
             progressBar->setRange(0, 100);
