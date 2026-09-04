@@ -30,7 +30,7 @@ make -j$(nproc)
 <table>
   <tr>
     <td valign="center">
-      <img src="https://github.com/user-attachments/assets/c7b86c81-7272-4d9f-924f-0effe6412408" width="550" />
+      <img src="https://github.com/user-attachments/assets/2300debe-b78a-45f5-9ee6-4da65cc068a1" width="550" />
     </td>
     <td valign="center">
       <img src="https://github.com/user-attachments/assets/17d0f12c-10e0-442f-a6cc-078c57daf98d" width="550" />
