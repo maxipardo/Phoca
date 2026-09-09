@@ -6,6 +6,7 @@
 #include <QProgressBar>
 #include <QContextMenuEvent>
 #include <QResizeEvent>
+#include <QPushButton>
 
 class DownloadItem : public QWidget {
 Q_OBJECT
@@ -28,6 +29,11 @@ private:
     QString downloadedSize;
     QString fullTitle;
 
+    QPushButton *restartButton;
+    QPushButton *discardButton;
+
+    DownloadConfig ServiceConfig;
+
     bool downloadFinishedState = false;
 public slots:
     void stopDownload();
@@ -43,6 +49,7 @@ private slots:
 
     void updateElidedText();
     void updateTitleText(const QString &text);
+    void retryDownload();
 signals:
     void removeRequested();
     void finishedSignal();

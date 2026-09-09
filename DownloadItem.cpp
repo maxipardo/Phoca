@@ -6,8 +6,12 @@
 #include <QGuiApplication>
 #include <QStyleHints>
 #include <QTimer>
+#include <qpushbutton.h>
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
+      
+    DownloadConfig ServiceConfig {config};
+
     service = new Service(this);
     
     titleLabel = new QLabel(this);
@@ -22,8 +26,21 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     QHBoxLayout *layout = new QHBoxLayout(this);
     
     layout->setContentsMargins(6, 0, 6, 0);
+
+    restartButton = new QPushButton(this);
+    discardButton = new QPushButton(this);
+
+    restartButton->setIcon(QIcon::fromTheme("view-refresh"));
+    discardButton->setIcon(QIcon::fromTheme("window-close"));
+    restartButton->setVisible(false);
+    discardButton->setVisible(false);
+    
+    restartButton->setText("Retry");
+    discardButton->setText("Discard");
     
     layout->addWidget(titleLabel, 3); 
+    layout->addWidget(restartButton, 1);
+    layout->addWidget(discardButton, 1);
     layout->addWidget(sizeLabel);
     layout->addWidget(progressBar, 1);
     layout->addWidget(percentageLabel);
@@ -49,6 +66,9 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
                   &DownloadItem::onTitleUpdated);
       connect(service, &Service::sizeUpdated, this, 
                         &DownloadItem::onSizeUpdated);
+
+      connect(restartButton, &QPushButton::clicked, this, &DownloadItem::retryDownload);
+      connect(discardButton, &QPushButton::clicked, this, &DownloadItem::stopDownload);
 
       service->startDownload(config.link, config.downloadLocation, config.format, 
                               config.quality, config.conversion, 
@@ -78,14 +98,20 @@ void DownloadItem::downloadFinished(int exit) {
                         updateTitleText(tr("Download finished"));
                   }
             }
-            percentageLabel->setVisible(false);
+            
             QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
+            return;
       } else if (exit == 9) {
             updateTitleText(tr("Download stopped"));
       } else if (exit == -1) {
             updateTitleText(tr("Download failed: process crashed"));
       } else {
             updateTitleText(tr("Download failed, error code: %1").arg(QString::number(exit)));
+            restartButton->setVisible(true);
+            discardButton->setVisible(true);
+            sizeLabel->setVisible(false);
+            progressBar->setVisible(false);
+            percentageLabel->setVisible(false);
       }
       downloadFinishedState = true;
       emit finishedSignal();
@@ -120,7 +146,7 @@ void DownloadItem::downloadPhaseUpdated(QString phase) {
 }
 
 void DownloadItem::downloadProcessFailed(QString error) {
-      updateTitleText(tr("Process failed: %1").arg(error));
+      this->setToolTip(error);
 }
 
 void DownloadItem::stopDownload() {
@@ -186,4 +212,17 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
 
       // Asyncronus menu
       menu->popup(event->globalPos());
+}
+
+void DownloadItem::retryDownload() {
+
+      restartButton->setVisible(false);
+      discardButton->setVisible(false);
+      sizeLabel->setVisible(true);
+      progressBar->setVisible(true);
+      percentageLabel->setVisible(true);
+
+      service->startDownload(ServiceConfig.link, ServiceConfig.downloadLocation, ServiceConfig.format, 
+                              ServiceConfig.quality, ServiceConfig.conversion, 
+                              ServiceConfig.playlist, ServiceConfig.savePlaylistInFolder, ServiceConfig.saveThumbnail);
 }
