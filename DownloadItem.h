@@ -8,6 +8,7 @@
 #include <QResizeEvent>
 #include <QPushButton>
 
+
 class DownloadItem : public QWidget {
 Q_OBJECT
 public:
@@ -16,6 +17,9 @@ public:
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 private:
     Service *service;
 
@@ -29,12 +33,16 @@ private:
     QString downloadedSize;
     QString fullTitle;
 
+    QLabel *infoIcon;
     QPushButton *restartButton;
     QPushButton *discardButton;
 
     DownloadConfig ServiceConfig;
 
     bool downloadFinishedState = false;
+    QString fullFilePath;
+
+    QPoint dragStartPosition;
 public slots:
     void stopDownload();
 private slots:
@@ -50,6 +58,7 @@ private slots:
     void updateElidedText();
     void updateTitleText(const QString &text);
     void retryDownload();
+    void onFullPathUpdated(QString fullPath);
 signals:
     void removeRequested();
     void finishedSignal();

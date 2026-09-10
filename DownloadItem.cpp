@@ -6,11 +6,21 @@
 #include <QGuiApplication>
 #include <QStyleHints>
 #include <QTimer>
-#include <qpushbutton.h>
+#include <QProcess>
+#include <QDir>
+#include <QUrl>
+#include <QDrag>
+#include <QMimeData>
+#include <QApplication>
+#ifdef Q_OS_LINUX
+#include <QDBusMessage>
+#include <QDBusConnection>
+#endif
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
       
     DownloadConfig ServiceConfig {config};
+    fullFilePath = ""; // Set on download finish
 
     service = new Service(this);
     
@@ -27,11 +37,14 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     
     layout->setContentsMargins(6, 0, 6, 0);
 
+    infoIcon = new QLabel(this);
     restartButton = new QPushButton(this);
     discardButton = new QPushButton(this);
 
     restartButton->setIcon(QIcon::fromTheme("view-refresh"));
     discardButton->setIcon(QIcon::fromTheme("window-close"));
+    infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(16, 16));
+    infoIcon->setVisible(false);
     restartButton->setVisible(false);
     discardButton->setVisible(false);
     
@@ -39,6 +52,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     discardButton->setText("Discard");
     
     layout->addWidget(titleLabel, 3); 
+    layout->addWidget(infoIcon);
     layout->addWidget(restartButton, 1);
     layout->addWidget(discardButton, 1);
     layout->addWidget(sizeLabel);
@@ -66,9 +80,11 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
                   &DownloadItem::onTitleUpdated);
       connect(service, &Service::sizeUpdated, this, 
                         &DownloadItem::onSizeUpdated);
+      connect(service, &Service::filePath, this, &DownloadItem::onFullPathUpdated);
 
       connect(restartButton, &QPushButton::clicked, this, &DownloadItem::retryDownload);
       connect(discardButton, &QPushButton::clicked, this, &DownloadItem::stopDownload);
+
 
       service->startDownload(config.link, config.downloadLocation, config.format, 
                               config.quality, config.conversion, 
@@ -100,6 +116,8 @@ void DownloadItem::downloadFinished(int exit) {
             }
             
             QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
+            downloadFinishedState = true;
+            emit finishedSignal();
             return;
       } else if (exit == 9) {
             updateTitleText(tr("Download stopped"));
@@ -107,6 +125,7 @@ void DownloadItem::downloadFinished(int exit) {
             updateTitleText(tr("Download failed: process crashed"));
       } else {
             updateTitleText(tr("Download failed, error code: %1").arg(QString::number(exit)));
+            infoIcon->setVisible(true);
             restartButton->setVisible(true);
             discardButton->setVisible(true);
             sizeLabel->setVisible(false);
@@ -146,7 +165,7 @@ void DownloadItem::downloadPhaseUpdated(QString phase) {
 }
 
 void DownloadItem::downloadProcessFailed(QString error) {
-      this->setToolTip(error);
+      infoIcon->setToolTip(error);
 }
 
 void DownloadItem::stopDownload() {
@@ -215,7 +234,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
 }
 
 void DownloadItem::retryDownload() {
-
+      infoIcon->setVisible(false);
       restartButton->setVisible(false);
       discardButton->setVisible(false);
       sizeLabel->setVisible(true);
@@ -225,4 +244,81 @@ void DownloadItem::retryDownload() {
       service->startDownload(ServiceConfig.link, ServiceConfig.downloadLocation, ServiceConfig.format, 
                               ServiceConfig.quality, ServiceConfig.conversion, 
                               ServiceConfig.playlist, ServiceConfig.savePlaylistInFolder, ServiceConfig.saveThumbnail);
+}
+
+void DownloadItem::onFullPathUpdated(QString fullPath) {
+      fullFilePath = fullPath;
+      qDebug() << fullPath;
+}
+
+void DownloadItem::mouseDoubleClickEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton && !fullFilePath.isEmpty()) {
+        
+      #if defined(Q_OS_WIN)
+        // Windows
+        QString windowsPath = QDir::toNativeSeparators(fullFilePath);
+        
+        QString command = QString("explorer.exe /select,\"%1\"").arg(windowsPath);
+        
+        QProcess::startDetached(command);
+
+      #elif defined(Q_OS_LINUX)
+        // Check for DBus
+        if (QDBusConnection::sessionBus().isConnected()) {
+            QDBusMessage msg = QDBusMessage::createMethodCall(
+                "org.freedesktop.FileManager1",
+                "/org/freedesktop/FileManager1",
+                "org.freedesktop.FileManager1",
+                "ShowItems"
+            );
+
+            QStringList uris;
+            uris << QUrl::fromLocalFile(fullFilePath).toString();
+            msg << uris << QString("");
+
+            QDBusConnection::sessionBus().send(msg);
+        } else {
+            // If not available
+            QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
+        }
+      #else
+        // Other
+        QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
+      #endif
+    }
+    QWidget::mouseDoubleClickEvent(event);
+}
+
+void DownloadItem::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        dragStartPosition = event->pos();
+    }
+    // Continues
+    QWidget::mousePressEvent(event);
+}
+
+void DownloadItem::mouseMoveEvent(QMouseEvent *event) {
+    if (!(event->buttons() & Qt::LeftButton)) {
+        return;
+    }
+
+    if ((event->pos() - dragStartPosition).manhattanLength() < QApplication::startDragDistance()) {
+        return;
+    }
+
+    // If download hasn't finished
+    if (fullFilePath.isEmpty()) {
+        return; 
+    }
+
+    QDrag *drag = new QDrag(this);
+    QMimeData *mimeData = new QMimeData;
+
+    QList<QUrl> urls;
+    urls << QUrl::fromLocalFile(fullFilePath);
+    mimeData->setUrls(urls);
+    
+    drag->setMimeData(mimeData);
+
+    drag->exec(Qt::CopyAction);
 }

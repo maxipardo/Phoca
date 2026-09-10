@@ -35,6 +35,11 @@ endif()
 
 target_link_libraries(phoca PRIVATE Qt6::Widgets Qt6::Core Qt6::Network)
 
+if(UNIX AND NOT APPLE)
+    find_package(Qt6 REQUIRED COMPONENTS DBus)
+    target_link_libraries(phoca PRIVATE Qt6::DBus)
+endif()
+
 set(TS_FILES i18n/phoca_es.ts)
 qt_add_translations(phoca TS_FILES ${TS_FILES})
 

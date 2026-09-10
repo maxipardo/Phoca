@@ -36,6 +36,11 @@ void Service::startDownload(QString link, QString location, int format, QString 
         arguments << "--write-thumbnail";
     }
 
+    // Print full directory
+    arguments << "--no-quiet";
+    arguments << "--print" << "after_move:FINALPATH:%(filepath)s";
+    arguments << "--no-simulate";
+
     arguments << "--newline" << "--no-colors" << "-o" << outputPath;
 
     // PATH flatpak or .deb
@@ -94,6 +99,8 @@ void Service::startDownload(QString link, QString location, int format, QString 
     partCounter = 0;
     savedSizeMiB = 0.0;
     currentPartMiB = 0.0;
+
+    qDebug() << "Starting yt-dlp download with command: " << arguments;
     downloadProcess->start(executable, arguments);
 }
 
@@ -103,6 +110,7 @@ void Service::readOutput() {
     static const QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%(?:\\s+of\\s+~?\\s*([0-9.]+)([a-zA-Z]+))?");
     static const QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
     static const QRegularExpression regexPlaylist("^\\[download\\] Downloading (?:video|item) (\\d+) of (\\d+)");
+    static const QRegularExpression finalPath("^FINALPATH:(.+)$");
 
     while (downloadProcess->canReadLine()) {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
@@ -218,6 +226,14 @@ void Service::readOutput() {
             if (percentage == 100) {
                 emit phaseUpdated(tr("Processing..."));
             }
+            continue;
+        }
+
+        QRegularExpressionMatch matchFinalPath = finalPath.match(line);
+        if (matchFinalPath.hasMatch()) {
+            QString fullPath = matchFinalPath.captured(1).trimmed();
+            
+            emit filePath(fullPath);
             continue;
         }
     }
