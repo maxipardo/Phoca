@@ -12,6 +12,7 @@
 #include <QDrag>
 #include <QMimeData>
 #include <QApplication>
+#include <QFile>
 #ifdef Q_OS_LINUX
 #include <QDBusMessage>
 #include <QDBusConnection>
@@ -226,12 +227,29 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       }
       cancelAction->setIcon(cancelIcon); 
 
+      QAction *deleteFileAction;
+      QIcon deleteIcon;
+      if (!fullFilePath.isEmpty()) {
+            deleteFileAction = menu->addAction(tr("Delete file"));
+            deleteIcon = QIcon::fromTheme("edit-delete");
+            if (deleteIcon.isNull()) {
+                  if (isDarkMode) {
+                        deleteIcon = QIcon(":/cancel_light.svg");
+                  } else {
+                        deleteIcon = QIcon(":/cancel_dark.svg");
+                  }
+            }
+            deleteFileAction->setIcon(deleteIcon);
+      }
+
       connect(cancelAction, &QAction::triggered, this, &DownloadItem::stopDownload);
       if (!fullFilePath.isEmpty()) {
             connect(openLocation, &QAction::triggered, this, &DownloadItem::openFileLocation);
+            connect(deleteFileAction, &QAction::triggered, this, &DownloadItem::deleteFile);
       } else {
-            QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
+            connect(openLocation, &QAction::triggered, this, &DownloadItem::openDownloadLocation);
       }
+      
 
       // Asyncronus menu
       menu->popup(event->globalPos());
@@ -253,6 +271,10 @@ void DownloadItem::retryDownload() {
 void DownloadItem::onFullPathUpdated(QString fullPath) {
       fullFilePath = fullPath;
       qDebug() << fullPath;
+}
+
+void DownloadItem::openDownloadLocation() {
+      QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
 }
 
 void DownloadItem::openFileLocation() {
@@ -329,4 +351,23 @@ void DownloadItem::mouseMoveEvent(QMouseEvent *event) {
     drag->setMimeData(mimeData);
 
     drag->exec(Qt::CopyAction);
+}
+
+void DownloadItem::deleteFile() {
+      if (!fullFilePath.isEmpty()) {
+            QFile file(fullFilePath);
+
+            if (file.exists()) {
+                  if (file.remove()) {
+                        qDebug() << "File succesfully deleted:" << fullFilePath;
+                        emit removeRequested();
+                  } else {
+                        qDebug() << "Error: Couldn't delete file.";
+                        titleLabel->setText(tr("Couldn't delete file"));
+                  }
+            } else {
+                  qDebug() << "File does not exist.";
+                  titleLabel->setText(tr("Couldn't delete file"));
+            }
+      }
 }

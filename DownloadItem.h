@@ -62,6 +62,8 @@ private slots:
     void retryDownload();
     void onFullPathUpdated(QString fullPath);
     void openFileLocation();
+    void openDownloadLocation();
+    void deleteFile();
 signals:
     void removeRequested();
     void finishedSignal();
