@@ -234,9 +234,9 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
             deleteIcon = QIcon::fromTheme("edit-delete");
             if (deleteIcon.isNull()) {
                   if (isDarkMode) {
-                        deleteIcon = QIcon(":/cancel_light.svg");
+                        deleteIcon = QIcon(":/delete_light.svg");
                   } else {
-                        deleteIcon = QIcon(":/cancel_dark.svg");
+                        deleteIcon = QIcon(":/delete_dark.svg");
                   }
             }
             deleteFileAction->setIcon(deleteIcon);
