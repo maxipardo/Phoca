@@ -42,4 +42,5 @@ signals:
     void phaseUpdated(QString phase);
     void sizeUpdated(QString size);
     void downloadStalled();
+    void filePath(QString fullPath);
 };
