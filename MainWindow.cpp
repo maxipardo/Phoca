@@ -194,10 +194,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   connect(linkBox, &QLineEdit::returnPressed,
          downloadButton, &QPushButton::click);
-
-  //connect(list, &QListWidget::itemDoubleClicked, this, &MainWindow::openDirectory);
-         
-         
          
   locationLabel = new QLabel(this);
   this->statusBar()->addWidget(locationLabel);
@@ -433,7 +429,7 @@ void MainWindow::clearFinishedDownloads() {
       DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
       
       if (downloadItem && downloadItem->isFinished()) {
-          delete item; 
+          delete item;
       }
   }
   clearFinishedButton->setEnabled(false);
