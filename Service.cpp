@@ -36,6 +36,7 @@ void Service::startDownload(QString link, QString location, int format, QString 
         arguments << "--write-thumbnail";
     }
 
+    arguments << "--no-quiet";
     arguments << "--newline" << "--no-colors" << "-o" << outputPath;
 
     // PATH flatpak or .deb
