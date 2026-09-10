@@ -43,6 +43,8 @@ private:
     QString fullFilePath;
 
     QPoint dragStartPosition;
+
+    QString discardText;
 public slots:
     void stopDownload();
 private slots:
@@ -59,6 +61,7 @@ private slots:
     void updateTitleText(const QString &text);
     void retryDownload();
     void onFullPathUpdated(QString fullPath);
+    void openFileLocation();
 signals:
     void removeRequested();
     void finishedSignal();

@@ -21,6 +21,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
       
     DownloadConfig ServiceConfig {config};
     fullFilePath = ""; // Set on download finish
+    discardText = (tr("Cancel download\tDel"));
 
     service = new Service(this);
     
@@ -103,6 +104,7 @@ void DownloadItem::downloadStarted() {
 }
 
 void DownloadItem::downloadFinished(int exit) {
+      discardText = (tr("Discard download\tDel"));
       if (exit == 0) {
             progressBar->setRange(0, 100);
             progressBar->setValue(100);
@@ -213,7 +215,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       }
       openLocation->setIcon(folderIcon);
 
-      QAction *cancelAction = menu->addAction(tr("Delete download\tDel"));
+      QAction *cancelAction = menu->addAction(discardText);
       QIcon cancelIcon = QIcon::fromTheme("process-stop");
       if (cancelIcon.isNull()) {
             if (isDarkMode) {
@@ -225,9 +227,11 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       cancelAction->setIcon(cancelIcon); 
 
       connect(cancelAction, &QAction::triggered, this, &DownloadItem::stopDownload);
-      connect(openLocation, &QAction::triggered, this, [this]() {
+      if (!fullFilePath.isEmpty()) {
+            connect(openLocation, &QAction::triggered, this, &DownloadItem::openFileLocation);
+      } else {
             QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
-      });
+      }
 
       // Asyncronus menu
       menu->popup(event->globalPos());
@@ -251,9 +255,7 @@ void DownloadItem::onFullPathUpdated(QString fullPath) {
       qDebug() << fullPath;
 }
 
-void DownloadItem::mouseDoubleClickEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton && !fullFilePath.isEmpty()) {
-        
+void DownloadItem::openFileLocation() {
       #if defined(Q_OS_WIN)
         // Windows
         QString windowsPath = QDir::toNativeSeparators(fullFilePath);
@@ -285,6 +287,12 @@ void DownloadItem::mouseDoubleClickEvent(QMouseEvent *event) {
         // Other
         QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
       #endif
+}
+
+void DownloadItem::mouseDoubleClickEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton && !fullFilePath.isEmpty()) {
+        openFileLocation();
+
     }
     QWidget::mouseDoubleClickEvent(event);
 }
