@@ -281,9 +281,10 @@ void DownloadItem::openFileLocation() {
         // Windows
         QString windowsPath = QDir::toNativeSeparators(fullFilePath);
         
-        QString command = QString("explorer.exe /select,\"%1\"").arg(windowsPath);
+        QStringList args;
+        args << "/select," << windowsPath;
         
-        QProcess::startDetached(command);
+        QProcess::startDetached("explorer.exe", args);
 
       #elif defined(Q_OS_LINUX)
         // Check for DBus
