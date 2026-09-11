@@ -259,7 +259,6 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
             connect(openLocation, &QAction::triggered, this, &DownloadItem::openDownloadLocation);
       }
       
-
       // Asyncronus menu
       menu->popup(event->globalPos());
 }
