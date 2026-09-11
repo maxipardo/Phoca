@@ -30,6 +30,7 @@
 !phoca.desktop.in
 !io.github.maxipardo.phoca.yml
 !.github/workflows/flatpak-build.yml
+!.github/workflows/windows.portable.yml
 !cancel_dark.svg
 !cancel_light.svg
 !delete_dark.svg
