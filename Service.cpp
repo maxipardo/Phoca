@@ -152,6 +152,8 @@ void Service::readOutput() {
             QString total = matchPlaylist.captured(2);
             playlistStatus = QString("(%1/%2)").arg(current, total);
             
+            emit playlistItemUpdated(playlistStatus);
+
             partCounter = 0; 
             continue;
         }

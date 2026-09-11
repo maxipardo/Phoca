@@ -23,6 +23,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     ServiceConfig = config;
     fullFilePath = ""; // Set on download finish
     discardText = (tr("Cancel download\tDel"));
+    playlistStatus = "";
 
     service = new Service(this);
     
@@ -50,8 +51,8 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     restartButton->setVisible(false);
     discardButton->setVisible(false);
     
-    restartButton->setText("Retry");
-    discardButton->setText("Discard");
+    restartButton->setText(tr("Retry"));
+    discardButton->setText(tr("Discard"));
     
     layout->addWidget(titleLabel, 3); 
     layout->addWidget(infoIcon);
@@ -83,6 +84,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
       connect(service, &Service::sizeUpdated, this, 
                         &DownloadItem::onSizeUpdated);
       connect(service, &Service::filePath, this, &DownloadItem::onFullPathUpdated);
+      connect(service, &Service::playlistItemUpdated, this, &DownloadItem::playlistItemUpdated);
 
       connect(restartButton, &QPushButton::clicked, this, &DownloadItem::retryDownload);
       connect(discardButton, &QPushButton::clicked, this, &DownloadItem::stopDownload);
@@ -168,7 +170,15 @@ void DownloadItem::downloadPhaseUpdated(QString phase) {
 }
 
 void DownloadItem::downloadProcessFailed(QString error) {
-      infoIcon->setToolTip(error);
+      
+      if (!playlistStatus.isEmpty()) {
+            toolTipErrors.append(playlistStatus + " ");
+            error.remove(0, 30);
+            error = error.left(70);
+      }
+      toolTipErrors.append(error + "\n");
+      infoIcon->setToolTip(toolTipErrors);
+      infoIcon->setVisible(true);
 }
 
 void DownloadItem::stopDownload() {
@@ -378,4 +388,8 @@ void DownloadItem::deleteFile() {
                   titleLabel->setText(tr("Couldn't delete file"));
             }
       }
+}
+
+void DownloadItem::playlistItemUpdated(QString status) {
+      playlistStatus = status;
 }

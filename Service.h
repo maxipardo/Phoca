@@ -33,4 +33,5 @@ signals:
     void phaseUpdated(QString phase);
     void sizeUpdated(QString size);
     void filePath(QString fullPath);
+    void playlistItemUpdated(QString status);
 };
