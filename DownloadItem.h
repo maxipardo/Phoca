@@ -45,6 +45,8 @@ private:
     QPoint dragStartPosition;
 
     QString discardText;
+    QString playlistStatus;
+    QString toolTipErrors;
 public slots:
     void stopDownload();
 private slots:
@@ -65,6 +67,7 @@ private slots:
     void openFileLocation();
     void openDownloadLocation();
     void deleteFile();
+    void playlistItemUpdated(QString status);
 signals:
     void removeRequested();
     void finishedSignal();

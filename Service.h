@@ -43,4 +43,5 @@ signals:
     void sizeUpdated(QString size);
     void downloadStalled();
     void filePath(QString fullPath);
+    void playlistItemUpdated(QString status);
 };
