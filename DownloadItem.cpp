@@ -354,16 +354,24 @@ void DownloadItem::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void DownloadItem::deleteFile() {
-      if (!fullFilePath.isEmpty()) {
-            QFile file(fullFilePath);
+      QString cleanPath = fullFilePath.trimmed();
+
+      if (!cleanPath.isEmpty()) {
+            QFile file(cleanPath);
 
             if (file.exists()) {
-                  if (file.remove()) {
-                        qDebug() << "File succesfully deleted:" << fullFilePath;
+                  if (file.moveToTrash()) {
+                        qDebug() << "File successfully moved to trash:" << cleanPath;
                         emit removeRequested();
                   } else {
-                        qDebug() << "Error: Couldn't delete file.";
-                        titleLabel->setText(tr("Couldn't delete file"));
+                        qDebug() << "Couldn't move to trash, trying hard delete...";
+                        if (file.remove()) {
+                              qDebug() << "File successfully deleted (hard):" << cleanPath;
+                              emit removeRequested();
+                        } else {
+                              qDebug() << "Error: Couldn't delete file.";
+                              titleLabel->setText(tr("Couldn't delete file"));
+                        }
                   }
             } else {
                   qDebug() << "File does not exist.";
