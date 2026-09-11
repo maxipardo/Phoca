@@ -20,7 +20,7 @@
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
       
-    DownloadConfig ServiceConfig {config};
+    ServiceConfig = config;
     fullFilePath = ""; // Set on download finish
     discardText = (tr("Cancel download\tDel"));
 
@@ -227,9 +227,9 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
       }
       cancelAction->setIcon(cancelIcon); 
 
-      QAction *deleteFileAction;
+      QAction *deleteFileAction = nullptr;
       QIcon deleteIcon;
-      if (!fullFilePath.isEmpty()) {
+      if (!fullFilePath.isEmpty() && ServiceConfig.playlist == false) {
             deleteFileAction = menu->addAction(tr("Delete file"));
             deleteIcon = QIcon::fromTheme("edit-delete");
             if (deleteIcon.isNull()) {
@@ -240,12 +240,12 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
                   }
             }
             deleteFileAction->setIcon(deleteIcon);
+            connect(deleteFileAction, &QAction::triggered, this, &DownloadItem::deleteFile);
       }
 
       connect(cancelAction, &QAction::triggered, this, &DownloadItem::stopDownload);
       if (!fullFilePath.isEmpty()) {
             connect(openLocation, &QAction::triggered, this, &DownloadItem::openFileLocation);
-            connect(deleteFileAction, &QAction::triggered, this, &DownloadItem::deleteFile);
       } else {
             connect(openLocation, &QAction::triggered, this, &DownloadItem::openDownloadLocation);
       }
