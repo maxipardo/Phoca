@@ -20,8 +20,8 @@ modules:
       - install -D -m 755 bin/ffprobe /app/bin/ffprobe
     sources:
       - type: archive
-        url: https://github.com/yt-dlp/FFmpeg-Builds/releases/download/autobuild-2026-08-23-14-27/ffmpeg-N-126250-gdea13cca4f-linux64-gpl.tar.xz
-        sha256: c74ea8ea31206b7e8f42169e87662c885512968d9c5d0bfd2b851f848cf676e0
+        url: https://github.com/yt-dlp/FFmpeg-Builds/releases/download/autobuild-2026-09-11-17-43/ffmpeg-N-126504-g1b8a2b690b-linux64-gpl.tar.xz
+        sha256: c96db845d473c168b53174407b10547abb2b4b50f6401350791c0033cb3fbf83
   # Deno
   - name: deno
     buildsystem: simple
