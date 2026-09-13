@@ -278,6 +278,11 @@ void MainWindow::changeLocation() {
 }
 
 void MainWindow::startDownload() {
+  if (!maintainer->exists()){
+    getServiceSlot();
+    return;
+  }
+
   int format {0}; // both
   if (videoButton->isChecked()) {
     format = 1;
