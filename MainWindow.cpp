@@ -123,6 +123,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"});
   optionsLayout->addWidget(conversionBox);
 
+  subtitlesBox = new QCheckBox(this);
+  subtitlesBox->setText(tr("Subtitles"));
+  subtitlesBox->setChecked(false);
+  optionsLayout->addWidget(subtitlesBox);
+
+
   QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
   optionsLayout->addItem(spacer);
 
@@ -348,6 +354,7 @@ void MainWindow::startDownload() {
   config.playlist = playlist;
   config.savePlaylistInFolder = savePlaylistInFolder;
   config.saveThumbnail = parSaveThumbnail;
+  config.saveSubtitles = subtitlesBox->isChecked();
 
   DownloadItem *newDownload = new DownloadItem(config, this);
   QListWidgetItem *item = new QListWidgetItem();
