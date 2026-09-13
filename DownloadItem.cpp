@@ -37,15 +37,18 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     percentageLabel = new QLabel(this);
     
     QHBoxLayout *layout = new QHBoxLayout(this);
-    
+    QHBoxLayout *failLayout = new QHBoxLayout(this);
+
     layout->setContentsMargins(6, 0, 6, 0);
+    failLayout->setSpacing(0);
 
     infoIcon = new QLabel(this);
+
     restartButton = new QPushButton(this);
     discardButton = new QPushButton(this);
 
-    restartButton->setIcon(QIcon::fromTheme("view-refresh"));
-    discardButton->setIcon(QIcon::fromTheme("window-close"));
+    restartButton->setIcon(QIcon::fromTheme("view-refresh").pixmap(10, 10));
+    discardButton->setIcon(QIcon::fromTheme("window-close").pixmap(10, 10));
     infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(16, 16));
     infoIcon->setVisible(false);
     restartButton->setVisible(false);
@@ -56,8 +59,9 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     
     layout->addWidget(titleLabel, 3); 
     layout->addWidget(infoIcon);
-    layout->addWidget(restartButton, 1);
-    layout->addWidget(discardButton, 1);
+    layout->addLayout(failLayout);
+    failLayout->addWidget(restartButton, 1);
+    failLayout->addWidget(discardButton, 1);
     layout->addWidget(sizeLabel);
     layout->addWidget(progressBar, 1);
     layout->addWidget(percentageLabel);

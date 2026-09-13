@@ -231,7 +231,12 @@ void MainWindow::engineDownloaded(int exit) {
     this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Network error"), 5000);
     break;
   case 2:
+    
+  #ifdef Q_OS_WIN
+    this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Engine file in use, or need permissions to write"), 5000);
+  #else
     this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Need permissions to write"), 5000);
+  #endif
     break;
   }
   setDownloadReadiness();
