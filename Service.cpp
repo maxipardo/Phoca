@@ -14,7 +14,7 @@ Service::Service(QObject *parent) : QObject(parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 }
 
-void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail) {
+void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath;
@@ -92,6 +92,10 @@ void Service::startDownload(QString link, QString location, int format, QString 
 
         arguments << "--merge-output-format" << targetFormat;
         arguments << "--remux-video" << targetFormat;
+    }
+
+    if (saveSubtitles == true) {
+        arguments << "--write-subs";
     }
 
     arguments << link;

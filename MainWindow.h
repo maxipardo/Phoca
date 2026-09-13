@@ -1,6 +1,5 @@
 #pragma once
 #include "ServiceMaintainer.h"
-#include "Service.h"
 #include <QMainWindow>
 #include <QVBoxLayout>
 #include <QLineEdit>
@@ -21,6 +20,7 @@
 #include <QMessageBox>
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QCheckBox>
 
 #include <QMenuBar>
 #include <QMenu>
@@ -57,6 +57,7 @@ private:
 
     QComboBox *qualityBox;
     QComboBox *conversionBox;
+    QCheckBox *subtitlesBox;
 
     QAction *chooseLocationAction;
     QAction *chooseNightlyAction;

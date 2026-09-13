@@ -10,4 +10,5 @@ struct DownloadConfig {
     bool playlist = false;
     bool savePlaylistInFolder = true;
     bool saveThumbnail = false;
+    bool saveSubtitles = false;
 };
