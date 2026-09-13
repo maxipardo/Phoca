@@ -1,4 +1,5 @@
 #include "DownloadItem.h"
+#include "ServiceMaintainer.h"
 #include <QLayout>
 #include <QMenu>
 #include <QDesktopServices>
@@ -20,10 +21,12 @@
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
       
+    maintainer = new ServiceMaintainer(this);
     ServiceConfig = config;
     fullFilePath = ""; // Set on download finish
     discardText = (tr("Cancel download\tDel"));
     playlistStatus = "";
+    toolTipErrors = "";
 
     service = new Service(this);
     
@@ -187,6 +190,12 @@ void DownloadItem::downloadProcessFailed(QString error) {
       toolTipErrors.append(error + "\n");
       infoIcon->setToolTip(toolTipErrors);
       infoIcon->setVisible(true);
+
+      #ifdef Q_OS_LINUX
+      if (toolTipErrors.contains("Forbidden")) {
+            restartButton->setText(tr("Update yt-dlp"));
+      }
+      #endif
 }
 
 void DownloadItem::downloadStalled() {
@@ -278,6 +287,17 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
 }
 
 void DownloadItem::retryDownload() {
+      #ifdef Q_OS_LINUX
+      if (toolTipErrors.contains("Forbidden")) {
+            restartButton->setText(tr("Update yt-dlp"));
+            maintainer->getService(true);
+            return;
+      } else {
+            restartButton->setText(tr("Retry"));
+      }
+      #endif
+
+      toolTipErrors = "";
       infoIcon->setVisible(false);
       restartButton->setVisible(false);
       discardButton->setVisible(false);

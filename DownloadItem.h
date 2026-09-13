@@ -1,6 +1,7 @@
 #pragma once
 #include "Service.h"
 #include "DownloadConfig.h"
+#include "ServiceMaintainer.h"
 #include <QWidget>
 #include <QLabel>
 #include <QProgressBar>
@@ -22,6 +23,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 private:
     Service *service;
+    ServiceMaintainer *maintainer;
 
     QLabel *titleLabel;
     QLabel *sizeLabel;
