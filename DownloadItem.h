@@ -38,6 +38,7 @@ private slots:
     void onTitleUpdated(QString title);
     void downloadPhaseUpdated(QString phase);
     void downloadProcessFailed(QString error);
+    void downloadStalled();
 
     void onSizeUpdated(QString cleanSize);
 

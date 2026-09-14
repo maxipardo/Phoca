@@ -49,6 +49,8 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
                   &DownloadItem::onTitleUpdated);
       connect(service, &Service::sizeUpdated, this, 
                         &DownloadItem::onSizeUpdated);
+      connect(service, &Service::downloadStalled, this, 
+                        &DownloadItem::downloadStalled);
 
       service->startDownload(config.link, config.downloadLocation, config.format, 
                               config.quality, config.conversion, 
@@ -121,6 +123,12 @@ void DownloadItem::downloadPhaseUpdated(QString phase) {
 
 void DownloadItem::downloadProcessFailed(QString error) {
       updateTitleText(tr("Process failed: %1").arg(error));
+}
+
+void DownloadItem::downloadStalled() {
+      updateTitleText(tr("Download stalled \u2013 no response from server"));
+      progressBar->setRange(0, 0);
+      percentageLabel->setVisible(false);
 }
 
 void DownloadItem::stopDownload() {

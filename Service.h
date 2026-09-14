@@ -7,6 +7,7 @@
 #include <QRegularExpression>
 #include <QFileInfo>
 #include <QCoreApplication>
+#include <QTimer>
 
 class Service : public QObject {
 Q_OBJECT
@@ -16,14 +17,19 @@ public:
     void stopDownload();
 private:
     QProcess *downloadProcess;
+    QTimer *stallTimer;
     int partCounter;
     QString playlistStatus;
     double savedSizeMiB = 0.0;
     double currentPartMiB = 0.0;
+    bool stallEmitted = false;
+
+    void resetStallTimer();
 private slots:
     void onProcessFinish(int exitCode, QProcess::ExitStatus status);
     void downloadFailed(QProcess::ProcessError error);
     void readOutput();
+    void onStallTimeout();
 signals:
     void titleUpdated(QString title);
     void downloadStarted();
@@ -32,4 +38,5 @@ signals:
     void percentageUpdated(int percentage);
     void phaseUpdated(QString phase);
     void sizeUpdated(QString size);
+    void downloadStalled();
 };

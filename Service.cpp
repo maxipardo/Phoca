@@ -6,6 +6,12 @@ Service::Service(QObject *parent) : QObject(parent) {
 
     downloadProcess->setProcessChannelMode(QProcess::MergedChannels);
 
+    /* Stall timer */
+    stallTimer = new QTimer(this);
+    stallTimer->setInterval(30000); // 30 s
+    stallTimer->setSingleShot(true);
+    connect(stallTimer, &QTimer::timeout, this, &Service::onStallTimeout);
+
     /* Connections */
     connect(downloadProcess, &QProcess::started, this, &Service::downloadStarted);
     connect(downloadProcess, &QProcess::finished, this, &Service::onProcessFinish);
@@ -95,7 +101,9 @@ void Service::startDownload(QString link, QString location, int format, QString 
     partCounter = 0;
     savedSizeMiB = 0.0;
     currentPartMiB = 0.0;
+    stallEmitted = false;
     downloadProcess->start(executable, arguments);
+    stallTimer->start();
 }
 
 void Service::readOutput() {
@@ -107,6 +115,9 @@ void Service::readOutput() {
 
     while (downloadProcess->canReadLine()) {
         QString line = QString::fromLocal8Bit(downloadProcess->readLine()).trimmed();
+
+        resetStallTimer();
+
         if (line.startsWith("ERROR:")) {
             qDebug() << "yt-dlp [ERROR]:" << line;
             emit processFailed(line);
@@ -225,6 +236,11 @@ void Service::readOutput() {
 }
 
 void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
+    stallTimer->stop();
+
+    // Drain any remaining buffered output
+    readOutput();
+
     if (status == QProcess::CrashExit) {
         emit downloadFinished(-1);
         return;
@@ -248,7 +264,20 @@ void Service::downloadFailed(QProcess::ProcessError error) {
 }
 
 void Service::stopDownload() {
+    stallTimer->stop();
     if (downloadProcess->state() == QProcess::Running) {
         downloadProcess->terminate();
+    }
+}
+
+void Service::resetStallTimer() {
+    stallEmitted = false;
+    stallTimer->start(); // restart
+}
+
+void Service::onStallTimeout() {
+    if (!stallEmitted && downloadProcess->state() == QProcess::Running) {
+        stallEmitted = true;
+        emit downloadStalled();
     }
 }
