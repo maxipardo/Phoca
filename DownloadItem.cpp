@@ -126,7 +126,6 @@ void DownloadItem::downloadProcessFailed(QString error) {
 }
 
 void DownloadItem::downloadStalled() {
-      updateTitleText(tr("Download stalled \u2013 no response from server"));
       progressBar->setRange(0, 0);
       percentageLabel->setVisible(false);
 }
