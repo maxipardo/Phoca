@@ -98,6 +98,7 @@ void DownloadItem::downloadProgress(int percentage) {
     if (percentage >= progressBar->value() || (progressBar->value() - percentage) > 50) {
         progressBar->setValue(percentage);
     }
+    percentageLabel->setVisible(true);
     percentageLabel->setText(QString::number(percentage) + "%");
     updateElidedText();
 }
