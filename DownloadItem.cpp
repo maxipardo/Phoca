@@ -50,8 +50,12 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     restartButton = new QPushButton(this);
     discardButton = new QPushButton(this);
 
-    restartButton->setIcon(QIcon::fromTheme("view-refresh").pixmap(10, 10));
-    discardButton->setIcon(QIcon::fromTheme("window-close").pixmap(10, 10));
+    restartButton->setIcon(QIcon::fromTheme("view-refresh"));
+    discardButton->setIcon(QIcon::fromTheme("window-close"));
+    
+    restartButton->setIconSize(QSize(16, 16));
+    discardButton->setIconSize(QSize(16, 16));
+
     infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(16, 16));
     infoIcon->setVisible(false);
     restartButton->setVisible(false);
