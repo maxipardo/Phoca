@@ -8,9 +8,14 @@ Service::Service(QObject *parent) : QObject(parent) {
 
     /* Stall timer */
     stallTimer = new QTimer(this);
-    stallTimer->setInterval(30000); // 30 s
+    stallTimer->setInterval(5000); // 5 s
     stallTimer->setSingleShot(true);
     connect(stallTimer, &QTimer::timeout, this, &Service::onStallTimeout);
+
+    killTimer = new QTimer(this);
+    killTimer->setInterval(20000); // 20 s
+    killTimer->setSingleShot(true);
+    connect(killTimer, &QTimer::timeout, this, &Service::onKillTimeout);
 
     /* Connections */
     connect(downloadProcess, &QProcess::started, this, &Service::downloadStarted);
@@ -102,8 +107,10 @@ void Service::startDownload(QString link, QString location, int format, QString 
     savedSizeMiB = 0.0;
     currentPartMiB = 0.0;
     stallEmitted = false;
+    killedByTimeout = false;
     downloadProcess->start(executable, arguments);
     stallTimer->start();
+    killTimer->start();
 }
 
 void Service::readOutput() {
@@ -237,9 +244,15 @@ void Service::readOutput() {
 
 void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
     stallTimer->stop();
+    killTimer->stop();
 
     // Drain any remaining buffered output
     readOutput();
+
+    if (killedByTimeout) {
+        emit downloadFinished(-2);
+        return;
+    }
 
     if (status == QProcess::CrashExit) {
         emit downloadFinished(-1);
@@ -265,6 +278,7 @@ void Service::downloadFailed(QProcess::ProcessError error) {
 
 void Service::stopDownload() {
     stallTimer->stop();
+    killTimer->stop();
     if (downloadProcess->state() == QProcess::Running) {
         downloadProcess->terminate();
     }
@@ -273,11 +287,19 @@ void Service::stopDownload() {
 void Service::resetStallTimer() {
     stallEmitted = false;
     stallTimer->start(); // restart
+    killTimer->start();
 }
 
 void Service::onStallTimeout() {
     if (!stallEmitted && downloadProcess->state() == QProcess::Running) {
         stallEmitted = true;
         emit downloadStalled();
+    }
+}
+
+void Service::onKillTimeout() {
+    if (downloadProcess->state() == QProcess::Running) {
+        killedByTimeout = true;
+        downloadProcess->kill();
     }
 }

@@ -69,10 +69,9 @@ void DownloadItem::downloadStarted() {
 }
 
 void DownloadItem::downloadFinished(int exit) {
+      progressBar->setRange(0, 100);
       if (exit == 0) {
-            progressBar->setRange(0, 100);
             progressBar->setValue(100);
-            
             if (fullTitle == tr("Download started")) {
                   if (downloadPhase == tr("Already downloaded")) {
                         updateTitleText(tr("Already downloaded")); 
@@ -86,6 +85,8 @@ void DownloadItem::downloadFinished(int exit) {
             updateTitleText(tr("Download stopped"));
       } else if (exit == -1) {
             updateTitleText(tr("Download failed: process crashed"));
+      } else if (exit == -2) {
+            updateTitleText(tr("Download failed: network timeout"));
       } else {
             updateTitleText(tr("Download failed, error code: %1").arg(QString::number(exit)));
       }

@@ -18,11 +18,13 @@ public:
 private:
     QProcess *downloadProcess;
     QTimer *stallTimer;
+    QTimer *killTimer;
     int partCounter;
     QString playlistStatus;
     double savedSizeMiB = 0.0;
     double currentPartMiB = 0.0;
     bool stallEmitted = false;
+    bool killedByTimeout = false;
 
     void resetStallTimer();
 private slots:
@@ -30,6 +32,7 @@ private slots:
     void downloadFailed(QProcess::ProcessError error);
     void readOutput();
     void onStallTimeout();
+    void onKillTimeout();
 signals:
     void titleUpdated(QString title);
     void downloadStarted();
