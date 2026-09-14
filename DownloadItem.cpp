@@ -192,14 +192,16 @@ void DownloadItem::downloadPhaseUpdated(QString phase) {
 
 void DownloadItem::downloadProcessFailed(QString error) {
       
-      if (!playlistStatus.isEmpty()) {
-            toolTipErrors.append(playlistStatus + " ");
-            error.remove(0, 30);
-            error = error.left(70);
+      if (!error.isEmpty()) {
+            if (!playlistStatus.isEmpty()) {
+                  toolTipErrors.append(playlistStatus + " ");
+                  error.remove(0, 30);
+                  error = error.left(70);
+            }
+            toolTipErrors.append(error + "\n");
+            infoIcon->setToolTip(toolTipErrors);
+            infoIcon->setVisible(true);
       }
-      toolTipErrors.append(error + "\n");
-      infoIcon->setToolTip(toolTipErrors);
-      infoIcon->setVisible(true);
 
       #ifdef Q_OS_LINUX
       if (toolTipErrors.contains("Forbidden")) {
@@ -211,6 +213,7 @@ void DownloadItem::downloadProcessFailed(QString error) {
 void DownloadItem::downloadStalled() {
       progressBar->setRange(0, 0);
       percentageLabel->setVisible(false);
+      QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }
 
 void DownloadItem::stopDownload() {

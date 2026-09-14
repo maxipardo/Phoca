@@ -293,7 +293,7 @@ void Service::downloadFailed(QProcess::ProcessError error) {
     if (error == QProcess::FailedToStart) {
         emit processFailed(tr("Couldn't find yt-dlp"));
     } else {
-        emit processFailed(tr("Unexpected error"));
+        emit processFailed("");
     }
 }
 
