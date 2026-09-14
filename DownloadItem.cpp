@@ -53,10 +53,16 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     restartButton->setIcon(QIcon::fromTheme("view-refresh"));
     discardButton->setIcon(QIcon::fromTheme("window-close"));
     
-    restartButton->setIconSize(QSize(8, 8));
-    discardButton->setIconSize(QSize(8, 8));
-
-    infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(16, 16));
+    #ifdef Q_OS_WIN
+    restartButton->setIconSize(QSize(12, 12));
+    discardButton->setIconSize(QSize(12, 12));
+    infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(12, 12));
+    #else
+        restartButton->setIconSize(QSize(14, 14));
+        discardButton->setIconSize(QSize(14, 14));
+        infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(16, 16));
+    #endif
+    
     infoIcon->setVisible(false);
     restartButton->setVisible(false);
     discardButton->setVisible(false);
