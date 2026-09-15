@@ -3,6 +3,8 @@
 #include "About.h"
 #include "DownloadConfig.h"
 #include "ServiceMaintainer.h"
+#include <qaction.h>
+#include <QSignalBlocker>
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
   fullLayout = new QVBoxLayout(centralWidget);
@@ -48,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   saveThumbnail = settings.value("saveThumbnail", false).toBool();
   firstLaunch = settings.value("firstLaunch", true).toBool();
   nightlyService = settings.value("nightlyService", true).toBool();
+  forceIPv4 = settings.value("IPv4", true).toBool();
   // Fix date
   QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
   lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
@@ -60,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   optionsMenu = new QMenu(tr("Options"), this);
   aboutAction = new QAction(tr("About"), this);
   buildMenu = new QMenu(tr("Choose yt-dlp version"), optionsMenu);
+  advancedMenu = new QMenu(tr("Advanced"), optionsMenu);
   menuBar()->addMenu(optionsMenu);
   optionsMenu->addMenu(buildMenu);
   menuBar()->addAction(aboutAction);
@@ -70,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   versionGroup = new QActionGroup(this);
   savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
   saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
+  forceIPv4Action = new QAction(tr("Force IPv4 connections (Recommended)"), this);
 
   savePlaylistInFolderAction->setCheckable(true);
   savePlaylistInFolderAction->setChecked(savePlaylistInFolder);
@@ -82,11 +87,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   versionGroup->addAction(chooseNightlyAction);
   versionGroup->addAction(chooseStableAction);
 
+  forceIPv4Action->setCheckable(true);
+  forceIPv4Action->setChecked(forceIPv4);
+
   optionsMenu->addAction(chooseLocationAction);
   optionsMenu->addAction(savePlaylistInFolderAction);
   optionsMenu->addAction(saveThumbnailAction);
   buildMenu->addAction(chooseNightlyAction);
   buildMenu->addAction(chooseStableAction);
+
+  optionsMenu->addMenu(advancedMenu);
+  advancedMenu->addAction(forceIPv4Action);
 
   linkBox->setPlaceholderText(tr("Enter link..."));
   downloadButton->setText(tr("Download"));
@@ -155,6 +166,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
           &MainWindow::changeNightlyService);
   connect(chooseLocationAction, &QAction::triggered, this,
           &MainWindow::changeLocation);
+  connect(forceIPv4Action, &QAction::triggered, this, &MainWindow::changeForceIPv4);
   connect(aboutAction, &QAction::triggered, this, 
           &MainWindow::aboutPage);
   connect(clearFinishedButton, &QPushButton::clicked, this,
@@ -355,6 +367,7 @@ void MainWindow::startDownload() {
   config.savePlaylistInFolder = savePlaylistInFolder;
   config.saveThumbnail = parSaveThumbnail;
   config.saveSubtitles = subtitlesBox->isChecked();
+  config.forceIPv4 = forceIPv4;
 
   DownloadItem *newDownload = new DownloadItem(config, this);
   QListWidgetItem *item = new QListWidgetItem();
@@ -460,4 +473,25 @@ void MainWindow::changeNightlyService() {
   QSettings settings("MaximoPardo", "Phoca");
   settings.setValue("nightlyService", chooseNightlyAction->isChecked());
   getServiceSlot();
+}
+
+void MainWindow::changeForceIPv4() {
+  if (!forceIPv4Action->isChecked()) {
+    QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
+        tr("Are you sure you want to change this setting?\nMost users will only need IPv4 and downloads may have issues when disabled depending on the network configuration"),
+        QMessageBox::No | QMessageBox::Yes,
+        QMessageBox::No);
+  
+    if (resBtn != QMessageBox::Yes) {
+        // Signal blocked inside this scope
+        QSignalBlocker blocker(forceIPv4Action);
+        
+        // Volvemos a tildar la opción en la interfaz (cancelamos la desactivación)
+        forceIPv4Action->setChecked(true);
+        return;
+    }
+  }
+  
+  QSettings settings("MaximoPardo", "Phoca");
+  settings.setValue("IPv4", forceIPv4Action->isChecked());
 }

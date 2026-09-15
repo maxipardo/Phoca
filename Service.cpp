@@ -25,7 +25,7 @@ Service::Service(QObject *parent) : QObject(parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 }
 
-void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles) {
+void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath;
@@ -107,6 +107,10 @@ void Service::startDownload(QString link, QString location, int format, QString 
 
     if (saveSubtitles == true) {
         arguments << "--write-subs";
+    }
+
+    if (forceIPv4 == true) {
+        arguments << "-4";
     }
 
     arguments << link;

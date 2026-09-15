@@ -11,4 +11,5 @@ struct DownloadConfig {
     bool savePlaylistInFolder = true;
     bool saveThumbnail = false;
     bool saveSubtitles = false;
+    bool forceIPv4 = true;
 };

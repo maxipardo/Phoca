@@ -47,6 +47,7 @@ private:
     ServiceMaintainer *maintainer;
     QMenu *optionsMenu;
     QMenu *buildMenu;
+    QMenu *advancedMenu;
     QAction *aboutAction;
 
     QListWidget *list;
@@ -65,12 +66,15 @@ private:
     QActionGroup *versionGroup;
     QAction *savePlaylistInFolderAction;
     QAction *saveThumbnailAction;
+    QActionGroup *advancedGroup;
+    QAction *forceIPv4Action;
 
     QString downloadLocation;
     bool savePlaylistInFolder;
     bool saveThumbnail;
     bool firstLaunch;
     bool nightlyService;
+    bool forceIPv4;
     QDateTime lastEngineUpdate;
 
     QLabel *locationLabel;
@@ -90,6 +94,7 @@ private slots:
     void changeSaveThumbnail();
     void updateLocationLabel();
     void changeNightlyService();
+    void changeForceIPv4();
 
     void startDownload();
     void clearFinishedDownloads();
