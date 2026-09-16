@@ -43,6 +43,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
 
     thumbnailLabel = new QLabel(this);
     thumbnailLabel->setVisible(config.thumbnailVisibility);
+    thumbnailLabel->setFixedSize(0, 0);
     
     sizeLabel = new QLabel(this);
     progressBar = new QProgressBar(this);
@@ -479,6 +480,7 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
                 int targetHeight = this->height();
                 QPixmap scaledPixmap = pixmap.scaledToHeight(targetHeight, Qt::SmoothTransformation);
 
+                thumbnailLabel->setFixedSize(scaledPixmap.size());
                 thumbnailLabel->setPixmap(scaledPixmap);
             }
         } else {
