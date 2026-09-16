@@ -42,7 +42,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     titleLabel->setContentsMargins(4, 0, 0, 0);
 
     thumbnailLabel = new QLabel(this);
-    thumbnailLabel->setVisible(false);
+    thumbnailLabel->setVisible(config.thumbnailVisibility);
     
     sizeLabel = new QLabel(this);
     progressBar = new QProgressBar(this);
@@ -479,24 +479,7 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
                 int targetHeight = this->height();
                 QPixmap scaledPixmap = pixmap.scaledToHeight(targetHeight, Qt::SmoothTransformation);
 
-                QPixmap roundedPixmap(scaledPixmap.size());
-                roundedPixmap.fill(Qt::transparent);
-
-                // Rounded
-                QPainter painter(&roundedPixmap);
-                painter.setRenderHint(QPainter::Antialiasing);
-
-
-                QPainterPath path;
-                path.addRoundedRect(scaledPixmap.rect(), 5, 5); 
-                painter.setClipPath(path);
-
-                painter.drawPixmap(0, 0, scaledPixmap);
-                painter.end();
-
-                thumbnailLabel->setPixmap(roundedPixmap);
-
-                thumbnailLabel->setVisible(ServiceConfig.thumbnailVisibility);
+                thumbnailLabel->setPixmap(scaledPixmap);
             }
         } else {
             qDebug() << "Failed downloading thumbnail:" << reply->errorString();
