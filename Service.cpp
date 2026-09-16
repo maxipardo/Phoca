@@ -149,6 +149,9 @@ void Service::readOutput() {
         QRegularExpressionMatch matchAlready = regexAlready.match(line);
         if (matchAlready.hasMatch()) {
             QString fullPath = matchAlready.captured(1);
+
+            currentPartFile = fullPath;
+
             QString fileName = QFileInfo(fullPath).fileName();
             
             QRegularExpressionMatch matchTitle = regexTitle.match(fileName);
@@ -191,6 +194,7 @@ void Service::readOutput() {
             partCounter++;
 
             QString fullPath = matchDestination.captured(1);
+            currentPartFile = fullPath;
             QString fileName = QFileInfo(fullPath).fileName();
             
             QRegularExpressionMatch matchTitle = regexTitle.match(fileName);
@@ -306,6 +310,23 @@ void Service::stopDownload() {
     killTimer->stop();
     if (downloadProcess->state() == QProcess::Running) {
         downloadProcess->terminate();
+        downloadProcess->waitForFinished(1000); 
+    }
+
+    if (!currentPartFile.isEmpty()) {
+        QStringList trash;
+        trash << currentPartFile
+                << currentPartFile + ".part"
+                << currentPartFile + ".ytdl";
+
+        for (const QString &archivo : trash) {
+            if (QFile::exists(archivo)) {
+                QFile::remove(archivo);
+                qDebug() << "Deleted temporal files:" << archivo;
+            } else {
+                qDebug() << "Could not find:" << archivo;
+            }
+        }
     }
 }
 
@@ -327,4 +348,28 @@ void Service::onKillTimeout() {
         killedByTimeout = true;
         downloadProcess->kill();
     }
+}
+
+void Service::fetchThumbnailUrl(const QString &link) {
+    QString executable = ServiceMaintainer::getServiceLocation();
+    QProcess *thumbProcess = new QProcess(this);
+    
+    QStringList args;
+    args << "--no-download" << "--print" << "thumbnail" << link;
+
+    connect(thumbProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), 
+            this, [this, thumbProcess](int exitCode, QProcess::ExitStatus exitStatus) {
+        
+        if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
+            QString url = QString::fromLocal8Bit(thumbProcess->readAllStandardOutput()).trimmed();
+            qDebug() << "THUMBNAIL: " << url;
+            if (!url.isEmpty()) {
+                emit thumbnailUrlReceived(url);
+            }
+        }
+        
+        thumbProcess->deleteLater();
+    });
+
+    thumbProcess->start(executable, args); 
 }

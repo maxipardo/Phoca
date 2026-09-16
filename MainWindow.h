@@ -68,6 +68,7 @@ private:
     QAction *saveThumbnailAction;
     QActionGroup *advancedGroup;
     QAction *forceIPv4Action;
+    QAction *thumbnailVisibilityAction;
 
     QString downloadLocation;
     bool savePlaylistInFolder;
@@ -75,6 +76,7 @@ private:
     bool firstLaunch;
     bool nightlyService;
     bool forceIPv4;
+    bool thumbnailVisibility;
     QDateTime lastEngineUpdate;
 
     QLabel *locationLabel;
@@ -101,5 +103,5 @@ private slots:
     void itemFinished();
 
     void aboutPage();
-
+    void changeThumbnailVisibility();
 };

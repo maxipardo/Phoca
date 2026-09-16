@@ -15,6 +15,7 @@ public:
     explicit Service(QObject *parent = nullptr);
     void startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4);
     void stopDownload();
+    void fetchThumbnailUrl(const QString &link);
 private:
     QProcess *downloadProcess;
     QTimer *stallTimer;
@@ -25,6 +26,7 @@ private:
     double currentPartMiB = 0.0;
     bool stallEmitted = false;
     bool killedByTimeout = false;
+    QString currentPartFile;
 
     void resetStallTimer();
 private slots:
@@ -44,4 +46,5 @@ signals:
     void downloadStalled();
     void filePath(QString fullPath);
     void playlistItemUpdated(QString status);
+    void thumbnailUrlReceived(QString url);
 };

@@ -15,6 +15,7 @@ Q_OBJECT
 public:
     explicit DownloadItem (DownloadConfig config, QWidget *parent = nullptr);
     bool isFinished() const { return downloadFinishedState; }
+    void changeThumbnailVisibility(bool enabled);
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -25,6 +26,7 @@ private:
     Service *service;
     ServiceMaintainer *maintainer;
 
+    QLabel *thumbnailLabel;
     QLabel *titleLabel;
     QLabel *sizeLabel;
     QProgressBar *progressBar;
@@ -49,6 +51,7 @@ private:
     QString discardText;
     QString playlistStatus;
     QString toolTipErrors;
+    QNetworkAccessManager *networkManager;
 public slots:
     void stopDownload();
 private slots:
@@ -70,6 +73,7 @@ private slots:
     void openDownloadLocation();
     void deleteFile();
     void playlistItemUpdated(QString status);
+    void onThumbnailUrlReceived(const QString &link);
 signals:
     void removeRequested();
     void finishedSignal();

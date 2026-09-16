@@ -14,6 +14,12 @@
 #include <QMimeData>
 #include <QApplication>
 #include <QFile>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPixmap>
+#include <QPainter>
+#include <QPainterPath>
 #ifdef Q_OS_LINUX
 #include <QDBusMessage>
 #include <QDBusConnection>
@@ -27,11 +33,16 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     discardText = (tr("Cancel download\tDel"));
     playlistStatus = "";
     toolTipErrors = "";
+    networkManager = new QNetworkAccessManager(this);
 
     service = new Service(this);
     
     titleLabel = new QLabel(this);
     titleLabel->setMinimumWidth(50); 
+    titleLabel->setContentsMargins(4, 0, 0, 0);
+
+    thumbnailLabel = new QLabel(this);
+    thumbnailLabel->setVisible(false);
     
     sizeLabel = new QLabel(this);
     progressBar = new QProgressBar(this);
@@ -42,7 +53,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     QHBoxLayout *layout = new QHBoxLayout(this);
     QHBoxLayout *failLayout = new QHBoxLayout(this);
 
-    layout->setContentsMargins(6, 0, 6, 0);
+    layout->setContentsMargins(2, 0, 6, 0);
     failLayout->setSpacing(0);
 
     infoIcon = new QLabel(this);
@@ -70,6 +81,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     restartButton->setText(tr("Retry"));
     discardButton->setText(tr("Discard"));
     
+    layout->addWidget(thumbnailLabel);
     layout->addWidget(titleLabel, 3); 
     layout->addWidget(infoIcon);
     layout->addLayout(failLayout);
@@ -107,6 +119,9 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
 
       connect(restartButton, &QPushButton::clicked, this, &DownloadItem::retryDownload);
       connect(discardButton, &QPushButton::clicked, this, &DownloadItem::stopDownload);
+
+      connect(service, &Service::thumbnailUrlReceived, this, &DownloadItem::onThumbnailUrlReceived);
+      service->fetchThumbnailUrl(config.link);
 
 
       service->startDownload(config.link, config.downloadLocation, config.format, 
@@ -440,4 +455,56 @@ void DownloadItem::deleteFile() {
 
 void DownloadItem::playlistItemUpdated(QString status) {
       playlistStatus = status;
+}
+
+void DownloadItem::onThumbnailUrlReceived(const QString &link) {
+    if (link.isEmpty()) {
+        return;
+    }
+
+    QUrl url(link);
+    QNetworkRequest request(url);
+    
+    QNetworkReply *reply = networkManager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater(); 
+
+        if (reply->error() == QNetworkReply::NoError) {
+            
+            QByteArray imageData = reply->readAll(); 
+            
+            QPixmap pixmap;
+            if (pixmap.loadFromData(imageData)) {
+                int targetHeight = this->height();
+                QPixmap scaledPixmap = pixmap.scaledToHeight(targetHeight, Qt::SmoothTransformation);
+
+                QPixmap roundedPixmap(scaledPixmap.size());
+                roundedPixmap.fill(Qt::transparent);
+
+                // Rounded
+                QPainter painter(&roundedPixmap);
+                painter.setRenderHint(QPainter::Antialiasing);
+
+
+                QPainterPath path;
+                path.addRoundedRect(scaledPixmap.rect(), 5, 5); 
+                painter.setClipPath(path);
+
+                painter.drawPixmap(0, 0, scaledPixmap);
+                painter.end();
+
+                thumbnailLabel->setPixmap(roundedPixmap);
+
+                thumbnailLabel->setVisible(ServiceConfig.thumbnailVisibility);
+            }
+        } else {
+            qDebug() << "Failed downloading thumbnail:" << reply->errorString();
+        }
+    });
+}
+
+void DownloadItem::changeThumbnailVisibility(bool enabled) {
+      thumbnailLabel->setVisible(enabled);
+      QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }

@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   firstLaunch = settings.value("firstLaunch", true).toBool();
   nightlyService = settings.value("nightlyService", true).toBool();
   forceIPv4 = settings.value("IPv4", true).toBool();
+  thumbnailVisibility = settings.value("thumbnailVisibility", true).toBool();
   // Fix date
   QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
   lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
@@ -75,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
   saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
   forceIPv4Action = new QAction(tr("Force IPv4 connections (Recommended)"), this);
+  thumbnailVisibilityAction = new QAction(tr("Show thumbnails on list"), this);
 
   savePlaylistInFolderAction->setCheckable(true);
   savePlaylistInFolderAction->setChecked(savePlaylistInFolder);
@@ -90,11 +92,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   forceIPv4Action->setCheckable(true);
   forceIPv4Action->setChecked(forceIPv4);
 
+  thumbnailVisibilityAction->setCheckable(true);
+  thumbnailVisibilityAction->setChecked(thumbnailVisibility);
+
   optionsMenu->addAction(chooseLocationAction);
   optionsMenu->addAction(savePlaylistInFolderAction);
-  optionsMenu->addAction(saveThumbnailAction);
   buildMenu->addAction(chooseNightlyAction);
   buildMenu->addAction(chooseStableAction);
+  
+  optionsMenu->addAction(thumbnailVisibilityAction);
+  optionsMenu->addAction(saveThumbnailAction);
 
   optionsMenu->addMenu(advancedMenu);
   advancedMenu->addAction(forceIPv4Action);
@@ -167,6 +174,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   connect(chooseLocationAction, &QAction::triggered, this,
           &MainWindow::changeLocation);
   connect(forceIPv4Action, &QAction::triggered, this, &MainWindow::changeForceIPv4);
+  connect(thumbnailVisibilityAction, &QAction::triggered, this, &MainWindow::changeThumbnailVisibility);
   connect(aboutAction, &QAction::triggered, this, 
           &MainWindow::aboutPage);
   connect(clearFinishedButton, &QPushButton::clicked, this,
@@ -368,6 +376,7 @@ void MainWindow::startDownload() {
   config.saveThumbnail = parSaveThumbnail;
   config.saveSubtitles = subtitlesBox->isChecked();
   config.forceIPv4 = forceIPv4;
+  config.thumbnailVisibility = thumbnailVisibility;
 
   DownloadItem *newDownload = new DownloadItem(config, this);
   QListWidgetItem *item = new QListWidgetItem();
@@ -486,7 +495,6 @@ void MainWindow::changeForceIPv4() {
         // Signal blocked inside this scope
         QSignalBlocker blocker(forceIPv4Action);
         
-        // Volvemos a tildar la opción en la interfaz (cancelamos la desactivación)
         forceIPv4Action->setChecked(true);
         return;
     }
@@ -494,4 +502,20 @@ void MainWindow::changeForceIPv4() {
   
   QSettings settings("MaximoPardo", "Phoca");
   settings.setValue("IPv4", forceIPv4Action->isChecked());
+}
+
+void MainWindow::changeThumbnailVisibility() {
+  thumbnailVisibility = thumbnailVisibilityAction->isChecked();
+
+  for (int i = list->count() - 1; i >= 0; --i) {
+      QListWidgetItem *item = list->item(i);
+      QWidget *widget = list->itemWidget(item);
+      // Casting to class
+      DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
+
+      downloadItem->changeThumbnailVisibility(thumbnailVisibility);
+  }
+
+  QSettings settings("MaximoPardo", "Phoca");
+  settings.setValue("thumbnailVisibility", thumbnailVisibility);
 }
