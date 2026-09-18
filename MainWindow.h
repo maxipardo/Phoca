@@ -36,68 +36,61 @@ Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
 private:
-    QVBoxLayout *fullLayout;
-    QVBoxLayout *layout;
-    QHBoxLayout *linkLayout;
-    QHBoxLayout *optionsLayout;
-    QLineEdit *linkBox;
-    QPushButton *downloadButton;
-    QPushButton *clearFinishedButton;
-    QPushButton *getEngineButton;
-    ServiceMaintainer *maintainer;
-    QMenu *optionsMenu;
-    QMenu *buildMenu;
-    QMenu *advancedMenu;
-    QMenu *cookiesMenu;
-    QAction *aboutAction;
+    QWidget *m_centralWidget;
+    QVBoxLayout *m_fullLayout;
+    QVBoxLayout *m_layout;
+    QHBoxLayout *m_linkLayout;
+    QHBoxLayout *m_optionsLayout;
+    QHBoxLayout *m_bottomLayout;
+    QLineEdit *m_linkBox;
+    QPushButton *m_downloadButton;
+    QPushButton *m_clearFinishedButton;
+    QPushButton *m_getEngineButton;
+    ServiceMaintainer *m_maintainer;
+    QMenu *m_optionsMenu;
+    QMenu *m_buildMenu;
+    QMenu *m_advancedMenu;
+    QMenu *m_cookiesMenu;
+    QAction *m_aboutAction;
+    QAction *m_deleteAction;
+    QSettings settings;
 
-    QListWidget *list;
+    QListWidget *m_list;
     
-    QRadioButton *bothButton;
-    QRadioButton *videoButton;
-    QRadioButton *audioButton;
+    QRadioButton *m_bothButton;
+    QRadioButton *m_videoButton;
+    QRadioButton *m_audioButton;
 
-    QComboBox *qualityBox;
-    QComboBox *conversionBox;
-    QCheckBox *subtitlesBox;
+    QComboBox *m_qualityBox;
+    QComboBox *m_conversionBox;
+    QCheckBox *m_subtitlesBox;
 
-    QAction *chooseLocationAction;
-    QAction *chooseNightlyAction;
-    QAction *chooseStableAction;
-    QActionGroup *versionGroup;
-    QAction *savePlaylistInFolderAction;
-    QAction *saveThumbnailAction;
-    QActionGroup *advancedGroup;
-    QAction *forceIPv4Action;
-    QAction *cookiesAction;
-    QActionGroup *cookiesGroup;
+    QAction *m_chooseLocationAction;
+    QAction *m_chooseNightlyAction;
+    QAction *m_chooseStableAction;
+    QActionGroup *m_versionGroup;
+    QAction *m_savePlaylistInFolderAction;
+    QAction *m_saveThumbnailAction;
+    QActionGroup *m_advancedGroup;
+    QAction *m_forceIPv4Action;
+    QAction *m_cookiesAction;
+    QActionGroup *m_cookiesGroup;
 
-    QAction *noCookies;
-    QAction *braveCookies;
-    QAction *chromeCookies;
-    QAction *chromiumCookies;
-    QAction *edgeCookies;
-    QAction *firefoxCookies;
-    QAction *operaCookies;
-    QAction *safariCookies;
-    QAction *vivaldiCookies;
+    QAction *m_thumbnailVisibilityAction;
 
+    QString m_downloadLocation;
+    bool m_savePlaylistInFolder;
+    bool m_saveThumbnail;
+    bool m_firstLaunch;
+    bool m_nightlyService;
+    bool m_forceIPv4;
+    bool m_thumbnailVisibility;
+    QString m_cookies;
+    QDateTime m_lastEngineUpdate;
 
-    QAction *thumbnailVisibilityAction;
-
-    QString downloadLocation;
-    bool savePlaylistInFolder;
-    bool saveThumbnail;
-    bool firstLaunch;
-    bool nightlyService;
-    bool forceIPv4;
-    bool thumbnailVisibility;
-    QString cookies;
-    QDateTime lastEngineUpdate;
-
-    QLabel *locationLabel;
+    QLabel *m_locationLabel;
     
-    int lastLength = 0;
+    int m_lastLength = 0;
 protected:
     void closeEvent(QCloseEvent *event) override;
     
