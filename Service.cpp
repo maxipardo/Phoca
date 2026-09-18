@@ -146,7 +146,17 @@ void Service::readOutput() {
 
         if (line.startsWith("ERROR:")) {
             qDebug() << "yt-dlp [ERROR]:" << line;
-            emit processFailed(line);
+
+            DownloadError errorType = DownloadError::GenericYtdlp;
+            if (line.contains("could not find") && line.contains("cookies")) {
+                errorType = DownloadError::CookiesNotFound;
+            } else if (line.contains("Forbidden") || line.contains("403")) {
+                errorType = DownloadError::Forbidden;
+            } else if (line.contains("Sign in to confirm your age")) {
+                errorType = DownloadError::AgeVerification;
+            }
+
+            emit errorOccurred(errorType, line);
             continue;
         }
         
@@ -283,11 +293,13 @@ void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
     readOutput();
 
     if (killedByTimeout) {
+        emit errorOccurred(DownloadError::NetworkTimeout, tr("Download killed after network timeout"));
         emit downloadFinished(-2);
         return;
     }
 
     if (status == QProcess::CrashExit) {
+        emit errorOccurred(DownloadError::ProcessCrashed, tr("yt-dlp process crashed"));
         emit downloadFinished(-1);
         return;
     }
@@ -297,15 +309,16 @@ void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
         emit sizeUpdated(QString::number(pesoTotal, 'f', 2) + " MiB");
         emit downloadFinished(0);
     } else {
+        emit errorOccurred(DownloadError::Unknown, tr("yt-dlp exited with code %1").arg(exitCode));
         emit downloadFinished(exitCode);
     }
 }
 
 void Service::downloadFailed(QProcess::ProcessError error) {
     if (error == QProcess::FailedToStart) {
-        emit processFailed(tr("Couldn't find yt-dlp"));
+        emit errorOccurred(DownloadError::ProcessNotFound, tr("Couldn't find yt-dlp"));
     } else {
-        emit processFailed("");
+        emit errorOccurred(DownloadError::Unknown, tr("Process error: %1").arg(error));
     }
 }
 
@@ -359,7 +372,7 @@ void Service::fetchThumbnailUrl(const QString &link) {
     QProcess *thumbProcess = new QProcess(this);
     
     QStringList args;
-    args << "--no-download" << "--print" << "thumbnail" << link;
+    args << "--no-download" << "--no-playlist" << "--print" << "thumbnail" << link;
 
     connect(thumbProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), 
             this, [this, thumbProcess](int exitCode, QProcess::ExitStatus exitStatus) {

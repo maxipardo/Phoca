@@ -6,6 +6,7 @@
 #include <qaction.h>
 #include <QSignalBlocker>
 #include <QList>
+#include <QUrlQuery>
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
   fullLayout = new QVBoxLayout(centralWidget);
@@ -343,7 +344,7 @@ void MainWindow::startDownload() {
   }
   QString link = linkBox->text();
   bool playlist = false;
-  if (link.contains("list=") || 
+  bool looksLikePlaylist = link.contains("list=") || 
     link.contains("/playlist/") || 
     link.contains("/album/") || 
     link.contains("/sets/") || 
@@ -351,7 +352,18 @@ void MainWindow::startDownload() {
     link.contains("/series/") || 
     link.contains("/collection/") || 
     link.contains("/show/") || 
-    link.contains("&set=")) {
+    link.contains("&set=");
+
+  // A playlist-only link has no individual video
+  bool isPlaylistOnly = false;
+  if (looksLikePlaylist) {
+    QUrl parsedUrl(link);
+    QUrlQuery query(parsedUrl);
+    bool hasVideo = query.hasQueryItem("v") || parsedUrl.path().contains("watch");
+    isPlaylistOnly = !hasVideo;
+  }
+
+  if (looksLikePlaylist) {
     QMessageBox msgBox(this);
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setWindowTitle(tr("Playlist detected"));
@@ -361,14 +373,18 @@ void MainWindow::startDownload() {
       msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?"));
     }
     
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-    msgBox.button(QMessageBox::Cancel)->hide();
+    if (isPlaylistOnly) {
+      msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+    } else {
+      msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+      msgBox.button(QMessageBox::Cancel)->hide();
+    }
     
     int answer = msgBox.exec();
     
     if (answer == QMessageBox::Yes) {
       playlist = true;
-    } else if (answer == QMessageBox::No) {
+    } else if (answer == QMessageBox::No && !isPlaylistOnly) {
       playlist = false;
     } else {
       return; 
@@ -426,7 +442,7 @@ void MainWindow::startDownload() {
   connect(newDownload, &DownloadItem::finishedSignal, this, &MainWindow::itemFinished);
 
   item->setSizeHint(newDownload->sizeHint());
-  list->addItem(item);
+  list->insertItem(0, item);
   list->setItemWidget(item, newDownload);
                          
   linkBox->clear();

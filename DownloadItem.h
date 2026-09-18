@@ -1,6 +1,7 @@
 #pragma once
 #include "Service.h"
 #include "DownloadConfig.h"
+#include "DownloadError.h"
 #include "ServiceMaintainer.h"
 #include <QWidget>
 #include <QLabel>
@@ -44,6 +45,7 @@ private:
     DownloadConfig ServiceConfig;
 
     bool downloadFinishedState = false;
+    DownloadError lastError = DownloadError::None;
     QString fullFilePath;
 
     QPoint dragStartPosition;
@@ -60,7 +62,7 @@ private slots:
     void downloadProgress(int percentage);
     void onTitleUpdated(QString title);
     void downloadPhaseUpdated(QString phase);
-    void downloadProcessFailed(QString error);
+    void onError(DownloadError error, QString detail);
     void downloadStalled();
 
     void onSizeUpdated(QString cleanSize);
@@ -68,6 +70,7 @@ private slots:
     void updateElidedText();
     void updateTitleText(const QString &text);
     void retryDownload();
+    void showErrorState();
     void onFullPathUpdated(QString fullPath);
     void openFileLocation();
     void openDownloadLocation();

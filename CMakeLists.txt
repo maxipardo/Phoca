@@ -27,6 +27,7 @@ add_executable(phoca
     DownloadItem.h
     DownloadItem.cpp
     DownloadConfig.h
+    DownloadError.h
 )
 
 if(WIN32)

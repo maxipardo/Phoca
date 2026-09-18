@@ -1,4 +1,5 @@
 #include "DownloadItem.h"
+#include "DownloadError.h"
 #include "ServiceMaintainer.h"
 #include <QLayout>
 #include <QMenu>
@@ -103,8 +104,8 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
             &DownloadItem::downloadStarted);
       connect(service, &Service::downloadFinished, this,
                   &DownloadItem::downloadFinished);
-      connect(service, &Service::processFailed, this,
-            &DownloadItem::downloadProcessFailed);
+      connect(service, &Service::errorOccurred, this,
+            &DownloadItem::onError);
       connect(service, &Service::percentageUpdated, this,
                   &DownloadItem::downloadProgress);
       connect(service, &Service::phaseUpdated, this,
@@ -122,8 +123,10 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
       connect(discardButton, &QPushButton::clicked, this, &DownloadItem::stopDownload);
 
       connect(service, &Service::thumbnailUrlReceived, this, &DownloadItem::onThumbnailUrlReceived);
-      service->fetchThumbnailUrl(config.link);
 
+      if (config.playlist == false) {
+            service->fetchThumbnailUrl(config.link);
+      }
 
       service->startDownload(config.link, config.downloadLocation, config.format, 
                               config.quality, config.conversion, 
@@ -161,18 +164,9 @@ void DownloadItem::downloadFinished(int exit) {
             return;
       } else if (exit == 9) {
             updateTitleText(tr("Download stopped"));
-      } else if (exit == -1) {
-            updateTitleText(tr("Download failed: process crashed"));
-      } else if (exit == -2) {
-            updateTitleText(tr("Download failed: network timeout"));
       } else {
-            updateTitleText(tr("Download failed, error code: %1").arg(QString::number(exit)));
-            infoIcon->setVisible(true);
-            restartButton->setVisible(true);
-            discardButton->setVisible(true);
-            sizeLabel->setVisible(false);
-            progressBar->setVisible(false);
-            percentageLabel->setVisible(false);
+            // Error title already set by onError, just show error state
+            showErrorState();
       }
       downloadFinishedState = true;
       emit finishedSignal();
@@ -207,24 +201,56 @@ void DownloadItem::downloadPhaseUpdated(QString phase) {
       }
 }
 
-void DownloadItem::downloadProcessFailed(QString error) {
-      
-      if (!error.isEmpty()) {
+void DownloadItem::onError(DownloadError error, QString detail) {
+      if (lastError == DownloadError::None || (error != DownloadError::Unknown && error != DownloadError::GenericYtdlp)) {
+            lastError = error;
+
+            switch (error) {
+                  case DownloadError::CookiesNotFound:
+                        updateTitleText(tr("Cookies not found for the selected browser"));
+                        break;
+                  case DownloadError::AgeVerification:
+                        updateTitleText(tr("Sign in to confirm your age"));
+                        break;
+                  case DownloadError::Forbidden:
+                        updateTitleText(tr("Access denied (403)"));
+                        #ifdef Q_OS_LINUX
+                        restartButton->setText(tr("Update yt-dlp"));
+                        #endif
+                        break;
+                  case DownloadError::NetworkTimeout:
+                        updateTitleText(tr("Download failed: network timeout"));
+                        break;
+                  case DownloadError::ProcessCrashed:
+                        updateTitleText(tr("Download failed: process crashed"));
+                        break;
+                  case DownloadError::ProcessNotFound:
+                        updateTitleText(tr("yt-dlp not found"));
+                        break;
+                  case DownloadError::GenericYtdlp:
+                  case DownloadError::Unknown:
+                  default:
+                        updateTitleText(tr("Download failed"));
+                        break;
+            }
+      }
+
+      if (!detail.isEmpty()) {
             if (!playlistStatus.isEmpty()) {
                   toolTipErrors.append(playlistStatus + " ");
-                  error.remove(0, 30);
-                  error = error.left(70);
             }
-            toolTipErrors.append(error + "\n");
+            toolTipErrors.append(detail + "\n");
             infoIcon->setToolTip(toolTipErrors);
             infoIcon->setVisible(true);
       }
+}
 
-      #ifdef Q_OS_LINUX
-      if (toolTipErrors.contains("Forbidden")) {
-            restartButton->setText(tr("Update yt-dlp"));
-      }
-      #endif
+void DownloadItem::showErrorState() {
+      restartButton->setVisible(true);
+      discardButton->setVisible(true);
+      sizeLabel->setVisible(false);
+      progressBar->setVisible(false);
+      percentageLabel->setVisible(false);
 }
 
 void DownloadItem::downloadStalled() {
@@ -318,15 +344,15 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
 
 void DownloadItem::retryDownload() {
       #ifdef Q_OS_LINUX
-      if (toolTipErrors.contains("Forbidden")) {
+      if (lastError == DownloadError::Forbidden) {
             restartButton->setText(tr("Update yt-dlp"));
             maintainer->getService(true);
             return;
-      } else {
-            restartButton->setText(tr("Retry"));
       }
       #endif
 
+      restartButton->setText(tr("Retry"));
+      lastError = DownloadError::None;
       toolTipErrors = "";
       infoIcon->setVisible(false);
       restartButton->setVisible(false);

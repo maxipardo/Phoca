@@ -1,4 +1,5 @@
 #pragma once
+#include "DownloadError.h"
 #include <QObject>
 #include <QProcess>
 #include <QDir>
@@ -39,7 +40,7 @@ signals:
     void titleUpdated(QString title);
     void downloadStarted();
     void downloadFinished(int exit);
-    void processFailed(QString error);
+    void errorOccurred(DownloadError error, QString detail);
     void percentageUpdated(int percentage);
     void phaseUpdated(QString phase);
     void sizeUpdated(QString size);
