@@ -150,6 +150,7 @@ void DownloadItem::downloadFinished(int exit) {
             }
         }
         
+        percentageLabel->setVisible(false);
         QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
         downloadFinishedState = true;
         emit finishedSignal();
@@ -225,6 +226,8 @@ void DownloadItem::onError(DownloadError error, QString detail) {
             updateTitleText(tr("Download failed"));
             break;
         }
+        downloadFinishedState = true;
+        emit finishedSignal();
     }
     
     if (!detail.isEmpty()) {

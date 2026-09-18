@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Máximo Pardo -->
+<component type="desktop-application">
+    <id>io.github.maxipardo.phoca</id>
+
+    <name>Phoca</name>
+    <summary>Download videos and audio from the web</summary>
+
+    <developer id="io.github.maxipardo">
+        <name>Máximo Pardo</name>
+    </developer>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+
+    <description>
+        <p>Phoca is a powerful desktop application for downloading videos and audio from the web. Powered by yt-dlp, it provides a clean and intuitive interface to grab media from hundreds of supported sites.</p>
+        <p>Features include:</p>
+        <ul>
+            <li>Download video, audio, or both simultaneously</li>
+            <li>Convert files to your preferred format (MP4, MKV, WebM, MP3, FLAC, WAV, and more)</li>
+            <li>Download entire playlists</li>
+            <li>Save thumbnails and subtitles</li>
+            <li>Use browser cookies for accessing restricted content</li>
+            <li>Automatic yt-dlp updates to stay compatible with the latest sites</li>
+        </ul>
+    </description>
+
+    <launchable type="desktop-id">io.github.maxipardo.phoca.desktop</launchable>
+
+    <url type="homepage">https://github.com/maxipardo/Phoca</url>
+    <url type="bugtracker">https://github.com/maxipardo/Phoca/issues</url>
+    <url type="vcs-browser">https://github.com/maxipardo/Phoca</url>
+
+    <branding>
+        <color type="primary" scheme_preference="light">#62a0ea</color>
+        <color type="primary" scheme_preference="dark">#1a5fb4</color>
+    </branding>
+
+    <screenshots>
+        <screenshot type="default">
+            <caption>Main application window</caption>
+            <image>https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/screenshot1.png</image>
+        </screenshot>
+        <screenshot>
+            <caption>Download options and progress</caption>
+            <image>https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/screenshot2.png</image>
+        </screenshot>
+    </screenshots>
+
+    <content_rating type="oars-1.1" />
+
+    <categories>
+        <category>Utility</category>
+        <category>Network</category>
+    </categories>
+
+    <keywords>
+        <keyword>video</keyword>
+        <keyword>audio</keyword>
+        <keyword>download</keyword>
+        <keyword>downloader</keyword>
+        <keyword>yt-dlp</keyword>
+        <keyword>youtube</keyword>
+        <keyword>media</keyword>
+        <keyword>converter</keyword>
+    </keywords>
+
+    <releases>
+        <release version="0.5" date="2026-09-18">
+            <description>
+                <p>New features and improvements in this release:</p>
+                <ul>
+                    <li>Added drag-and-drop support for finished downloads.</li>
+                    <li>Added thumbnail previews in the download list and thumbnail visibility toggle.</li>
+                    <li>Added support for browser cookies in downloads.</li>
+                    <li>Added subtitle downloads option.</li>
+                    <li>Added delete file button for finished, non-playlist downloads.</li>
+                    <li>Added support for showing downloaded files directly from the app, including Windows and Linux file manager integration (file indication on directory).</li>
+                    <li>Improved download error handling with clearer failure states and retry/discard buttons.</li>
+                    <li>Added IPv4 forcing option for more reliable connections.</li>
+                    <li>Added better handling for stalled, crashed, timeout, and missing yt-dlp process errors.</li>
+                    <li>Improved playlist handling and final file path tracking.</li>
+                </ul>
+            </description>
+        </release>
+    </releases>
+
+    <requires>
+        <display_length compare="ge">360</display_length>
+    </requires>
+
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+    </supports>
+</component>

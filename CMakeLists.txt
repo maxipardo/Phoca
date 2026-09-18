@@ -73,6 +73,9 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/phoca.desktop
 install(FILES phoca256.png 
         DESTINATION share/icons/hicolor/256x256/apps
         RENAME ${APP_ID}.png)
+
+install(FILES io.github.maxipardo.phoca.metainfo.xml
+        DESTINATION share/metainfo)
 # ==========================================
 
 set(CPACK_GENERATOR "DEB")
