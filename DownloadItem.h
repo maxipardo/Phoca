@@ -15,7 +15,7 @@ class DownloadItem : public QWidget {
 Q_OBJECT
 public:
     explicit DownloadItem (DownloadConfig config, QWidget *parent = nullptr);
-    bool isFinished() const { return downloadFinishedState; }
+    bool isFinished() const { return m_downloadFinishedState; }
     void changeThumbnailVisibility(bool enabled);
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
@@ -24,36 +24,36 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 private:
-    Service *service;
-    ServiceMaintainer *maintainer;
+    Service *m_service;
+    ServiceMaintainer *m_maintainer;
 
-    QLabel *thumbnailLabel;
-    QLabel *titleLabel;
-    QLabel *sizeLabel;
-    QProgressBar *progressBar;
-    QLabel *percentageLabel;
+    QLabel *m_thumbnailLabel;
+    QLabel *m_titleLabel;
+    QLabel *m_sizeLabel;
+    QProgressBar *m_progressBar;
+    QLabel *m_percentageLabel;
 
-    QString downloadPhase;
-    QString downloadLocation;
-    QString downloadedSize;
-    QString fullTitle;
+    QString m_downloadPhase;
+    QString m_downloadLocation;
+    QString m_downloadedSize;
+    QString m_fullTitle;
 
-    QLabel *infoIcon;
-    QPushButton *restartButton;
-    QPushButton *discardButton;
+    QLabel *m_infoIcon;
+    QPushButton *m_restartButton;
+    QPushButton *m_discardButton;
 
-    DownloadConfig ServiceConfig;
+    DownloadConfig m_ServiceConfig;
 
-    bool downloadFinishedState = false;
-    DownloadError lastError = DownloadError::None;
-    QString fullFilePath;
+    bool m_downloadFinishedState = false;
+    DownloadError m_lastError = DownloadError::None;
+    QString m_fullFilePath;
 
-    QPoint dragStartPosition;
+    QPoint m_dragStartPosition;
 
-    QString discardText;
-    QString playlistStatus;
-    QString toolTipErrors;
-    QNetworkAccessManager *networkManager;
+    QString m_discardText;
+    QString m_playlistStatus;
+    QString m_toolTipErrors;
+    QNetworkAccessManager *m_networkManager;
 public slots:
     void stopDownload();
 private slots:
