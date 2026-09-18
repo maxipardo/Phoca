@@ -53,7 +53,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     m_percentageLabel = new QLabel(this);
     
     QHBoxLayout *layout = new QHBoxLayout(this);
-    QHBoxLayout *failLayout = new QHBoxLayout(this);
+    QHBoxLayout *failLayout = new QHBoxLayout();
     
     layout->setContentsMargins(2, 0, 6, 0);
     failLayout->setSpacing(0);
@@ -67,9 +67,9 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     m_discardButton->setIcon(QIcon::fromTheme("window-close"));
     
     #ifdef Q_OS_WIN
-    restartButton->setIconSize(QSize(12, 12));
-    discardButton->setIconSize(QSize(12, 12));
-    infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(12, 12));
+    m_restartButton->setIconSize(QSize(12, 12));
+    m_discardButton->setIconSize(QSize(12, 12));
+    m_infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(12, 12));
     #else
     m_restartButton->setIconSize(QSize(14, 14));
     m_discardButton->setIconSize(QSize(14, 14));
@@ -226,8 +226,7 @@ void DownloadItem::onError(DownloadError error, QString detail) {
             updateTitleText(tr("Download failed"));
             break;
         }
-        m_downloadFinishedState = true;
-        emit finishedSignal();
+
     }
     
     if (!detail.isEmpty()) {
@@ -374,7 +373,7 @@ void DownloadItem::openDownloadLocation() {
 void DownloadItem::openFileLocation() {
     #if defined(Q_OS_WIN)
     // Windows
-    QString windowsPath = QDir::toNativeSeparators(fullFilePath);
+    QString windowsPath = QDir::toNativeSeparators(m_fullFilePath);
     
     QStringList args;
     args << "/select," << windowsPath;
@@ -402,7 +401,7 @@ void DownloadItem::openFileLocation() {
     }
     #else
     // Other
-    QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(m_downloadLocation));
     #endif
 }
 
@@ -498,7 +497,7 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
             
             QPixmap pixmap;
             if (pixmap.loadFromData(imageData)) {
-                int targetHeight = this->height();
+                int targetHeight = qMin(this->height(), 120);
                 QPixmap scaledPixmap = pixmap.scaledToHeight(targetHeight, Qt::SmoothTransformation);
                 
                 m_thumbnailLabel->setFixedSize(scaledPixmap.size());

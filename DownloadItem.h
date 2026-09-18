@@ -14,7 +14,7 @@
 class DownloadItem : public QWidget {
 Q_OBJECT
 public:
-    explicit DownloadItem (DownloadConfig config, QWidget *parent = nullptr);
+    explicit DownloadItem (const DownloadConfig config, QWidget *parent = nullptr);
     bool isFinished() const { return m_downloadFinishedState; }
     void changeThumbnailVisibility(bool enabled);
 protected:

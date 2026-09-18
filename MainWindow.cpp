@@ -315,8 +315,9 @@ void MainWindow::itemFinished() {
 }
 
 void MainWindow::changeNightlyService() {
+    m_nightlyService = m_chooseNightlyAction->isChecked();
     QSettings settings;
-    settings.setValue("nightlyService", m_chooseNightlyAction->isChecked());
+    settings.setValue("nightlyService", m_nightlyService);
     getServiceSlot();
 }
         
@@ -336,8 +337,9 @@ void MainWindow::changeForceIPv4() {
         }
     }
     
+    m_forceIPv4 = m_forceIPv4Action->isChecked();
     QSettings settings;
-    settings.setValue("IPv4", m_forceIPv4Action->isChecked());
+    settings.setValue("IPv4", m_forceIPv4);
 }
 
 void MainWindow::changeThumbnailVisibility() {
@@ -349,7 +351,9 @@ void MainWindow::changeThumbnailVisibility() {
         // Casting to class
         DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
         
-        downloadItem->changeThumbnailVisibility(m_thumbnailVisibility);
+        if (downloadItem) {
+            downloadItem->changeThumbnailVisibility(m_thumbnailVisibility);
+        }
     }
     
     QSettings settings;
