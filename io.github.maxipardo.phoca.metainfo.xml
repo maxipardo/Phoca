@@ -14,7 +14,7 @@
     <project_license>GPL-3.0-or-later</project_license>
 
     <description>
-        <p>Phoca is a powerful desktop application for downloading videos and audio from the web. Powered by yt-dlp, it provides a clean and intuitive interface to grab media from hundreds of supported sites.</p>
+        <p>Phoca provides a clean and intuitive interface to grab media from hundreds of supported sites.</p>
         <p>Features include:</p>
         <ul>
             <li>Download video, audio, or both simultaneously</li>
@@ -39,12 +39,12 @@
 
     <screenshots>
         <screenshot type="default">
-            <caption>Main application window</caption>
-            <image>https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/screenshot1.png</image>
+            <caption xml:lang="en">Main application window</caption>
+            <image xml:lang="en">https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/screenshot1.png</image>
         </screenshot>
         <screenshot>
-            <caption>Download options and progress</caption>
-            <image>https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/screenshot2.png</image>
+            <caption xml:lang="en">Application in dark mode</caption>
+            <image xml:lang="en">https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/screenshot2.png</image>
         </screenshot>
     </screenshots>
 
