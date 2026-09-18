@@ -27,7 +27,7 @@
 #endif
 
 DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
-      
+    
     maintainer = new ServiceMaintainer(this);
     ServiceConfig = config;
     fullFilePath = ""; // Set on download finish
@@ -35,13 +35,13 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     playlistStatus = "";
     toolTipErrors = "";
     networkManager = new QNetworkAccessManager(this);
-
+    
     service = new Service(this);
     
     titleLabel = new QLabel(this);
     titleLabel->setMinimumWidth(50); 
     titleLabel->setContentsMargins(4, 0, 0, 0);
-
+    
     thumbnailLabel = new QLabel(this);
     thumbnailLabel->setVisible(config.thumbnailVisibility);
     thumbnailLabel->setFixedSize(0, 0);
@@ -49,20 +49,20 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     sizeLabel = new QLabel(this);
     progressBar = new QProgressBar(this);
     progressBar->setTextVisible(false);
-
+    
     percentageLabel = new QLabel(this);
     
     QHBoxLayout *layout = new QHBoxLayout(this);
     QHBoxLayout *failLayout = new QHBoxLayout(this);
-
+    
     layout->setContentsMargins(2, 0, 6, 0);
     failLayout->setSpacing(0);
-
+    
     infoIcon = new QLabel(this);
-
+    
     restartButton = new QPushButton(this);
     discardButton = new QPushButton(this);
-
+    
     restartButton->setIcon(QIcon::fromTheme("view-refresh"));
     discardButton->setIcon(QIcon::fromTheme("window-close"));
     
@@ -71,9 +71,9 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     discardButton->setIconSize(QSize(12, 12));
     infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(12, 12));
     #else
-        restartButton->setIconSize(QSize(14, 14));
-        discardButton->setIconSize(QSize(14, 14));
-        infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(16, 16));
+    restartButton->setIconSize(QSize(14, 14));
+    discardButton->setIconSize(QSize(14, 14));
+    infoIcon->setPixmap(QIcon::fromTheme("dialog-information").pixmap(16, 16));
     #endif
     
     infoIcon->setVisible(false);
@@ -92,7 +92,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     layout->addWidget(sizeLabel);
     layout->addWidget(progressBar, 1);
     layout->addWidget(percentageLabel);
-
+    
     percentageLabel->setVisible(false);
     percentageLabel->setMargin(4);
     
@@ -100,76 +100,68 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
     downloadPhase = "";
     
     /* Service */
-      connect(service, &Service::downloadStarted, this,
-            &DownloadItem::downloadStarted);
-      connect(service, &Service::downloadFinished, this,
-                  &DownloadItem::downloadFinished);
-      connect(service, &Service::errorOccurred, this,
-            &DownloadItem::onError);
-      connect(service, &Service::percentageUpdated, this,
-                  &DownloadItem::downloadProgress);
-      connect(service, &Service::phaseUpdated, this,
-            &DownloadItem::downloadPhaseUpdated);
-      connect(service, &Service::titleUpdated, this, 
-                  &DownloadItem::onTitleUpdated);
-      connect(service, &Service::sizeUpdated, this, 
-                        &DownloadItem::onSizeUpdated);
-      connect(service, &Service::downloadStalled, this, 
-                        &DownloadItem::downloadStalled);
-      connect(service, &Service::filePath, this, &DownloadItem::onFullPathUpdated);
-      connect(service, &Service::playlistItemUpdated, this, &DownloadItem::playlistItemUpdated);
+    connect(service, &Service::downloadStarted, this, &DownloadItem::downloadStarted);
+    connect(service, &Service::downloadFinished, this, &DownloadItem::downloadFinished);
+    connect(service, &Service::errorOccurred, this, &DownloadItem::onError);
+    connect(service, &Service::percentageUpdated, this, &DownloadItem::downloadProgress);
+    connect(service, &Service::phaseUpdated, this, &DownloadItem::downloadPhaseUpdated);
+    connect(service, &Service::titleUpdated, this, &DownloadItem::onTitleUpdated);
+    connect(service, &Service::sizeUpdated, this, &DownloadItem::onSizeUpdated);
+    connect(service, &Service::downloadStalled, this, &DownloadItem::downloadStalled);
+    connect(service, &Service::filePath, this, &DownloadItem::onFullPathUpdated);
+    connect(service, &Service::playlistItemUpdated, this, &DownloadItem::playlistItemUpdated);
 
-      connect(restartButton, &QPushButton::clicked, this, &DownloadItem::retryDownload);
-      connect(discardButton, &QPushButton::clicked, this, &DownloadItem::stopDownload);
+    connect(restartButton, &QPushButton::clicked, this, &DownloadItem::retryDownload);
+    connect(discardButton, &QPushButton::clicked, this, &DownloadItem::stopDownload);
 
-      connect(service, &Service::thumbnailUrlReceived, this, &DownloadItem::onThumbnailUrlReceived);
+    connect(service, &Service::thumbnailUrlReceived, this, &DownloadItem::onThumbnailUrlReceived);
 
-      if (config.playlist == false) {
-            service->fetchThumbnailUrl(config.link);
-      }
+    if (config.playlist == false) {
+        service->fetchThumbnailUrl(config.link);
+    }
 
-      service->startDownload(config.link, config.downloadLocation, config.format, 
-                              config.quality, config.conversion, 
-                              config.playlist, config.savePlaylistInFolder,
-                               config.saveThumbnail, config.saveSubtitles, config.forceIPv4, config.cookies);
+    service->startDownload(config.link, config.downloadLocation, config.format, 
+                            config.quality, config.conversion, 
+                            config.playlist, config.savePlaylistInFolder,
+                            config.saveThumbnail, config.saveSubtitles, config.forceIPv4, config.cookies);
 }                  
 // Service
 void DownloadItem::downloadStarted() {
-      updateTitleText(tr("Download started"));
-      if (progressBar->maximum() == 0) {
-            progressBar->setRange(0, 100);
-      }
-      progressBar->setValue(0);
-      percentageLabel->setText("0%");
-      percentageLabel->setVisible(true);
-      updateElidedText();
+    updateTitleText(tr("Download started"));
+    if (progressBar->maximum() == 0) {
+        progressBar->setRange(0, 100);
+    }
+    progressBar->setValue(0);
+    percentageLabel->setText("0%");
+    percentageLabel->setVisible(true);
+    updateElidedText();
 }
 
 void DownloadItem::downloadFinished(int exit) {
-      progressBar->setRange(0, 100);
-      discardText = (tr("Discard download\tDel"));
-      if (exit == 0) {
-            progressBar->setValue(100);
-            if (fullTitle == tr("Download started")) {
-                  if (downloadPhase == tr("Already downloaded")) {
-                        updateTitleText(tr("Already downloaded")); 
-                  } else {
-                        updateTitleText(tr("Download finished"));
-                  }
+    progressBar->setRange(0, 100);
+    discardText = (tr("Discard download\tDel"));
+    if (exit == 0) {
+        progressBar->setValue(100);
+        if (fullTitle == tr("Download started")) {
+            if (downloadPhase == tr("Already downloaded")) {
+                updateTitleText(tr("Already downloaded")); 
+            } else {
+                updateTitleText(tr("Download finished"));
             }
-            
-            QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
-            downloadFinishedState = true;
-            emit finishedSignal();
-            return;
-      } else if (exit == 9) {
-            updateTitleText(tr("Download stopped"));
-      } else {
-            // Error title already set by onError, just show error state
-            showErrorState();
-      }
-      downloadFinishedState = true;
-      emit finishedSignal();
+        }
+        
+        QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
+        downloadFinishedState = true;
+        emit finishedSignal();
+        return;
+    } else if (exit == 9) {
+        updateTitleText(tr("Download stopped"));
+    } else {
+        // Error title already set by onError, just show error state
+        showErrorState();
+    }
+    downloadFinishedState = true;
+    emit finishedSignal();
 };
 
 void DownloadItem::downloadProgress(int percentage) {
@@ -187,81 +179,81 @@ void DownloadItem::onSizeUpdated(QString cleanSize) {
 }
 
 void DownloadItem::onTitleUpdated(QString title) {
-      title.remove(QRegularExpression("\\.f\\d+.*$"));
-      updateTitleText(title);
+    title.remove(QRegularExpression("\\.f\\d+.*$"));
+    updateTitleText(title);
 }
 
 void DownloadItem::downloadPhaseUpdated(QString phase) {
-      downloadPhase = phase;
-
-      if (phase == tr("Processing...")) {
-            progressBar->setRange(0, 0);
-      } else {
-            progressBar->setRange(0, 100);
-      }
+    downloadPhase = phase;
+    
+    if (phase == tr("Processing...")) {
+        progressBar->setRange(0, 0);
+    } else {
+        progressBar->setRange(0, 100);
+    }
 }
 
 void DownloadItem::onError(DownloadError error, QString detail) {
-      if (lastError == DownloadError::None || (error != DownloadError::Unknown && error != DownloadError::GenericYtdlp)) {
-            lastError = error;
+    if (lastError == DownloadError::None || (error != DownloadError::Unknown && error != DownloadError::GenericYtdlp)) {
+        lastError = error;
 
-            switch (error) {
-                  case DownloadError::CookiesNotFound:
-                        updateTitleText(tr("Cookies not found for the selected browser"));
-                        break;
-                  case DownloadError::AgeVerification:
-                        updateTitleText(tr("Sign in to confirm your age"));
-                        break;
-                  case DownloadError::Forbidden:
-                        updateTitleText(tr("Access denied (403)"));
-                        #ifdef Q_OS_LINUX
-                        restartButton->setText(tr("Update yt-dlp"));
-                        #endif
-                        break;
-                  case DownloadError::NetworkTimeout:
-                        updateTitleText(tr("Download failed: network timeout"));
-                        break;
-                  case DownloadError::ProcessCrashed:
-                        updateTitleText(tr("Download failed: process crashed"));
-                        break;
-                  case DownloadError::ProcessNotFound:
-                        updateTitleText(tr("yt-dlp not found"));
-                        break;
-                  case DownloadError::GenericYtdlp:
-                  case DownloadError::Unknown:
-                  default:
-                        updateTitleText(tr("Download failed"));
-                        break;
-            }
-      }
-
-      if (!detail.isEmpty()) {
-            if (!playlistStatus.isEmpty()) {
-                  toolTipErrors.append(playlistStatus + " ");
-            }
-            toolTipErrors.append(detail + "\n");
-            infoIcon->setToolTip(toolTipErrors);
-            infoIcon->setVisible(true);
-      }
+        switch (error) {
+        case DownloadError::CookiesNotFound:
+            updateTitleText(tr("Cookies not found for the selected browser"));
+            break;
+        case DownloadError::AgeVerification:
+            updateTitleText(tr("Sign in to confirm your age"));
+            break;
+        case DownloadError::Forbidden:
+            updateTitleText(tr("Access denied (403)"));
+            #ifdef Q_OS_LINUX
+                restartButton->setText(tr("Update yt-dlp"));
+            #endif
+            break;
+        case DownloadError::NetworkTimeout:
+            updateTitleText(tr("Download failed: network timeout"));
+            break;
+        case DownloadError::ProcessCrashed:
+            updateTitleText(tr("Download failed: process crashed"));
+            break;
+        case DownloadError::ProcessNotFound:
+            updateTitleText(tr("yt-dlp not found"));
+            break;
+        case DownloadError::GenericYtdlp:
+        case DownloadError::Unknown:
+        default:
+            updateTitleText(tr("Download failed"));
+            break;
+        }
+    }
+    
+    if (!detail.isEmpty()) {
+        if (!playlistStatus.isEmpty()) {
+            toolTipErrors.append(playlistStatus + " ");
+        }
+        toolTipErrors.append(detail + "\n");
+        infoIcon->setToolTip(toolTipErrors);
+        infoIcon->setVisible(true);
+    }
 }
 
 void DownloadItem::showErrorState() {
-      restartButton->setVisible(true);
-      discardButton->setVisible(true);
-      sizeLabel->setVisible(false);
-      progressBar->setVisible(false);
-      percentageLabel->setVisible(false);
+    restartButton->setVisible(true);
+    discardButton->setVisible(true);
+    sizeLabel->setVisible(false);
+    progressBar->setVisible(false);
+    percentageLabel->setVisible(false);
 }
 
 void DownloadItem::downloadStalled() {
-      progressBar->setRange(0, 0);
-      percentageLabel->setVisible(false);
-      QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
+    progressBar->setRange(0, 0);
+    percentageLabel->setVisible(false);
+    QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }
 
 void DownloadItem::stopDownload() {
-      service->stopDownload();
-      emit removeRequested();
+    service->stopDownload();
+    emit removeRequested();
 }
 
 // Text changes centralized
@@ -286,135 +278,135 @@ void DownloadItem::updateElidedText() {
 
 // Context menu actions
 void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
-      QMenu *menu = new QMenu(this);
-      
-      menu->setAttribute(Qt::WA_DeleteOnClose);
-      
-      // Check if app is in dark mode
-      bool isDarkMode = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
-      
-      QAction *openLocation = menu->addAction(tr("Open file location"));
-      QIcon folderIcon = QIcon::fromTheme("document-open-folder");
-      if (folderIcon.isNull()) {
+    QMenu *menu = new QMenu(this);
+    
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    
+    // Check if app is in dark mode
+    bool isDarkMode = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+    
+    QAction *openLocation = menu->addAction(tr("Open file location"));
+    QIcon folderIcon = QIcon::fromTheme("document-open-folder");
+    if (folderIcon.isNull()) {
+        if (isDarkMode) {
+            folderIcon = QIcon(":/folder_light.svg");
+        } else {
+            folderIcon = QIcon(":/folder_dark.svg");
+        }
+    }
+    openLocation->setIcon(folderIcon);
+    
+    QAction *cancelAction = menu->addAction(discardText);
+    QIcon cancelIcon = QIcon::fromTheme("process-stop");
+    if (cancelIcon.isNull()) {
+        if (isDarkMode) {
+            cancelIcon = QIcon(":/cancel_light.svg");
+        } else {
+            cancelIcon = QIcon(":/cancel_dark.svg");
+        }
+    }
+    cancelAction->setIcon(cancelIcon); 
+    
+    QAction *deleteFileAction = nullptr;
+    QIcon deleteIcon;
+    if (!fullFilePath.isEmpty() && ServiceConfig.playlist == false) {
+        deleteFileAction = menu->addAction(tr("Delete file"));
+        deleteIcon = QIcon::fromTheme("edit-delete");
+        if (deleteIcon.isNull()) {
             if (isDarkMode) {
-                  folderIcon = QIcon(":/folder_light.svg");
+                deleteIcon = QIcon(":/delete_light.svg");
             } else {
-                  folderIcon = QIcon(":/folder_dark.svg");
+                deleteIcon = QIcon(":/delete_dark.svg");
             }
-      }
-      openLocation->setIcon(folderIcon);
-
-      QAction *cancelAction = menu->addAction(discardText);
-      QIcon cancelIcon = QIcon::fromTheme("process-stop");
-      if (cancelIcon.isNull()) {
-            if (isDarkMode) {
-                  cancelIcon = QIcon(":/cancel_light.svg");
-            } else {
-                  cancelIcon = QIcon(":/cancel_dark.svg");
-            }
-      }
-      cancelAction->setIcon(cancelIcon); 
-
-      QAction *deleteFileAction = nullptr;
-      QIcon deleteIcon;
-      if (!fullFilePath.isEmpty() && ServiceConfig.playlist == false) {
-            deleteFileAction = menu->addAction(tr("Delete file"));
-            deleteIcon = QIcon::fromTheme("edit-delete");
-            if (deleteIcon.isNull()) {
-                  if (isDarkMode) {
-                        deleteIcon = QIcon(":/delete_light.svg");
-                  } else {
-                        deleteIcon = QIcon(":/delete_dark.svg");
-                  }
-            }
-            deleteFileAction->setIcon(deleteIcon);
-            connect(deleteFileAction, &QAction::triggered, this, &DownloadItem::deleteFile);
-      }
-
-      connect(cancelAction, &QAction::triggered, this, &DownloadItem::stopDownload);
-      if (!fullFilePath.isEmpty()) {
-            connect(openLocation, &QAction::triggered, this, &DownloadItem::openFileLocation);
-      } else {
-            connect(openLocation, &QAction::triggered, this, &DownloadItem::openDownloadLocation);
-      }
-      
-      // Asyncronus menu
-      menu->popup(event->globalPos());
+        }
+        deleteFileAction->setIcon(deleteIcon);
+        connect(deleteFileAction, &QAction::triggered, this, &DownloadItem::deleteFile);
+    }
+    
+    connect(cancelAction, &QAction::triggered, this, &DownloadItem::stopDownload);
+    if (!fullFilePath.isEmpty()) {
+        connect(openLocation, &QAction::triggered, this, &DownloadItem::openFileLocation);
+    } else {
+        connect(openLocation, &QAction::triggered, this, &DownloadItem::openDownloadLocation);
+    }
+    
+    // Asyncronus menu
+    menu->popup(event->globalPos());
 }
 
 void DownloadItem::retryDownload() {
-      #ifdef Q_OS_LINUX
-      if (lastError == DownloadError::Forbidden) {
-            restartButton->setText(tr("Update yt-dlp"));
-            maintainer->getService(true);
-            return;
-      }
-      #endif
-
-      restartButton->setText(tr("Retry"));
-      lastError = DownloadError::None;
-      toolTipErrors = "";
-      infoIcon->setVisible(false);
-      restartButton->setVisible(false);
-      discardButton->setVisible(false);
-      sizeLabel->setVisible(true);
-      progressBar->setVisible(true);
-      percentageLabel->setVisible(true);
-
-      service->startDownload(ServiceConfig.link, ServiceConfig.downloadLocation, ServiceConfig.format, 
-                              ServiceConfig.quality, ServiceConfig.conversion, 
-                              ServiceConfig.playlist, ServiceConfig.savePlaylistInFolder, 
-                              ServiceConfig.saveThumbnail, ServiceConfig.saveSubtitles, ServiceConfig.forceIPv4, ServiceConfig.cookies);
-}
+    #ifdef Q_OS_LINUX
+    if (lastError == DownloadError::Forbidden) {
+        restartButton->setText(tr("Update yt-dlp"));
+        maintainer->getService(true);
+        return;
+    }
+    #endif
+    
+    restartButton->setText(tr("Retry"));
+    lastError = DownloadError::None;
+    toolTipErrors = "";
+    infoIcon->setVisible(false);
+    restartButton->setVisible(false);
+    discardButton->setVisible(false);
+    sizeLabel->setVisible(true);
+    progressBar->setVisible(true);
+    percentageLabel->setVisible(true);
+    
+    service->startDownload(ServiceConfig.link, ServiceConfig.downloadLocation, ServiceConfig.format, 
+        ServiceConfig.quality, ServiceConfig.conversion, 
+        ServiceConfig.playlist, ServiceConfig.savePlaylistInFolder, 
+        ServiceConfig.saveThumbnail, ServiceConfig.saveSubtitles, ServiceConfig.forceIPv4, ServiceConfig.cookies);
+    }
 
 void DownloadItem::onFullPathUpdated(QString fullPath) {
-      fullFilePath = fullPath;
-      qDebug() << fullPath;
+    fullFilePath = fullPath;
+    qDebug() << fullPath;
 }
 
 void DownloadItem::openDownloadLocation() {
-      QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
 }
 
 void DownloadItem::openFileLocation() {
-      #if defined(Q_OS_WIN)
-        // Windows
-        QString windowsPath = QDir::toNativeSeparators(fullFilePath);
+    #if defined(Q_OS_WIN)
+    // Windows
+    QString windowsPath = QDir::toNativeSeparators(fullFilePath);
+    
+    QStringList args;
+    args << "/select," << windowsPath;
+    
+    QProcess::startDetached("explorer.exe", args);
+    
+    #elif defined(Q_OS_LINUX)
+    // Check for DBus
+    if (QDBusConnection::sessionBus().isConnected()) {
+        QDBusMessage msg = QDBusMessage::createMethodCall(
+            "org.freedesktop.FileManager1",
+            "/org/freedesktop/FileManager1",
+            "org.freedesktop.FileManager1",
+            "ShowItems"
+        );
         
-        QStringList args;
-        args << "/select," << windowsPath;
+        QStringList uris;
+        uris << QUrl::fromLocalFile(fullFilePath).toString();
+        msg << uris << QString("");
         
-        QProcess::startDetached("explorer.exe", args);
-
-      #elif defined(Q_OS_LINUX)
-        // Check for DBus
-        if (QDBusConnection::sessionBus().isConnected()) {
-            QDBusMessage msg = QDBusMessage::createMethodCall(
-                "org.freedesktop.FileManager1",
-                "/org/freedesktop/FileManager1",
-                "org.freedesktop.FileManager1",
-                "ShowItems"
-            );
-
-            QStringList uris;
-            uris << QUrl::fromLocalFile(fullFilePath).toString();
-            msg << uris << QString("");
-
-            QDBusConnection::sessionBus().send(msg);
-        } else {
-            // If not available
-            QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
-        }
-      #else
-        // Other
+        QDBusConnection::sessionBus().send(msg);
+    } else {
+        // If not available
         QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
-      #endif
+    }
+    #else
+    // Other
+    QDesktopServices::openUrl(QUrl::fromLocalFile(downloadLocation));
+    #endif
 }
 
 void DownloadItem::mouseDoubleClickEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton && !fullFilePath.isEmpty()) {
         openFileLocation();
-
+        
     }
     QWidget::mouseDoubleClickEvent(event);
 }
@@ -431,72 +423,72 @@ void DownloadItem::mouseMoveEvent(QMouseEvent *event) {
     if (!(event->buttons() & Qt::LeftButton)) {
         return;
     }
-
+    
     if ((event->pos() - dragStartPosition).manhattanLength() < QApplication::startDragDistance()) {
         return;
     }
-
+    
     // If download hasn't finished
     if (fullFilePath.isEmpty()) {
         return; 
     }
-
+    
     QDrag *drag = new QDrag(this);
     QMimeData *mimeData = new QMimeData;
-
+    
     QList<QUrl> urls;
     urls << QUrl::fromLocalFile(fullFilePath);
     mimeData->setUrls(urls);
     
     drag->setMimeData(mimeData);
-
+    
     drag->exec(Qt::CopyAction);
 }
 
 void DownloadItem::deleteFile() {
-      QString cleanPath = fullFilePath.trimmed();
+    QString cleanPath = fullFilePath.trimmed();
+    
+    if (!cleanPath.isEmpty()) {
+        QFile file(cleanPath);
 
-      if (!cleanPath.isEmpty()) {
-            QFile file(cleanPath);
-
-            if (file.exists()) {
-                  if (file.moveToTrash()) {
-                        qDebug() << "File successfully moved to trash:" << cleanPath;
-                        emit removeRequested();
-                  } else {
-                        qDebug() << "Couldn't move to trash, trying hard delete...";
-                        if (file.remove()) {
-                              qDebug() << "File successfully deleted (hard):" << cleanPath;
-                              emit removeRequested();
-                        } else {
-                              qDebug() << "Error: Couldn't delete file.";
-                              titleLabel->setText(tr("Couldn't delete file"));
-                        }
-                  }
+        if (file.exists()) {
+            if (file.moveToTrash()) {
+                qDebug() << "File successfully moved to trash:" << cleanPath;
+                emit removeRequested();
             } else {
-                  qDebug() << "File does not exist.";
-                  titleLabel->setText(tr("Couldn't delete file"));
+                qDebug() << "Couldn't move to trash, trying hard delete...";
+                if (file.remove()) {
+                    qDebug() << "File successfully deleted (hard):" << cleanPath;
+                    emit removeRequested();
+                } else {
+                    qDebug() << "Error: Couldn't delete file.";
+                    titleLabel->setText(tr("Couldn't delete file"));
+                }
             }
-      }
+        } else {
+            qDebug() << "File does not exist.";
+            titleLabel->setText(tr("Couldn't delete file"));
+        }
+    }
 }
 
 void DownloadItem::playlistItemUpdated(QString status) {
-      playlistStatus = status;
+    playlistStatus = status;
 }
 
 void DownloadItem::onThumbnailUrlReceived(const QString &link) {
     if (link.isEmpty()) {
         return;
     }
-
+    
     QUrl url(link);
     QNetworkRequest request(url);
     
     QNetworkReply *reply = networkManager->get(request);
-
+    
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         reply->deleteLater(); 
-
+        
         if (reply->error() == QNetworkReply::NoError) {
             
             QByteArray imageData = reply->readAll(); 
@@ -505,7 +497,7 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
             if (pixmap.loadFromData(imageData)) {
                 int targetHeight = this->height();
                 QPixmap scaledPixmap = pixmap.scaledToHeight(targetHeight, Qt::SmoothTransformation);
-
+                
                 thumbnailLabel->setFixedSize(scaledPixmap.size());
                 thumbnailLabel->setPixmap(scaledPixmap);
             }
@@ -516,6 +508,6 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
 }
 
 void DownloadItem::changeThumbnailVisibility(bool enabled) {
-      thumbnailLabel->setVisible(enabled);
-      QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
+    thumbnailLabel->setVisible(enabled);
+    QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }

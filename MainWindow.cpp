@@ -8,564 +8,546 @@
 #include <QList>
 #include <QUrlQuery>
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-  QWidget *centralWidget = new QWidget(this);
-  fullLayout = new QVBoxLayout(centralWidget);
-  layout = new QVBoxLayout();
-  linkLayout = new QHBoxLayout();
-  optionsLayout = new QHBoxLayout();
-  linkBox = new QLineEdit(centralWidget);
-  downloadButton = new QPushButton(centralWidget);
-  clearFinishedButton = new QPushButton(centralWidget);
-  getEngineButton = new QPushButton(centralWidget);
-  maintainer = new ServiceMaintainer(this);
-
-  list = new QListWidget(centralWidget);
-
-  QAction *deleteAction = new QAction(list);
-  deleteAction->setShortcut(QKeySequence::Delete);
-  deleteAction->setShortcutContext(Qt::WidgetShortcut);
-  list->addAction(deleteAction);
-
-  // Del key
-  connect(deleteAction, &QAction::triggered, this, [this]() {
-      QListWidgetItem *currentItem = list->currentItem();
-      if (!currentItem) return;
-
-      DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(currentItem));
-      if (di) {
-          di->stopDownload(); 
-      }
-  });
-
-  bothButton = new QRadioButton(tr("Both"), centralWidget);
-  videoButton = new QRadioButton(tr("Video"), centralWidget);
-  audioButton = new QRadioButton(tr("Audio"), centralWidget);
-
-  /* MainWindow size */
-  this->resize(200, 200);
-  this->setMinimumWidth(462);
-
-  /* Persistent settings */
-  QSettings settings("MaximoPardo", "Phoca");
-  downloadLocation = settings.value("downloadLocation", QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).toString();
-  savePlaylistInFolder = settings.value("savePlaylistInFolder", true).toBool();
-  saveThumbnail = settings.value("saveThumbnail", false).toBool();
-  firstLaunch = settings.value("firstLaunch", true).toBool();
-  nightlyService = settings.value("nightlyService", true).toBool();
-  forceIPv4 = settings.value("IPv4", true).toBool();
-  thumbnailVisibility = settings.value("thumbnailVisibility", true).toBool();
-  cookies = settings.value("cookies", "").toString();
-  // Fix date
-  QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
-  lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
-
-  if (!lastEngineUpdate.isValid()) {
-    lastEngineUpdate = QDateTime::currentDateTime();
-}
-
-  /* Menu */
-  optionsMenu = new QMenu(tr("Options"), this);
-  aboutAction = new QAction(tr("About"), this);
-  buildMenu = new QMenu(tr("Choose yt-dlp version"), optionsMenu);
-  advancedMenu = new QMenu(tr("Advanced"), optionsMenu);
-  cookiesMenu = new QMenu(tr("Browser cookies"), advancedMenu);
-  menuBar()->addMenu(optionsMenu);
-  optionsMenu->addMenu(buildMenu);
-  menuBar()->addAction(aboutAction);
-
-  chooseLocationAction = new QAction(tr("Change download location..."), this);
-  chooseNightlyAction = new QAction(tr("Use yt-dlp nightly (recommended)"), this);
-  chooseStableAction = new QAction(tr("Use yt-dlp stable"), this);
-  versionGroup = new QActionGroup(this);
-  savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
-  saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
-  forceIPv4Action = new QAction(tr("Force IPv4 connections (Recommended)"), this);
-  cookiesAction = new QAction("Browser cookies", this);
-  cookiesGroup = new QActionGroup(this);
-  thumbnailVisibilityAction = new QAction(tr("Show thumbnails on list"), this);
-
-  auto addCookieOption = [this](const QString &label, const QString &value) {
-    QAction *action = cookiesMenu->addAction(label, this, [this, value]() { changeCookies(value); });
-    action->setCheckable(true);
-    action->setChecked(value == cookies);
-    cookiesGroup->addAction(action);
-    return action;
-  };
-
-  addCookieOption("No cookies", "");
-  addCookieOption("Brave", "brave");
-  addCookieOption("Chrome", "chrome");
-  addCookieOption("Chromium", "chromium");
-  addCookieOption("Edge", "edge");
-  addCookieOption("Firefox", "firefox");
-  addCookieOption("Opera", "opera");
-  addCookieOption("Safari", "safari");
-  addCookieOption("Vivaldi", "vivaldi");
-  addCookieOption("Whale", "whale");
-
-  savePlaylistInFolderAction->setCheckable(true);
-  savePlaylistInFolderAction->setChecked(savePlaylistInFolder);
-  saveThumbnailAction->setCheckable(true);
-  saveThumbnailAction->setChecked(saveThumbnail);
-  chooseNightlyAction->setCheckable(true);
-  chooseStableAction->setCheckable(true);
-  chooseNightlyAction->setChecked(nightlyService);
-  chooseStableAction->setChecked(!nightlyService);
-  versionGroup->addAction(chooseNightlyAction);
-  versionGroup->addAction(chooseStableAction);
-
-
-  forceIPv4Action->setCheckable(true);
-  forceIPv4Action->setChecked(forceIPv4);
-
-  thumbnailVisibilityAction->setCheckable(true);
-  thumbnailVisibilityAction->setChecked(thumbnailVisibility);
-
-  optionsMenu->addAction(chooseLocationAction);
-  optionsMenu->addAction(savePlaylistInFolderAction);
-  buildMenu->addAction(chooseNightlyAction);
-  buildMenu->addAction(chooseStableAction);
-  
-  optionsMenu->addAction(thumbnailVisibilityAction);
-  optionsMenu->addAction(saveThumbnailAction);
-
-  optionsMenu->addMenu(advancedMenu);
-  advancedMenu->addAction(forceIPv4Action);
-  advancedMenu->addMenu(cookiesMenu);
-
-  linkBox->setPlaceholderText(tr("Enter link..."));
-  downloadButton->setText(tr("Download"));
-  downloadButton->setEnabled(false);
-  clearFinishedButton->setText(tr("Clear finished"));
-  getEngineButton->setText(tr("Update yt-dlp"));
-
-  fullLayout->addLayout(layout);
-  fullLayout->addWidget(list);
-  
-  layout->addLayout(linkLayout);
-  linkLayout->addWidget(linkBox);
-  layout->addLayout(optionsLayout);
-  linkLayout->addWidget(downloadButton);
-  QHBoxLayout *bottomLayout = new QHBoxLayout();
-  bottomLayout->addWidget(clearFinishedButton);
-  clearFinishedButton->setEnabled(false);
-  bottomLayout->addWidget(getEngineButton);
-  layout->addLayout(bottomLayout);
-
-  optionsLayout->addWidget(bothButton);
-  optionsLayout->addWidget(videoButton);
-  optionsLayout->addWidget(audioButton);
-
-  qualityBox = new QComboBox(this);
-  qualityBox->setEditable(true);
-  qualityBox->setInsertPolicy(QComboBox::NoInsert);
-  qualityBox->addItems({tr("Best"), "2160p", "1440p", "1080p", "720p", "480p"});
-  optionsLayout->addWidget(qualityBox);
-
-  conversionBox = new QComboBox(this);
-  conversionBox->setEditable(true);
-  conversionBox->setInsertPolicy(QComboBox::NoInsert);
-  conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"});
-  optionsLayout->addWidget(conversionBox);
-
-  subtitlesBox = new QCheckBox(this);
-  subtitlesBox->setText(tr("Subtitles"));
-  subtitlesBox->setChecked(false);
-  optionsLayout->addWidget(subtitlesBox);
-
-
-  QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-  optionsLayout->addItem(spacer);
-
-  bothButton->setChecked(true);
-
-  this->setWindowTitle("Phoca");
-  setCentralWidget(centralWidget);
-
-  connect(linkBox, &QLineEdit::textChanged, this,
-          &MainWindow::setDownloadReadiness);
-  connect(qualityBox, &QComboBox::editTextChanged, this,
-          &MainWindow::setDownloadReadiness);
-  connect(conversionBox, &QComboBox::editTextChanged, this,
-          &MainWindow::setDownloadReadiness);
-  connect(getEngineButton, &QPushButton::clicked, this,
-          &MainWindow::getServiceSlot);
-  connect(maintainer, &ServiceMaintainer::started, this,
-          &MainWindow::engineDownloading);
-  connect(maintainer, &ServiceMaintainer::finished, this,
-          &MainWindow::engineDownloaded);
-  connect(chooseStableAction, &QAction::triggered, this,
-          &MainWindow::changeNightlyService);
-  connect(chooseNightlyAction, &QAction::triggered, this,
-          &MainWindow::changeNightlyService);
-  connect(chooseLocationAction, &QAction::triggered, this,
-          &MainWindow::changeLocation);
-  connect(forceIPv4Action, &QAction::triggered, this, &MainWindow::changeForceIPv4);
-  connect(thumbnailVisibilityAction, &QAction::triggered, this, &MainWindow::changeThumbnailVisibility);
-  connect(aboutAction, &QAction::triggered, this, 
-          &MainWindow::aboutPage);
-  connect(clearFinishedButton, &QPushButton::clicked, this,
-          &MainWindow::clearFinishedDownloads);
-
-  connect(linkBox, &QLineEdit::textChanged, this, [this](const QString &text) {
-        int currentLength = text.length();
+    QWidget *centralWidget = new QWidget(this);
+    fullLayout = new QVBoxLayout(centralWidget);
+    layout = new QVBoxLayout();
+    linkLayout = new QHBoxLayout();
+    optionsLayout = new QHBoxLayout();
+    linkBox = new QLineEdit(centralWidget);
+    downloadButton = new QPushButton(centralWidget);
+    clearFinishedButton = new QPushButton(centralWidget);
+    getEngineButton = new QPushButton(centralWidget);
+    maintainer = new ServiceMaintainer(this);
+    
+    list = new QListWidget(centralWidget);
+    
+    QAction *deleteAction = new QAction(list);
+    deleteAction->setShortcut(QKeySequence::Delete);
+    deleteAction->setShortcutContext(Qt::WidgetShortcut);
+    list->addAction(deleteAction);
+    
+    // Del key
+    connect(deleteAction, &QAction::triggered, this, [this]() {
+        QListWidgetItem *currentItem = list->currentItem();
+        if (!currentItem) return;
         
-        if (qAbs(currentLength - lastLength) > 1 && currentLength > 0) {
-            linkBox->setCursorPosition(0);
+        DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(currentItem));
+        if (di) {
+            di->stopDownload(); 
         }
-        
+    });
+    
+    bothButton = new QRadioButton(tr("Both"), centralWidget);
+    videoButton = new QRadioButton(tr("Video"), centralWidget);
+    audioButton = new QRadioButton(tr("Audio"), centralWidget);
+    
+    /* MainWindow size */
+    this->resize(200, 200);
+    this->setMinimumWidth(462);
+    
+    /* Persistent settings */
+    QSettings settings("MaximoPardo", "Phoca");
+    downloadLocation = settings.value("downloadLocation", QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).toString();
+    savePlaylistInFolder = settings.value("savePlaylistInFolder", true).toBool();
+    saveThumbnail = settings.value("saveThumbnail", false).toBool();
+    firstLaunch = settings.value("firstLaunch", true).toBool();
+    nightlyService = settings.value("nightlyService", true).toBool();
+    forceIPv4 = settings.value("IPv4", true).toBool();
+    thumbnailVisibility = settings.value("thumbnailVisibility", true).toBool();
+    cookies = settings.value("cookies", "").toString();
+    // Fix date
+    QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
+    lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
+    
+    if (!lastEngineUpdate.isValid()) {
+        lastEngineUpdate = QDateTime::currentDateTime();
+    }
+    
+    /* Menu */
+    optionsMenu = new QMenu(tr("Options"), this);
+    aboutAction = new QAction(tr("About"), this);
+    buildMenu = new QMenu(tr("Choose yt-dlp version"), optionsMenu);
+    advancedMenu = new QMenu(tr("Advanced"), optionsMenu);
+    cookiesMenu = new QMenu(tr("Browser cookies"), advancedMenu);
+    menuBar()->addMenu(optionsMenu);
+    optionsMenu->addMenu(buildMenu);
+    menuBar()->addAction(aboutAction);
+    
+    chooseLocationAction = new QAction(tr("Change download location..."), this);
+    chooseNightlyAction = new QAction(tr("Use yt-dlp nightly (recommended)"), this);
+    chooseStableAction = new QAction(tr("Use yt-dlp stable"), this);
+    versionGroup = new QActionGroup(this);
+    savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
+    saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
+    forceIPv4Action = new QAction(tr("Force IPv4 connections (Recommended)"), this);
+    cookiesAction = new QAction("Browser cookies", this);
+    cookiesGroup = new QActionGroup(this);
+    thumbnailVisibilityAction = new QAction(tr("Show thumbnails on list"), this);
+    
+    auto addCookieOption = [this](const QString &label, const QString &value) {
+        QAction *action = cookiesMenu->addAction(label, this, [this, value]() { changeCookies(value); });
+        action->setCheckable(true);
+        action->setChecked(value == cookies);
+        cookiesGroup->addAction(action);
+        return action;
+    };
+    
+    addCookieOption("No cookies", "");
+    addCookieOption("Brave", "brave");
+    addCookieOption("Chrome", "chrome");
+    addCookieOption("Chromium", "chromium");
+    addCookieOption("Edge", "edge");
+    addCookieOption("Firefox", "firefox");
+    addCookieOption("Opera", "opera");
+    addCookieOption("Safari", "safari");
+    addCookieOption("Vivaldi", "vivaldi");
+    addCookieOption("Whale", "whale");
+    
+    savePlaylistInFolderAction->setCheckable(true);
+    savePlaylistInFolderAction->setChecked(savePlaylistInFolder);
+    saveThumbnailAction->setCheckable(true);
+    saveThumbnailAction->setChecked(saveThumbnail);
+    chooseNightlyAction->setCheckable(true);
+    chooseStableAction->setCheckable(true);
+    chooseNightlyAction->setChecked(nightlyService);
+    chooseStableAction->setChecked(!nightlyService);
+    versionGroup->addAction(chooseNightlyAction);
+    versionGroup->addAction(chooseStableAction);
+    
+    
+    forceIPv4Action->setCheckable(true);
+    forceIPv4Action->setChecked(forceIPv4);
+    
+    thumbnailVisibilityAction->setCheckable(true);
+    thumbnailVisibilityAction->setChecked(thumbnailVisibility);
+    
+    optionsMenu->addAction(chooseLocationAction);
+    optionsMenu->addAction(savePlaylistInFolderAction);
+    buildMenu->addAction(chooseNightlyAction);
+    buildMenu->addAction(chooseStableAction);
+    
+    optionsMenu->addAction(thumbnailVisibilityAction);
+    optionsMenu->addAction(saveThumbnailAction);
+    
+    optionsMenu->addMenu(advancedMenu);
+    advancedMenu->addAction(forceIPv4Action);
+    advancedMenu->addMenu(cookiesMenu);
+    
+    linkBox->setPlaceholderText(tr("Enter link..."));
+    downloadButton->setText(tr("Download"));
+    downloadButton->setEnabled(false);
+    clearFinishedButton->setText(tr("Clear finished"));
+    getEngineButton->setText(tr("Update yt-dlp"));
+    
+    fullLayout->addLayout(layout);
+    fullLayout->addWidget(list);
+    
+    layout->addLayout(linkLayout);
+    linkLayout->addWidget(linkBox);
+    layout->addLayout(optionsLayout);
+    linkLayout->addWidget(downloadButton);
+    QHBoxLayout *bottomLayout = new QHBoxLayout();
+    bottomLayout->addWidget(clearFinishedButton);
+    clearFinishedButton->setEnabled(false);
+    bottomLayout->addWidget(getEngineButton);
+    layout->addLayout(bottomLayout);
+    
+    optionsLayout->addWidget(bothButton);
+    optionsLayout->addWidget(videoButton);
+    optionsLayout->addWidget(audioButton);
+    
+    qualityBox = new QComboBox(this);
+    qualityBox->setEditable(true);
+    qualityBox->setInsertPolicy(QComboBox::NoInsert);
+    qualityBox->addItems({tr("Best"), "2160p", "1440p", "1080p", "720p", "480p"});
+    optionsLayout->addWidget(qualityBox);
+    
+    conversionBox = new QComboBox(this);
+    conversionBox->setEditable(true);
+    conversionBox->setInsertPolicy(QComboBox::NoInsert);
+    conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"});
+    optionsLayout->addWidget(conversionBox);
+    
+    subtitlesBox = new QCheckBox(this);
+    subtitlesBox->setText(tr("Subtitles"));
+    subtitlesBox->setChecked(false);
+    optionsLayout->addWidget(subtitlesBox);
+    
+    
+    QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    optionsLayout->addItem(spacer);
+    
+    bothButton->setChecked(true);
+    
+    this->setWindowTitle("Phoca");
+    setCentralWidget(centralWidget);
+
+    connect(linkBox, &QLineEdit::textChanged, this, &MainWindow::setDownloadReadiness);
+    connect(qualityBox, &QComboBox::editTextChanged, this, &MainWindow::setDownloadReadiness);
+    connect(conversionBox, &QComboBox::editTextChanged, this, &MainWindow::setDownloadReadiness);
+    connect(getEngineButton, &QPushButton::clicked, this, &MainWindow::getServiceSlot);
+    connect(maintainer, &ServiceMaintainer::started, this, &MainWindow::engineDownloading);
+    connect(maintainer, &ServiceMaintainer::finished, this, &MainWindow::engineDownloaded);
+    connect(chooseStableAction, &QAction::triggered, this, &MainWindow::changeNightlyService);
+    connect(chooseNightlyAction, &QAction::triggered, this, &MainWindow::changeNightlyService);
+    connect(chooseLocationAction, &QAction::triggered, this, &MainWindow::changeLocation);
+    connect(forceIPv4Action, &QAction::triggered, this, &MainWindow::changeForceIPv4);
+    connect(thumbnailVisibilityAction, &QAction::triggered, this, &MainWindow::changeThumbnailVisibility);
+    connect(aboutAction, &QAction::triggered, this,  &MainWindow::aboutPage);
+    connect(clearFinishedButton, &QPushButton::clicked, this, &MainWindow::clearFinishedDownloads);
+
+    connect(linkBox, &QLineEdit::textChanged, this, [this](const QString &text) {
+        int currentLength = text.length();
+
+        if (qAbs(currentLength - lastLength) > 1 && currentLength > 0) {
+        linkBox->setCursorPosition(0);
+        }
+
         lastLength = currentLength;
     });
 
-  connect(bothButton, &QPushButton::clicked, this, 
-          &MainWindow::toggleQualityOptions);
-  connect(videoButton, &QPushButton::clicked, this, 
-          &MainWindow::toggleQualityOptions);
-  connect(audioButton, &QPushButton::clicked, this, 
-          &MainWindow::toggleQualityOptions);
-  connect(bothButton, &QRadioButton::clicked, this, [this]() {
-    conversionBox->clear();
-    conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
-  });
-  connect(videoButton, &QRadioButton::clicked, this, [this]() {
-    conversionBox->clear();
-    conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
-  });
-  connect(audioButton, &QRadioButton::clicked, this, [this]() {
-    conversionBox->clear();
-    conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
-  });
-
-  connect(savePlaylistInFolderAction, &QAction::triggered, this,
-         &MainWindow::changeSavePlaylistInFolder);
-
-  connect(saveThumbnailAction, &QAction::triggered, this,
-         &MainWindow::changeSaveThumbnail);
-
-  connect(downloadButton, &QPushButton::clicked, this,
-          &MainWindow::startDownload);
-
-  connect(linkBox, &QLineEdit::returnPressed,
-         downloadButton, &QPushButton::click);
-         
-  locationLabel = new QLabel(this);
-  this->statusBar()->addWidget(locationLabel);
-  updateLocationLabel();
-
-  QDateTime now = QDateTime::currentDateTime();
-  bool needsUpdate = lastEngineUpdate.daysTo(now) >= 3;
-
-  if (firstLaunch || needsUpdate) {
-    QTimer::singleShot(500, [this]() {
-      getServiceSlot();
+    connect(bothButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
+    connect(videoButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
+    connect(audioButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
+    connect(bothButton, &QRadioButton::clicked, this, [this]() {
+        conversionBox->clear();
+        conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
     });
-    
-    if (firstLaunch) {
-      settings.setValue("firstLaunch", false);
-      settings.setValue("nightlyService", nightlyService);
-    }
-  }
-}
+    connect(videoButton, &QRadioButton::clicked, this, [this]() {
+        conversionBox->clear();
+        conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
+    });
+    connect(audioButton, &QRadioButton::clicked, this, [this]() {
+        conversionBox->clear();
+        conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
+    });
 
-void MainWindow::updateLocationLabel() {
-  const QString shown = QDir::toNativeSeparators(downloadLocation);
-  locationLabel->setText(tr("Download location: %1").arg(shown));
-  locationLabel->setToolTip(shown);
-}
+    connect(savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::changeSavePlaylistInFolder);
 
-void MainWindow::engineDownloading() { this->statusBar()->showMessage(tr("[yt-dlp] Downloading...")); }
+    connect(saveThumbnailAction, &QAction::triggered, this, &MainWindow::changeSaveThumbnail);
 
-void MainWindow::engineDownloaded(int exit) {
-  switch (exit) {
-  case 0:
-    this->statusBar()->showMessage(tr("[yt-dlp] Downloaded successfully"), 5000);
-    break;
-  case 1:
-    this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Network error"), 5000);
-    break;
-  case 2:
-    
-  #ifdef Q_OS_WIN
-    this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Engine file in use, or need permissions to write"), 5000);
-  #else
-    this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Need permissions to write"), 5000);
-  #endif
-    break;
-  }
-  setDownloadReadiness();
-}
+    connect(downloadButton, &QPushButton::clicked, this, &MainWindow::startDownload);
 
-void MainWindow::setDownloadReadiness() {
-  // search quality in qualityBox
-  bool validQuality = qualityBox->findText(qualityBox->currentText()) != -1;
-  bool validConversion = conversionBox->findText(conversionBox->currentText()) != -1;
-
-  if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality && validConversion) {
-    downloadButton->setEnabled(true);
-  } else {
-    downloadButton->setEnabled(false);
-  }
-}
-
-void MainWindow::getServiceSlot() {
-  downloadButton->setEnabled(false);
-  maintainer->getService(nightlyService);
-  QSettings settings("MaximoPardo", "Phoca");
-  settings.setValue("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate));
-}
-
-void MainWindow::changeLocation() {
-  const QString dir = QFileDialog::getExistingDirectory(
-      this, tr("Choose where to save files"), downloadLocation,
-      QFileDialog::ShowDirsOnly);
-
-  if (!dir.isEmpty()) {
-    downloadLocation = dir;
-
-    QSettings settings("MaximoPardo", "Phoca");
-    settings.setValue("downloadLocation", downloadLocation);
-
-    qDebug() << "Settings saved. Chosen folder:" << downloadLocation;
+    connect(linkBox, &QLineEdit::returnPressed, downloadButton, &QPushButton::click);
+         
+    locationLabel = new QLabel(this);
+    this->statusBar()->addWidget(locationLabel);
     updateLocationLabel();
-  }
+
+    QDateTime now = QDateTime::currentDateTime();
+    bool needsUpdate = lastEngineUpdate.daysTo(now) >= 3;
+
+    if (firstLaunch || needsUpdate) {
+        QTimer::singleShot(500, [this]() {
+            getServiceSlot();
+        });
+
+        if (firstLaunch) {
+            settings.setValue("firstLaunch", false);
+            settings.setValue("nightlyService", nightlyService);
+        }
+    }
 }
-
-void MainWindow::startDownload() {
-  if (!maintainer->exists()){
-    getServiceSlot();
-    return;
-  }
-
-  int format {0}; // both
-  if (videoButton->isChecked()) {
-    format = 1;
-  } else if (audioButton->isChecked()) {
-    format = 2;
-  }
-  QString link = linkBox->text();
-  bool playlist = false;
-  bool looksLikePlaylist = link.contains("list=") || 
-    link.contains("/playlist/") || 
-    link.contains("/album/") || 
-    link.contains("/sets/") || 
-    link.contains("/showcase/") || 
-    link.contains("/series/") || 
-    link.contains("/collection/") || 
-    link.contains("/show/") || 
-    link.contains("&set=");
-
-  // A playlist-only link has no individual video
-  bool isPlaylistOnly = false;
-  if (looksLikePlaylist) {
-    QUrl parsedUrl(link);
-    QUrlQuery query(parsedUrl);
-    bool hasVideo = query.hasQueryItem("v") || parsedUrl.path().contains("watch");
-    isPlaylistOnly = !hasVideo;
-  }
-
-  if (looksLikePlaylist) {
-    QMessageBox msgBox(this);
-    msgBox.setIcon(QMessageBox::Question);
-    msgBox.setWindowTitle(tr("Playlist detected"));
-    if (saveThumbnail) {
-      msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?\nThumbnails will not be saved"));
-    } else {
-      msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?"));
+    
+    void MainWindow::updateLocationLabel() {
+        const QString shown = QDir::toNativeSeparators(downloadLocation);
+        locationLabel->setText(tr("Download location: %1").arg(shown));
+        locationLabel->setToolTip(shown);
     }
     
-    if (isPlaylistOnly) {
-      msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
-    } else {
-      msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-      msgBox.button(QMessageBox::Cancel)->hide();
-    }
+    void MainWindow::engineDownloading() { this->statusBar()->showMessage(tr("[yt-dlp] Downloading...")); }
     
-    int answer = msgBox.exec();
-    
-    if (answer == QMessageBox::Yes) {
-      playlist = true;
-    } else if (answer == QMessageBox::No && !isPlaylistOnly) {
-      playlist = false;
-    } else {
-      return; 
-    }
-  }
-  
-  bool parSaveThumbnail{saveThumbnail && !playlist};
-
-  QString quality;
-  QString conversion;
-  if (qualityBox->currentIndex() == 0) {
-    quality = "0";
-  } else {
-    quality = qualityBox->currentText();
-  }
-  if (conversionBox->currentIndex() == 0) {
-    conversion = "0";
-  } else {
-    conversion = conversionBox->currentText();
-  }
-  
-  // Config struct
-  DownloadConfig config;
-  config.link = link;
-  config.downloadLocation = downloadLocation;
-  config.format = format;
-  config.quality = quality;
-  config.conversion = conversion;
-  config.playlist = playlist;
-  config.savePlaylistInFolder = savePlaylistInFolder;
-  config.saveThumbnail = parSaveThumbnail;
-  config.saveSubtitles = subtitlesBox->isChecked();
-  config.forceIPv4 = forceIPv4;
-  config.cookies = cookies;
-  config.thumbnailVisibility = thumbnailVisibility;
-
-  DownloadItem *newDownload = new DownloadItem(config, this);
-  QListWidgetItem *item = new QListWidgetItem();
-
-  connect(newDownload, &DownloadItem::removeRequested, [this, item]() {
-          delete item; 
-          
-          // Check for finished items
-          bool hasFinishedItems = false;
-          for (int i = 0; i < list->count(); ++i) {
-              DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(list->item(i)));
-              if (di && di->isFinished()) {
-                  hasFinishedItems = true;
-                  break;
-              }
-          }
-          clearFinishedButton->setEnabled(hasFinishedItems);
-      });
-
-  connect(newDownload, &DownloadItem::finishedSignal, this, &MainWindow::itemFinished);
-
-  item->setSizeHint(newDownload->sizeHint());
-  list->insertItem(0, item);
-  list->setItemWidget(item, newDownload);
-                         
-  linkBox->clear();
-
-}
-
-void MainWindow::aboutPage() {
-  About aboutWindow(this);
-  aboutWindow.exec();
-}
-
-void MainWindow::toggleQualityOptions() {
-  if (!audioButton->isChecked()) {
-    qualityBox->setEnabled(true);
-  } else {
-    qualityBox->setCurrentIndex(0);
-    qualityBox->setEnabled(false);
-  }
-}
-
-void MainWindow::changeSavePlaylistInFolder() {
-    savePlaylistInFolder = savePlaylistInFolderAction->isChecked();
-    QSettings settings("MaximoPardo", "Phoca");
-    settings.setValue("savePlaylistInFolder", savePlaylistInFolderAction->isChecked());
-}
-
-void MainWindow::changeSaveThumbnail() {
-    saveThumbnail = saveThumbnailAction->isChecked();
-    QSettings settings("MaximoPardo", "Phoca");
-    settings.setValue("saveThumbnail", saveThumbnailAction->isChecked());
-}
-
-void MainWindow::closeEvent(QCloseEvent *event) {
-    // Check for active downloads
-    bool hasActiveDownloads = false;
-    for (int i = 0; i < list->count(); ++i) {
-        DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(list->item(i)));
-
-        if (di && !di->isFinished()) {
-            hasActiveDownloads = true;
+    void MainWindow::engineDownloaded(int exit) {
+        switch (exit) {
+            case 0:
+            this->statusBar()->showMessage(tr("[yt-dlp] Downloaded successfully"), 5000);
+            break;
+            case 1:
+            this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Network error"), 5000);
+            break;
+            case 2:
+            
+            #ifdef Q_OS_WIN
+            this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Engine file in use, or need permissions to write"), 5000);
+            #else
+            this->statusBar()->showMessage(tr("[yt-dlp] Download failed: Need permissions to write"), 5000);
+            #endif
             break;
         }
+        setDownloadReadiness();
     }
-
-    if (hasActiveDownloads) {
-        QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
-            tr("There is a download in progress.\nAre you sure you want to close Phoca?\nThe download will be cancelled."),
-            QMessageBox::No | QMessageBox::Yes,
-            QMessageBox::No);
-
-        if (resBtn != QMessageBox::Yes) {
-            event->ignore(); 
-            return;
+    
+    void MainWindow::setDownloadReadiness() {
+        // search quality in qualityBox
+        bool validQuality = qualityBox->findText(qualityBox->currentText()) != -1;
+        bool validConversion = conversionBox->findText(conversionBox->currentText()) != -1;
+        
+        if (!linkBox->text().isEmpty() && maintainer->exists() && validQuality && validConversion) {
+            downloadButton->setEnabled(true);
+        } else {
+            downloadButton->setEnabled(false);
         }
     }
     
-    event->accept(); 
-}
-
-void MainWindow::clearFinishedDownloads() {
-  for (int i = list->count() - 1; i >= 0; --i) {
-      
-      QListWidgetItem *item = list->item(i);
-      QWidget *widget = list->itemWidget(item);
-      // Casting to class
-      DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
-      
-      if (downloadItem && downloadItem->isFinished()) {
-          delete item;
-      }
-  }
-  clearFinishedButton->setEnabled(false);
-}
-
-void MainWindow::itemFinished() {
-  clearFinishedButton->setEnabled(true);
-}
-
-void MainWindow::changeNightlyService() {
-  QSettings settings("MaximoPardo", "Phoca");
-  settings.setValue("nightlyService", chooseNightlyAction->isChecked());
-  getServiceSlot();
-}
-
-void MainWindow::changeForceIPv4() {
-  if (!forceIPv4Action->isChecked()) {
-    QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
-        tr("Are you sure you want to change this setting?\nMost users will only need IPv4 and downloads may have issues when disabled depending on the network configuration"),
-        QMessageBox::No | QMessageBox::Yes,
-        QMessageBox::No);
-  
-    if (resBtn != QMessageBox::Yes) {
-        // Signal blocked inside this scope
-        QSignalBlocker blocker(forceIPv4Action);
-        
-        forceIPv4Action->setChecked(true);
-        return;
+    void MainWindow::getServiceSlot() {
+        downloadButton->setEnabled(false);
+        maintainer->getService(nightlyService);
+        QSettings settings("MaximoPardo", "Phoca");
+        settings.setValue("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate));
     }
-  }
-  
-  QSettings settings("MaximoPardo", "Phoca");
-  settings.setValue("IPv4", forceIPv4Action->isChecked());
-}
-
-void MainWindow::changeThumbnailVisibility() {
-  thumbnailVisibility = thumbnailVisibilityAction->isChecked();
-
-  for (int i = list->count() - 1; i >= 0; --i) {
-      QListWidgetItem *item = list->item(i);
-      QWidget *widget = list->itemWidget(item);
-      // Casting to class
-      DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
-
-      downloadItem->changeThumbnailVisibility(thumbnailVisibility);
-  }
-
-  QSettings settings("MaximoPardo", "Phoca");
-  settings.setValue("thumbnailVisibility", thumbnailVisibility);
-}
-
-void MainWindow::changeCookies(const QString &browser) {
-  cookies = browser;
-
-  QSettings settings("MaximoPardo", "Phoca");
-  settings.setValue("cookies", cookies);
-}
+    
+    void MainWindow::changeLocation() {
+        const QString dir = QFileDialog::getExistingDirectory(
+            this, tr("Choose where to save files"), downloadLocation,
+            QFileDialog::ShowDirsOnly);
+            
+            if (!dir.isEmpty()) {
+                downloadLocation = dir;
+                
+                QSettings settings("MaximoPardo", "Phoca");
+                settings.setValue("downloadLocation", downloadLocation);
+                
+                qDebug() << "Settings saved. Chosen folder:" << downloadLocation;
+                updateLocationLabel();
+            }
+        }
+        
+        void MainWindow::startDownload() {
+            if (!maintainer->exists()){
+                getServiceSlot();
+                return;
+            }
+            
+            int format {0}; // both
+            if (videoButton->isChecked()) {
+                format = 1;
+            } else if (audioButton->isChecked()) {
+                format = 2;
+            }
+            QString link = linkBox->text();
+            bool playlist = false;
+            bool looksLikePlaylist = link.contains("list=") || 
+            link.contains("/playlist/") || 
+            link.contains("/album/") || 
+            link.contains("/sets/") || 
+            link.contains("/showcase/") || 
+            link.contains("/series/") || 
+            link.contains("/collection/") || 
+            link.contains("/show/") || 
+            link.contains("&set=");
+            
+            // A playlist-only link has no individual video
+            bool isPlaylistOnly = false;
+            if (looksLikePlaylist) {
+                QUrl parsedUrl(link);
+                QUrlQuery query(parsedUrl);
+                bool hasVideo = query.hasQueryItem("v") || parsedUrl.path().contains("watch");
+                isPlaylistOnly = !hasVideo;
+            }
+            
+            if (looksLikePlaylist) {
+                QMessageBox msgBox(this);
+                msgBox.setIcon(QMessageBox::Question);
+                msgBox.setWindowTitle(tr("Playlist detected"));
+                if (saveThumbnail) {
+                    msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?\nThumbnails will not be saved"));
+                } else {
+                    msgBox.setText(tr("This link contains a playlist.\nDownload the whole list?"));
+                }
+                
+                if (isPlaylistOnly) {
+                    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+                } else {
+                    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+                    msgBox.button(QMessageBox::Cancel)->hide();
+                }
+                
+                int answer = msgBox.exec();
+                
+                if (answer == QMessageBox::Yes) {
+                    playlist = true;
+                } else if (answer == QMessageBox::No && !isPlaylistOnly) {
+                    playlist = false;
+                } else {
+                    return; 
+                }
+            }
+            
+            bool parSaveThumbnail{saveThumbnail && !playlist};
+            
+            QString quality;
+            QString conversion;
+            if (qualityBox->currentIndex() == 0) {
+                quality = "0";
+            } else {
+                quality = qualityBox->currentText();
+            }
+            if (conversionBox->currentIndex() == 0) {
+                conversion = "0";
+            } else {
+                conversion = conversionBox->currentText();
+            }
+            
+            // Config struct
+            DownloadConfig config;
+            config.link = link;
+            config.downloadLocation = downloadLocation;
+            config.format = format;
+            config.quality = quality;
+            config.conversion = conversion;
+            config.playlist = playlist;
+            config.savePlaylistInFolder = savePlaylistInFolder;
+            config.saveThumbnail = parSaveThumbnail;
+            config.saveSubtitles = subtitlesBox->isChecked();
+            config.forceIPv4 = forceIPv4;
+            config.cookies = cookies;
+            config.thumbnailVisibility = thumbnailVisibility;
+            
+            DownloadItem *newDownload = new DownloadItem(config, this);
+            QListWidgetItem *item = new QListWidgetItem();
+            
+            connect(newDownload, &DownloadItem::removeRequested, [this, item]() {
+                delete item; 
+                
+                // Check for finished items
+                bool hasFinishedItems = false;
+                for (int i = 0; i < list->count(); ++i) {
+                    DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(list->item(i)));
+                    if (di && di->isFinished()) {
+                        hasFinishedItems = true;
+                        break;
+                    }
+                }
+                clearFinishedButton->setEnabled(hasFinishedItems);
+            });
+            
+            connect(newDownload, &DownloadItem::finishedSignal, this, &MainWindow::itemFinished);
+            
+            item->setSizeHint(newDownload->sizeHint());
+            list->insertItem(0, item);
+            list->setItemWidget(item, newDownload);
+            
+            linkBox->clear();
+            
+        }
+        
+        void MainWindow::aboutPage() {
+            About aboutWindow(this);
+            aboutWindow.exec();
+        }
+        
+        void MainWindow::toggleQualityOptions() {
+            if (!audioButton->isChecked()) {
+                qualityBox->setEnabled(true);
+            } else {
+                qualityBox->setCurrentIndex(0);
+                qualityBox->setEnabled(false);
+            }
+        }
+        
+        void MainWindow::changeSavePlaylistInFolder() {
+            savePlaylistInFolder = savePlaylistInFolderAction->isChecked();
+            QSettings settings("MaximoPardo", "Phoca");
+            settings.setValue("savePlaylistInFolder", savePlaylistInFolderAction->isChecked());
+        }
+        
+        void MainWindow::changeSaveThumbnail() {
+            saveThumbnail = saveThumbnailAction->isChecked();
+            QSettings settings("MaximoPardo", "Phoca");
+            settings.setValue("saveThumbnail", saveThumbnailAction->isChecked());
+        }
+        
+        void MainWindow::closeEvent(QCloseEvent *event) {
+            // Check for active downloads
+            bool hasActiveDownloads = false;
+            for (int i = 0; i < list->count(); ++i) {
+                DownloadItem *di = qobject_cast<DownloadItem*>(list->itemWidget(list->item(i)));
+                
+                if (di && !di->isFinished()) {
+                    hasActiveDownloads = true;
+                    break;
+                }
+            }
+            
+            if (hasActiveDownloads) {
+                QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
+                tr("There is a download in progress.\nAre you sure you want to close Phoca?\nThe download will be cancelled."),
+                QMessageBox::No | QMessageBox::Yes,
+                QMessageBox::No);
+                
+                if (resBtn != QMessageBox::Yes) {
+                    event->ignore(); 
+                    return;
+                }
+            }
+            
+            event->accept(); 
+        }
+        
+        void MainWindow::clearFinishedDownloads() {
+            for (int i = list->count() - 1; i >= 0; --i) {
+                
+                QListWidgetItem *item = list->item(i);
+                QWidget *widget = list->itemWidget(item);
+                // Casting to class
+                DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
+                
+                if (downloadItem && downloadItem->isFinished()) {
+                    delete item;
+                }
+            }
+            clearFinishedButton->setEnabled(false);
+        }
+        
+        void MainWindow::itemFinished() {
+            clearFinishedButton->setEnabled(true);
+        }
+        
+        void MainWindow::changeNightlyService() {
+            QSettings settings("MaximoPardo", "Phoca");
+            settings.setValue("nightlyService", chooseNightlyAction->isChecked());
+            getServiceSlot();
+        }
+        
+        void MainWindow::changeForceIPv4() {
+            if (!forceIPv4Action->isChecked()) {
+                QMessageBox::StandardButton resBtn = QMessageBox::question(this, tr("Warning"),
+                tr("Are you sure you want to change this setting?\nMost users will only need IPv4 and downloads may have issues when disabled depending on the network configuration"),
+                QMessageBox::No | QMessageBox::Yes,
+                QMessageBox::No);
+                
+                if (resBtn != QMessageBox::Yes) {
+                    // Signal blocked inside this scope
+                    QSignalBlocker blocker(forceIPv4Action);
+                    
+                    forceIPv4Action->setChecked(true);
+                    return;
+                }
+            }
+            
+            QSettings settings("MaximoPardo", "Phoca");
+            settings.setValue("IPv4", forceIPv4Action->isChecked());
+        }
+        
+        void MainWindow::changeThumbnailVisibility() {
+            thumbnailVisibility = thumbnailVisibilityAction->isChecked();
+            
+            for (int i = list->count() - 1; i >= 0; --i) {
+                QListWidgetItem *item = list->item(i);
+                QWidget *widget = list->itemWidget(item);
+                // Casting to class
+                DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
+                
+                downloadItem->changeThumbnailVisibility(thumbnailVisibility);
+            }
+            
+            QSettings settings("MaximoPardo", "Phoca");
+            settings.setValue("thumbnailVisibility", thumbnailVisibility);
+        }
+        
+        void MainWindow::changeCookies(const QString &browser) {
+            cookies = browser;
+            
+            QSettings settings("MaximoPardo", "Phoca");
+            settings.setValue("cookies", cookies);
+        }
