@@ -31,10 +31,10 @@ make -j$(nproc)
 <table>
   <tr>
     <td valign="center">
-      <img src="https://github.com/user-attachments/assets/efeaa0d6-e293-4097-a565-fcccf56de648" width="550" />
+      <img src="https://github.com/maxipardo/Phoca/blob/main/screenshots/screenshot1.png" width="550" />
     </td>
     <td valign="center">
-      <img src="https://github.com/user-attachments/assets/17d0f12c-10e0-442f-a6cc-078c57daf98d" width="550" />
+      <img src="https://github.com/maxipardo/Phoca/blob/main/screenshots/screenshot2.png" width="550" />
     </td>
   </tr>
 <tr>
