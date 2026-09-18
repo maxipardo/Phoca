@@ -15,34 +15,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QCoreApplication::setOrganizationDomain("io.github.maxipardo");
     QApplication::setApplicationName("Phoca");
 
-    m_centralWidget = new QWidget(this);
-    m_fullLayout = new QVBoxLayout(m_centralWidget);
-    m_layout = new QVBoxLayout();
-    m_linkLayout = new QHBoxLayout();
-    m_optionsLayout = new QHBoxLayout();
-    m_linkBox = new QLineEdit(m_centralWidget);
-    m_downloadButton = new QPushButton(m_centralWidget);
-    m_clearFinishedButton = new QPushButton(m_centralWidget);
-    m_getEngineButton = new QPushButton(m_centralWidget);
-    m_maintainer = new ServiceMaintainer(this);
-    
-    m_list = new QListWidget(m_centralWidget);
-    
-    m_deleteAction = new QAction(m_list);
-    m_deleteAction->setShortcut(QKeySequence::Delete);
-    m_deleteAction->setShortcutContext(Qt::WidgetShortcut);
-    m_list->addAction(m_deleteAction);
-    
-    m_bothButton = new QRadioButton(tr("Both"), m_centralWidget);
-    m_videoButton = new QRadioButton(tr("Video"), m_centralWidget);
-    m_audioButton = new QRadioButton(tr("Audio"), m_centralWidget);
-    
-    /* MainWindow size */
-    this->resize(200, 200);
-    this->setMinimumWidth(462);
-    
-    /* Persistent settings */
     QSettings settings;
+
+    /* Persistent settings */
     m_downloadLocation = settings.value("downloadLocation", QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).toString();
     m_savePlaylistInFolder = settings.value("savePlaylistInFolder", true).toBool();
     m_saveThumbnail = settings.value("saveThumbnail", false).toBool();
@@ -51,190 +26,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_forceIPv4 = settings.value("IPv4", true).toBool();
     m_thumbnailVisibility = settings.value("thumbnailVisibility", true).toBool();
     m_cookies = settings.value("cookies", "").toString();
-    // Fix date
+
     QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
     m_lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
     
     if (!m_lastEngineUpdate.isValid()) {
         m_lastEngineUpdate = QDateTime::currentDateTime();
     }
-    
-    /* Menu */
-    m_optionsMenu = new QMenu(tr("Options"), this);
-    m_aboutAction = new QAction(tr("About"), this);
-    m_buildMenu = new QMenu(tr("Choose yt-dlp version"), m_optionsMenu);
-    m_advancedMenu = new QMenu(tr("Advanced"), m_optionsMenu);
-    m_cookiesMenu = new QMenu(tr("Browser cookies"), m_advancedMenu);
-    menuBar()->addMenu(m_optionsMenu);
-    m_optionsMenu->addMenu(m_buildMenu);
-    menuBar()->addAction(m_aboutAction);
-    
-    m_chooseLocationAction = new QAction(tr("Change download location..."), this);
-    m_chooseNightlyAction = new QAction(tr("Use yt-dlp nightly (recommended)"), this);
-    m_chooseStableAction = new QAction(tr("Use yt-dlp stable"), this);
-    m_versionGroup = new QActionGroup(this);
-    m_savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
-    m_saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
-    m_forceIPv4Action = new QAction(tr("Force IPv4 connections (Recommended)"), this);
-    m_cookiesAction = new QAction("Browser cookies", this);
-    m_cookiesGroup = new QActionGroup(this);
-    m_thumbnailVisibilityAction = new QAction(tr("Show thumbnails on list"), this);
-    
-    auto addCookieOption = [this](const QString &label, const QString &value) {
-        QAction *action = m_cookiesMenu->addAction(label, this, [this, value]() { changeCookies(value); });
-        action->setCheckable(true);
-        action->setChecked(value == m_cookies);
-        m_cookiesGroup->addAction(action);
-        return action;
-    };
-    
-    addCookieOption("No cookies", "");
-    addCookieOption("Brave", "brave");
-    addCookieOption("Chrome", "chrome");
-    addCookieOption("Chromium", "chromium");
-    addCookieOption("Edge", "edge");
-    addCookieOption("Firefox", "firefox");
-    addCookieOption("Opera", "opera");
-    addCookieOption("Safari", "safari");
-    addCookieOption("Vivaldi", "vivaldi");
-    addCookieOption("Whale", "whale");
-    
-    m_savePlaylistInFolderAction->setCheckable(true);
-    m_savePlaylistInFolderAction->setChecked(m_savePlaylistInFolder);
-    m_saveThumbnailAction->setCheckable(true);
-    m_saveThumbnailAction->setChecked(m_saveThumbnail);
-    m_chooseNightlyAction->setCheckable(true);
-    m_chooseStableAction->setCheckable(true);
-    m_chooseNightlyAction->setChecked(m_nightlyService);
-    m_chooseStableAction->setChecked(!m_nightlyService);
-    m_versionGroup->addAction(m_chooseNightlyAction);
-    m_versionGroup->addAction(m_chooseStableAction);
-    
-    
-    m_forceIPv4Action->setCheckable(true);
-    m_forceIPv4Action->setChecked(m_forceIPv4);
-    
-    m_thumbnailVisibilityAction->setCheckable(true);
-    m_thumbnailVisibilityAction->setChecked(m_thumbnailVisibility);
-    
-    m_optionsMenu->addAction(m_chooseLocationAction);
-    m_optionsMenu->addAction(m_savePlaylistInFolderAction);
-    m_buildMenu->addAction(m_chooseNightlyAction);
-    m_buildMenu->addAction(m_chooseStableAction);
-    
-    m_optionsMenu->addAction(m_thumbnailVisibilityAction);
-    m_optionsMenu->addAction(m_saveThumbnailAction);
-    
-    m_optionsMenu->addMenu(m_advancedMenu);
-    m_advancedMenu->addAction(m_forceIPv4Action);
-    m_advancedMenu->addMenu(m_cookiesMenu);
-    
-    m_linkBox->setPlaceholderText(tr("Enter link..."));
-    m_downloadButton->setText(tr("Download"));
-    m_downloadButton->setEnabled(false);
-    m_clearFinishedButton->setText(tr("Clear finished"));
-    m_getEngineButton->setText(tr("Update yt-dlp"));
-    
-    m_fullLayout->addLayout(m_layout);
-    m_fullLayout->addWidget(m_list);
-    
-    m_layout->addLayout(m_linkLayout);
-    m_linkLayout->addWidget(m_linkBox);
-    m_layout->addLayout(m_optionsLayout);
-    m_linkLayout->addWidget(m_downloadButton);
-    m_bottomLayout = new QHBoxLayout();
-    m_bottomLayout->addWidget(m_clearFinishedButton);
-    m_clearFinishedButton->setEnabled(false);
-    m_bottomLayout->addWidget(m_getEngineButton);
-    m_layout->addLayout(m_bottomLayout);
-    
-    m_optionsLayout->addWidget(m_bothButton);
-    m_optionsLayout->addWidget(m_videoButton);
-    m_optionsLayout->addWidget(m_audioButton);
-    
-    m_qualityBox = new QComboBox(this);
-    m_qualityBox->setEditable(true);
-    m_qualityBox->setInsertPolicy(QComboBox::NoInsert);
-    m_qualityBox->addItems({tr("Best"), "2160p", "1440p", "1080p", "720p", "480p"});
-    m_optionsLayout->addWidget(m_qualityBox);
-    
-    m_conversionBox = new QComboBox(this);
-    m_conversionBox->setEditable(true);
-    m_conversionBox->setInsertPolicy(QComboBox::NoInsert);
-    m_conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"});
-    m_optionsLayout->addWidget(m_conversionBox);
-    
-    m_subtitlesBox = new QCheckBox(this);
-    m_subtitlesBox->setText(tr("Subtitles"));
-    m_subtitlesBox->setChecked(false);
-    m_optionsLayout->addWidget(m_subtitlesBox);
-    
-    QSpacerItem *spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    m_optionsLayout->addItem(spacer);
-    
-    m_bothButton->setChecked(true);
-    
-    this->setWindowTitle("Phoca");
-    setCentralWidget(m_centralWidget);
-
-    connect(m_deleteAction, &QAction::triggered, this, [this]() {
-        QListWidgetItem *currentItem = m_list->currentItem();
-        if (!currentItem) return;
-        
-        DownloadItem *di = qobject_cast<DownloadItem*>(m_list->itemWidget(currentItem));
-        if (di) {
-            di->stopDownload(); 
-        }
-    });
-
-    connect(m_linkBox, &QLineEdit::textChanged, this, &MainWindow::setDownloadReadiness);
-    connect(m_qualityBox, &QComboBox::editTextChanged, this, &MainWindow::setDownloadReadiness);
-    connect(m_conversionBox, &QComboBox::editTextChanged, this, &MainWindow::setDownloadReadiness);
-    connect(m_getEngineButton, &QPushButton::clicked, this, &MainWindow::getServiceSlot);
-    connect(m_maintainer, &ServiceMaintainer::started, this, &MainWindow::engineDownloading);
-    connect(m_maintainer, &ServiceMaintainer::finished, this, &MainWindow::engineDownloaded);
-    connect(m_chooseStableAction, &QAction::triggered, this, &MainWindow::changeNightlyService);
-    connect(m_chooseNightlyAction, &QAction::triggered, this, &MainWindow::changeNightlyService);
-    connect(m_chooseLocationAction, &QAction::triggered, this, &MainWindow::changeLocation);
-    connect(m_forceIPv4Action, &QAction::triggered, this, &MainWindow::changeForceIPv4);
-    connect(m_thumbnailVisibilityAction, &QAction::triggered, this, &MainWindow::changeThumbnailVisibility);
-    connect(m_aboutAction, &QAction::triggered, this,  &MainWindow::aboutPage);
-    connect(m_clearFinishedButton, &QPushButton::clicked, this, &MainWindow::clearFinishedDownloads);
-
-    connect(m_linkBox, &QLineEdit::textChanged, this, [this](const QString &text) {
-        int currentLength = text.length();
-
-        if (qAbs(currentLength - m_lastLength) > 1 && currentLength > 0) {
-        m_linkBox->setCursorPosition(0);
-        }
-
-        m_lastLength = currentLength;
-    });
-
-    connect(m_bothButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
-    connect(m_videoButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
-    connect(m_audioButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
-    connect(m_bothButton, &QRadioButton::clicked, this, [this]() {
-        m_conversionBox->clear();
-        m_conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
-    });
-    connect(m_videoButton, &QRadioButton::clicked, this, [this]() {
-        m_conversionBox->clear();
-        m_conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
-    });
-    connect(m_audioButton, &QRadioButton::clicked, this, [this]() {
-        m_conversionBox->clear();
-        m_conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
-    });
-
-    connect(m_savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::changeSavePlaylistInFolder);
-    connect(m_saveThumbnailAction, &QAction::triggered, this, &MainWindow::changeSaveThumbnail);
-    connect(m_downloadButton, &QPushButton::clicked, this, &MainWindow::startDownload);
-    connect(m_linkBox, &QLineEdit::returnPressed, m_downloadButton, &QPushButton::click);
-         
-    m_locationLabel = new QLabel(this);
-    this->statusBar()->addWidget(m_locationLabel);
-    updateLocationLabel();
 
     QDateTime now = QDateTime::currentDateTime();
     bool needsUpdate = m_lastEngineUpdate.daysTo(now) >= 3;
@@ -249,6 +47,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
             settings.setValue("nightlyService", m_nightlyService);
         }
     }
+
+    setupUI();
+    setupConnections();
+
+    this->setWindowTitle("Phoca");
+    setCentralWidget(m_centralWidget);
+    this->resize(200, 200);
+    this->setMinimumWidth(462);
+    
+    this->statusBar()->addWidget(m_locationLabel);
+    updateLocationLabel();
 }
     
 void MainWindow::updateLocationLabel() {
@@ -552,4 +361,198 @@ void MainWindow::changeCookies(const QString &browser) {
     
     QSettings settings;
     settings.setValue("cookies", m_cookies);
+}
+
+void MainWindow::setupConnections() {
+    connect(m_deleteAction, &QAction::triggered, this, [this]() {
+        QListWidgetItem *currentItem = m_list->currentItem();
+        if (!currentItem) return;
+        
+        DownloadItem *di = qobject_cast<DownloadItem*>(m_list->itemWidget(currentItem));
+        if (di) {
+            di->stopDownload(); 
+        }
+    });
+
+    connect(m_linkBox, &QLineEdit::textChanged, this, &MainWindow::setDownloadReadiness);
+    connect(m_qualityBox, &QComboBox::editTextChanged, this, &MainWindow::setDownloadReadiness);
+    connect(m_conversionBox, &QComboBox::editTextChanged, this, &MainWindow::setDownloadReadiness);
+    connect(m_getEngineButton, &QPushButton::clicked, this, &MainWindow::getServiceSlot);
+    connect(m_maintainer, &ServiceMaintainer::started, this, &MainWindow::engineDownloading);
+    connect(m_maintainer, &ServiceMaintainer::finished, this, &MainWindow::engineDownloaded);
+    connect(m_chooseStableAction, &QAction::triggered, this, &MainWindow::changeNightlyService);
+    connect(m_chooseNightlyAction, &QAction::triggered, this, &MainWindow::changeNightlyService);
+    connect(m_chooseLocationAction, &QAction::triggered, this, &MainWindow::changeLocation);
+    connect(m_forceIPv4Action, &QAction::triggered, this, &MainWindow::changeForceIPv4);
+    connect(m_thumbnailVisibilityAction, &QAction::triggered, this, &MainWindow::changeThumbnailVisibility);
+    connect(m_aboutAction, &QAction::triggered, this,  &MainWindow::aboutPage);
+    connect(m_clearFinishedButton, &QPushButton::clicked, this, &MainWindow::clearFinishedDownloads);
+
+    connect(m_linkBox, &QLineEdit::textChanged, this, [this](const QString &text) {
+        int currentLength = text.length();
+
+        if (qAbs(currentLength - m_lastLength) > 1 && currentLength > 0) {
+        m_linkBox->setCursorPosition(0);
+        }
+
+        m_lastLength = currentLength;
+    });
+
+    connect(m_bothButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
+    connect(m_videoButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
+    connect(m_audioButton, &QPushButton::clicked, this,  &MainWindow::toggleQualityOptions);
+    connect(m_bothButton, &QRadioButton::clicked, this, [this]() {
+        m_conversionBox->clear();
+        m_conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
+    });
+    connect(m_videoButton, &QRadioButton::clicked, this, [this]() {
+        m_conversionBox->clear();
+        m_conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
+    });
+    connect(m_audioButton, &QRadioButton::clicked, this, [this]() {
+        m_conversionBox->clear();
+        m_conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
+    });
+
+    connect(m_savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::changeSavePlaylistInFolder);
+    connect(m_saveThumbnailAction, &QAction::triggered, this, &MainWindow::changeSaveThumbnail);
+    connect(m_downloadButton, &QPushButton::clicked, this, &MainWindow::startDownload);
+    connect(m_linkBox, &QLineEdit::returnPressed, m_downloadButton, &QPushButton::click);
+}
+
+void MainWindow::setupUI() {
+    m_centralWidget = new QWidget(this);
+    m_fullLayout = new QVBoxLayout(m_centralWidget);
+    m_layout = new QVBoxLayout();
+    m_linkLayout = new QHBoxLayout();
+    m_optionsLayout = new QHBoxLayout();
+    m_linkBox = new QLineEdit(m_centralWidget);
+    m_downloadButton = new QPushButton(m_centralWidget);
+    m_clearFinishedButton = new QPushButton(m_centralWidget);
+    m_getEngineButton = new QPushButton(m_centralWidget);
+    m_maintainer = new ServiceMaintainer(this);
+    m_list = new QListWidget(m_centralWidget);
+    m_deleteAction = new QAction(m_list);
+    m_bothButton = new QRadioButton(tr("Both"), m_centralWidget);
+    m_videoButton = new QRadioButton(tr("Video"), m_centralWidget);
+    m_audioButton = new QRadioButton(tr("Audio"), m_centralWidget);
+    m_optionsMenu = new QMenu(tr("Options"), this);
+    m_aboutAction = new QAction(tr("About"), this);
+    m_buildMenu = new QMenu(tr("Choose yt-dlp version"), m_optionsMenu);
+    m_advancedMenu = new QMenu(tr("Advanced"), m_optionsMenu);
+    m_cookiesMenu = new QMenu(tr("Browser cookies"), m_advancedMenu);
+    m_chooseLocationAction = new QAction(tr("Change download location..."), this);
+    m_chooseNightlyAction = new QAction(tr("Use yt-dlp nightly (recommended)"), this);
+    m_chooseStableAction = new QAction(tr("Use yt-dlp stable"), this);
+    m_versionGroup = new QActionGroup(this);
+    m_savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
+    m_saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
+    m_forceIPv4Action = new QAction(tr("Force IPv4 connections (Recommended)"), this);
+    m_cookiesAction = new QAction("Browser cookies", this);
+    m_cookiesGroup = new QActionGroup(this);
+    m_thumbnailVisibilityAction = new QAction(tr("Show thumbnails on list"), this);
+    m_bottomLayout = new QHBoxLayout();
+    m_qualityBox = new QComboBox(this);
+    m_conversionBox = new QComboBox(this);
+    m_subtitlesBox = new QCheckBox(this);
+    m_spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+    m_locationLabel = new QLabel(this);
+
+    m_deleteAction->setShortcut(QKeySequence::Delete);
+    m_deleteAction->setShortcutContext(Qt::WidgetShortcut);
+    m_list->addAction(m_deleteAction);
+    
+    /* Menu */
+    menuBar()->addMenu(m_optionsMenu);
+    m_optionsMenu->addMenu(m_buildMenu);
+    menuBar()->addAction(m_aboutAction);
+    
+    auto addCookieOption = [this](const QString &label, const QString &value) {
+        QAction *action = m_cookiesMenu->addAction(label, this, [this, value]() { changeCookies(value); });
+        action->setCheckable(true);
+        action->setChecked(value == m_cookies);
+        m_cookiesGroup->addAction(action);
+        return action;
+    };
+    
+    addCookieOption("No cookies", "");
+    addCookieOption("Brave", "brave");
+    addCookieOption("Chrome", "chrome");
+    addCookieOption("Chromium", "chromium");
+    addCookieOption("Edge", "edge");
+    addCookieOption("Firefox", "firefox");
+    addCookieOption("Opera", "opera");
+    addCookieOption("Safari", "safari");
+    addCookieOption("Vivaldi", "vivaldi");
+    addCookieOption("Whale", "whale");
+    
+    m_savePlaylistInFolderAction->setCheckable(true);
+    m_savePlaylistInFolderAction->setChecked(m_savePlaylistInFolder);
+    m_saveThumbnailAction->setCheckable(true);
+    m_saveThumbnailAction->setChecked(m_saveThumbnail);
+    m_chooseNightlyAction->setCheckable(true);
+    m_chooseStableAction->setCheckable(true);
+    m_chooseNightlyAction->setChecked(m_nightlyService);
+    m_chooseStableAction->setChecked(!m_nightlyService);
+    m_versionGroup->addAction(m_chooseNightlyAction);
+    m_versionGroup->addAction(m_chooseStableAction);
+    
+    m_forceIPv4Action->setCheckable(true);
+    m_forceIPv4Action->setChecked(m_forceIPv4);
+    
+    m_thumbnailVisibilityAction->setCheckable(true);
+    m_thumbnailVisibilityAction->setChecked(m_thumbnailVisibility);
+    
+    m_optionsMenu->addAction(m_chooseLocationAction);
+    m_optionsMenu->addAction(m_savePlaylistInFolderAction);
+    m_buildMenu->addAction(m_chooseNightlyAction);
+    m_buildMenu->addAction(m_chooseStableAction);
+    
+    m_optionsMenu->addAction(m_thumbnailVisibilityAction);
+    m_optionsMenu->addAction(m_saveThumbnailAction);
+    
+    m_optionsMenu->addMenu(m_advancedMenu);
+    m_advancedMenu->addAction(m_forceIPv4Action);
+    m_advancedMenu->addMenu(m_cookiesMenu);
+    
+    m_linkBox->setPlaceholderText(tr("Enter link..."));
+    m_downloadButton->setText(tr("Download"));
+    m_downloadButton->setEnabled(false);
+    m_clearFinishedButton->setText(tr("Clear finished"));
+    m_getEngineButton->setText(tr("Update yt-dlp"));
+    
+    m_fullLayout->addLayout(m_layout);
+    m_fullLayout->addWidget(m_list);
+    
+    m_layout->addLayout(m_linkLayout);
+    m_linkLayout->addWidget(m_linkBox);
+    m_layout->addLayout(m_optionsLayout);
+    m_linkLayout->addWidget(m_downloadButton);
+
+    m_bottomLayout->addWidget(m_clearFinishedButton);
+    m_clearFinishedButton->setEnabled(false);
+    m_bottomLayout->addWidget(m_getEngineButton);
+    m_layout->addLayout(m_bottomLayout);
+    
+    m_optionsLayout->addWidget(m_bothButton);
+    m_optionsLayout->addWidget(m_videoButton);
+    m_optionsLayout->addWidget(m_audioButton);
+    
+    m_qualityBox->setEditable(true);
+    m_qualityBox->setInsertPolicy(QComboBox::NoInsert);
+    m_qualityBox->addItems({tr("Best"), "2160p", "1440p", "1080p", "720p", "480p"});
+    m_optionsLayout->addWidget(m_qualityBox);
+    
+    m_conversionBox->setEditable(true);
+    m_conversionBox->setInsertPolicy(QComboBox::NoInsert);
+    m_conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"});
+    m_optionsLayout->addWidget(m_conversionBox);
+    
+    m_subtitlesBox->setText(tr("Subtitles"));
+    m_subtitlesBox->setChecked(false);
+    m_optionsLayout->addWidget(m_subtitlesBox);
+    
+    m_optionsLayout->addItem(m_spacer);
+    
+    m_bothButton->setChecked(true);
 }

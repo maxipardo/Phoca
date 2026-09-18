@@ -36,6 +36,9 @@ Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
 private:
+    void setupConnections();
+    void setupUI();
+
     QWidget *m_centralWidget;
     QVBoxLayout *m_fullLayout;
     QVBoxLayout *m_layout;
@@ -53,6 +56,7 @@ private:
     QMenu *m_cookiesMenu;
     QAction *m_aboutAction;
     QAction *m_deleteAction;
+    QSpacerItem *m_spacer;
     QSettings settings;
 
     QListWidget *m_list;
