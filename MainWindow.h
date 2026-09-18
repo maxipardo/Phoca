@@ -48,6 +48,7 @@ private:
     QMenu *optionsMenu;
     QMenu *buildMenu;
     QMenu *advancedMenu;
+    QMenu *cookiesMenu;
     QAction *aboutAction;
 
     QListWidget *list;
@@ -68,6 +69,20 @@ private:
     QAction *saveThumbnailAction;
     QActionGroup *advancedGroup;
     QAction *forceIPv4Action;
+    QAction *cookiesAction;
+    QActionGroup *cookiesGroup;
+
+    QAction *noCookies;
+    QAction *braveCookies;
+    QAction *chromeCookies;
+    QAction *chromiumCookies;
+    QAction *edgeCookies;
+    QAction *firefoxCookies;
+    QAction *operaCookies;
+    QAction *safariCookies;
+    QAction *vivaldiCookies;
+
+
     QAction *thumbnailVisibilityAction;
 
     QString downloadLocation;
@@ -77,6 +92,7 @@ private:
     bool nightlyService;
     bool forceIPv4;
     bool thumbnailVisibility;
+    QString cookies;
     QDateTime lastEngineUpdate;
 
     QLabel *locationLabel;
@@ -104,4 +120,5 @@ private slots:
 
     void aboutPage();
     void changeThumbnailVisibility();
+    void changeCookies(const QString &browser);
 };

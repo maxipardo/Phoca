@@ -13,4 +13,5 @@ struct DownloadConfig {
     bool saveSubtitles = false;
     bool forceIPv4 = true;
     bool thumbnailVisibility = true;
+    QString cookies = "";
 };

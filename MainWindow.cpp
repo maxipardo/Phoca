@@ -5,6 +5,7 @@
 #include "ServiceMaintainer.h"
 #include <qaction.h>
 #include <QSignalBlocker>
+#include <QList>
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
   fullLayout = new QVBoxLayout(centralWidget);
@@ -52,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   nightlyService = settings.value("nightlyService", true).toBool();
   forceIPv4 = settings.value("IPv4", true).toBool();
   thumbnailVisibility = settings.value("thumbnailVisibility", true).toBool();
+  cookies = settings.value("cookies", "").toString();
   // Fix date
   QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
   lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
@@ -65,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   aboutAction = new QAction(tr("About"), this);
   buildMenu = new QMenu(tr("Choose yt-dlp version"), optionsMenu);
   advancedMenu = new QMenu(tr("Advanced"), optionsMenu);
+  cookiesMenu = new QMenu(tr("Browser cookies"), advancedMenu);
   menuBar()->addMenu(optionsMenu);
   optionsMenu->addMenu(buildMenu);
   menuBar()->addAction(aboutAction);
@@ -76,7 +79,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
   saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
   forceIPv4Action = new QAction(tr("Force IPv4 connections (Recommended)"), this);
+  cookiesAction = new QAction("Browser cookies", this);
+  cookiesGroup = new QActionGroup(this);
   thumbnailVisibilityAction = new QAction(tr("Show thumbnails on list"), this);
+
+  auto addCookieOption = [this](const QString &label, const QString &value) {
+    QAction *action = cookiesMenu->addAction(label, this, [this, value]() { changeCookies(value); });
+    action->setCheckable(true);
+    action->setChecked(value == cookies);
+    cookiesGroup->addAction(action);
+    return action;
+  };
+
+  addCookieOption("No cookies", "");
+  addCookieOption("Brave", "brave");
+  addCookieOption("Chrome", "chrome");
+  addCookieOption("Chromium", "chromium");
+  addCookieOption("Edge", "edge");
+  addCookieOption("Firefox", "firefox");
+  addCookieOption("Opera", "opera");
+  addCookieOption("Safari", "safari");
+  addCookieOption("Vivaldi", "vivaldi");
+  addCookieOption("Whale", "whale");
 
   savePlaylistInFolderAction->setCheckable(true);
   savePlaylistInFolderAction->setChecked(savePlaylistInFolder);
@@ -88,6 +112,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   chooseStableAction->setChecked(!nightlyService);
   versionGroup->addAction(chooseNightlyAction);
   versionGroup->addAction(chooseStableAction);
+
 
   forceIPv4Action->setCheckable(true);
   forceIPv4Action->setChecked(forceIPv4);
@@ -105,6 +130,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   optionsMenu->addMenu(advancedMenu);
   advancedMenu->addAction(forceIPv4Action);
+  advancedMenu->addMenu(cookiesMenu);
 
   linkBox->setPlaceholderText(tr("Enter link..."));
   downloadButton->setText(tr("Download"));
@@ -376,6 +402,7 @@ void MainWindow::startDownload() {
   config.saveThumbnail = parSaveThumbnail;
   config.saveSubtitles = subtitlesBox->isChecked();
   config.forceIPv4 = forceIPv4;
+  config.cookies = cookies;
   config.thumbnailVisibility = thumbnailVisibility;
 
   DownloadItem *newDownload = new DownloadItem(config, this);
@@ -518,4 +545,11 @@ void MainWindow::changeThumbnailVisibility() {
 
   QSettings settings("MaximoPardo", "Phoca");
   settings.setValue("thumbnailVisibility", thumbnailVisibility);
+}
+
+void MainWindow::changeCookies(const QString &browser) {
+  cookies = browser;
+
+  QSettings settings("MaximoPardo", "Phoca");
+  settings.setValue("cookies", cookies);
 }

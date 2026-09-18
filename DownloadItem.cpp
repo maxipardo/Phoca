@@ -128,7 +128,7 @@ DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWid
       service->startDownload(config.link, config.downloadLocation, config.format, 
                               config.quality, config.conversion, 
                               config.playlist, config.savePlaylistInFolder,
-                               config.saveThumbnail, config.saveSubtitles, config.forceIPv4);
+                               config.saveThumbnail, config.saveSubtitles, config.forceIPv4, config.cookies);
 }                  
 // Service
 void DownloadItem::downloadStarted() {
@@ -338,7 +338,7 @@ void DownloadItem::retryDownload() {
       service->startDownload(ServiceConfig.link, ServiceConfig.downloadLocation, ServiceConfig.format, 
                               ServiceConfig.quality, ServiceConfig.conversion, 
                               ServiceConfig.playlist, ServiceConfig.savePlaylistInFolder, 
-                              ServiceConfig.saveThumbnail, ServiceConfig.saveSubtitles, ServiceConfig.forceIPv4);
+                              ServiceConfig.saveThumbnail, ServiceConfig.saveSubtitles, ServiceConfig.forceIPv4, ServiceConfig.cookies);
 }
 
 void DownloadItem::onFullPathUpdated(QString fullPath) {
