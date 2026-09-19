@@ -552,7 +552,8 @@ void MainWindow::setupUI() {
     m_bottomLayout->addWidget(m_getEngineButton);
 
     #ifdef FLATPAK_BUILD
-        m_getEngineButton->setVisible(false);
+        m_getEngineButton->setEnabled(false);
+        m_getEngineButton->setToolTip(tr("yt-dlp OTA updates disabled on Flatpak version"));
         m_buildMenu->menuAction()->setVisible(false);
     #endif
     m_layout->addLayout(m_bottomLayout);
