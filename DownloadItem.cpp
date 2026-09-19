@@ -26,7 +26,7 @@
 #include <QDBusConnection>
 #endif
 
-DownloadItem::DownloadItem (const DownloadConfig config, QWidget *parent) : QWidget(parent) {
+DownloadItem::DownloadItem (const DownloadConfig &config, QWidget *parent) : QWidget(parent) {
     
     m_maintainer = new ServiceMaintainer(this);
     m_ServiceConfig = config;
@@ -158,12 +158,15 @@ void DownloadItem::downloadFinished(int exit) {
     } else if (exit == 9) {
         updateTitleText(tr("Download stopped"));
     } else {
-        // Error title already set by onError, just show error state
+        // Fallback title if onError was never called
+        if (m_fullTitle == tr("Download started") || m_fullTitle.isEmpty()) {
+            updateTitleText(tr("Download failed"));
+        }
         showErrorState();
     }
     m_downloadFinishedState = true;
     emit finishedSignal();
-};
+}
 
 void DownloadItem::downloadProgress(int percentage) {
     if (percentage >= m_progressBar->value() || (m_progressBar->value() - percentage) > 50) {
@@ -180,7 +183,7 @@ void DownloadItem::onSizeUpdated(QString cleanSize) {
 }
 
 void DownloadItem::onTitleUpdated(QString title) {
-    title.remove(QRegularExpression("\\.f\\d+.*$"));
+    title.remove(QRegularExpression("\\.f\\d+\\.[a-zA-Z0-9]+$"));
     updateTitleText(title);
 }
 
@@ -332,34 +335,37 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
         connect(openLocation, &QAction::triggered, this, &DownloadItem::openDownloadLocation);
     }
     
-    // Asyncronus menu
+    // Asynchronous menu
     menu->popup(event->globalPos());
 }
 
 void DownloadItem::retryDownload() {
     #ifdef Q_OS_LINUX
     if (m_lastError == DownloadError::Forbidden) {
-        m_restartButton->setText(tr("Update yt-dlp"));
         m_maintainer->getService(true);
+        m_lastError = DownloadError::None;
+        m_restartButton->setText(tr("Retry"));
         return;
     }
     #endif
     
     m_restartButton->setText(tr("Retry"));
     m_lastError = DownloadError::None;
+    m_downloadFinishedState = false;
     m_toolTipErrors = "";
     m_infoIcon->setVisible(false);
     m_restartButton->setVisible(false);
     m_discardButton->setVisible(false);
     m_sizeLabel->setVisible(true);
     m_progressBar->setVisible(true);
+    m_progressBar->setValue(0);
     m_percentageLabel->setVisible(true);
     
     m_service->startDownload(m_ServiceConfig.link, m_ServiceConfig.downloadLocation, m_ServiceConfig.format, 
         m_ServiceConfig.quality, m_ServiceConfig.conversion, 
         m_ServiceConfig.playlist, m_ServiceConfig.savePlaylistInFolder, 
         m_ServiceConfig.saveThumbnail, m_ServiceConfig.saveSubtitles, m_ServiceConfig.forceIPv4, m_ServiceConfig.cookies);
-    }
+}
 
 void DownloadItem::onFullPathUpdated(QString fullPath) {
     m_fullFilePath = fullPath;
@@ -456,20 +462,22 @@ void DownloadItem::deleteFile() {
         if (file.exists()) {
             if (file.moveToTrash()) {
                 qDebug() << "File successfully moved to trash:" << cleanPath;
+                m_fullFilePath.clear();
                 emit removeRequested();
             } else {
                 qDebug() << "Couldn't move to trash, trying hard delete...";
                 if (file.remove()) {
                     qDebug() << "File successfully deleted (hard):" << cleanPath;
+                    m_fullFilePath.clear();
                     emit removeRequested();
                 } else {
                     qDebug() << "Error: Couldn't delete file.";
-                    m_titleLabel->setText(tr("Couldn't delete file"));
+                    updateTitleText(tr("Couldn't delete file"));
                 }
             }
         } else {
             qDebug() << "File does not exist.";
-            m_titleLabel->setText(tr("Couldn't delete file"));
+            updateTitleText(tr("Couldn't delete file"));
         }
     }
 }

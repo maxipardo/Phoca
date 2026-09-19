@@ -218,18 +218,20 @@ void MainWindow::startDownload() {
     QListWidgetItem *item = new QListWidgetItem();
     
     connect(newDownload, &DownloadItem::removeRequested, [this, item]() {
-        delete item; 
-        
-        // Check for finished items
-        bool hasFinishedItems = false;
-        for (int i = 0; i < m_list->count(); ++i) {
-            DownloadItem *di = qobject_cast<DownloadItem*>(m_list->itemWidget(m_list->item(i)));
-            if (di && di->isFinished()) {
-                hasFinishedItems = true;
-                break;
+        QTimer::singleShot(0, this, [this, item]() {
+            delete item; 
+            
+            // Check for finished items
+            bool hasFinishedItems = false;
+            for (int i = 0; i < m_list->count(); ++i) {
+                DownloadItem *di = qobject_cast<DownloadItem*>(m_list->itemWidget(m_list->item(i)));
+                if (di && di->isFinished()) {
+                    hasFinishedItems = true;
+                    break;
+                }
             }
-        }
-        m_clearFinishedButton->setEnabled(hasFinishedItems);
+            m_clearFinishedButton->setEnabled(hasFinishedItems);
+        });
     });
     
     connect(newDownload, &DownloadItem::finishedSignal, this, &MainWindow::itemFinished);

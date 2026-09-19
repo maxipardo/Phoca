@@ -57,7 +57,6 @@ private:
     QAction *m_aboutAction;
     QAction *m_deleteAction;
     QSpacerItem *m_spacer;
-    QSettings settings;
 
     QListWidget *m_list;
     
@@ -75,7 +74,6 @@ private:
     QActionGroup *m_versionGroup;
     QAction *m_savePlaylistInFolderAction;
     QAction *m_saveThumbnailAction;
-    QActionGroup *m_advancedGroup;
     QAction *m_forceIPv4Action;
     QAction *m_cookiesAction;
     QActionGroup *m_cookiesGroup;

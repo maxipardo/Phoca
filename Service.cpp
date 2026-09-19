@@ -25,7 +25,7 @@ Service::Service(QObject *parent) : QObject(parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 }
 
-void Service::startDownload(QString link, QString location, int format, QString quality, QString conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4, QString cookies) {
+void Service::startDownload(const QString &link, const QString &location, int format, const QString &quality, const QString &conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4, const QString &cookies) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath;
@@ -305,8 +305,16 @@ void Service::onProcessFinish(int exitCode, QProcess::ExitStatus status) {
     }
 
     if (exitCode == 0) {
-        double pesoTotal = savedSizeMiB + currentPartMiB;
-        emit sizeUpdated(QString::number(pesoTotal, 'f', 2) + " MiB");
+        double totalMiB = savedSizeMiB + currentPartMiB;
+        QString sizeStr;
+        if (totalMiB >= 1024.0) {
+            sizeStr = QString::number(totalMiB / 1024.0, 'f', 2) + " GiB";
+        } else if (totalMiB < 1.0) {
+            sizeStr = QString::number(totalMiB * 1024.0, 'f', 2) + " KiB";
+        } else {
+            sizeStr = QString::number(totalMiB, 'f', 2) + " MiB";
+        }
+        emit sizeUpdated(sizeStr);
         emit downloadFinished(0);
     } else {
         emit errorOccurred(DownloadError::Unknown, tr("yt-dlp exited with code %1").arg(exitCode));
@@ -327,7 +335,10 @@ void Service::stopDownload() {
     killTimer->stop();
     if (downloadProcess->state() == QProcess::Running) {
         downloadProcess->terminate();
-        downloadProcess->waitForFinished(1000); 
+        if (!downloadProcess->waitForFinished(500)) {
+            downloadProcess->kill();
+            downloadProcess->waitForFinished(500);
+        }
     }
 
     if (!currentPartFile.isEmpty()) {
