@@ -14,24 +14,24 @@ find_package(Qt6 COMPONENTS Widgets Core Network LinguistTools REQUIRED)
 
 add_executable(phoca
     WIN32
-    main.cpp
-    MainWindow.cpp
-    MainWindow.h
-    Service.cpp
-    Service.h
-    ServiceMaintainer.cpp
-    ServiceMaintainer.h
-    resources.qrc
-    About.h
-    About.cpp
-    DownloadItem.h
-    DownloadItem.cpp
-    DownloadConfig.h
-    DownloadError.h
+    src/main.cpp
+    src/MainWindow.cpp
+    src/MainWindow.h
+    src/Service.cpp
+    src/Service.h
+    src/ServiceMaintainer.cpp
+    src/ServiceMaintainer.h
+    src/resources.qrc
+    src/About.h
+    src/About.cpp
+    src/DownloadItem.h
+    src/DownloadItem.cpp
+    src/DownloadConfig.h
+    src/DownloadError.h
 )
 
 if(WIN32)
-    target_sources(phoca PRIVATE icon.rc)
+    target_sources(phoca PRIVATE data/icon.rc)
 endif()
 
 target_link_libraries(phoca PRIVATE Qt6::Widgets Qt6::Core Qt6::Network)
@@ -58,24 +58,30 @@ endif()
 target_compile_definitions(phoca PRIVATE DESKTOP_FILE_NAME="${APP_ID}")
 
 # ==========================================
+# Installation
+# ==========================================
+
 install(TARGETS phoca DESTINATION bin)
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ext_bin/deno")
     install(PROGRAMS ext_bin/deno DESTINATION bin)
 endif()
 
-configure_file(phoca.desktop.in phoca.desktop @ONLY)
+configure_file(data/phoca.desktop.in phoca.desktop @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/phoca.desktop
         DESTINATION share/applications
         RENAME ${APP_ID}.desktop)
 
-install(FILES phoca256.png 
+install(FILES data/phoca256.png 
         DESTINATION share/icons/hicolor/256x256/apps
         RENAME ${APP_ID}.png)
 
-install(FILES io.github.maxipardo.phoca.metainfo.xml
+install(FILES data/io.github.maxipardo.phoca.metainfo.xml
         DESTINATION share/metainfo)
+
+# ==========================================
+# CPack (Debian packaging)
 # ==========================================
 
 set(CPACK_GENERATOR "DEB")

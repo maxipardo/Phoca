@@ -1,0 +1,12 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
+        <file alias="phoca.png">../data/phoca.png</file>
+        <file alias="folder_dark.svg">../icons/folder_dark.svg</file>
+        <file alias="folder_light.svg">../icons/folder_light.svg</file>
+        <file alias="cancel_dark.svg">../icons/cancel_dark.svg</file>
+        <file alias="cancel_light.svg">../icons/cancel_light.svg</file>
+        <file alias="delete_dark.svg">../icons/delete_dark.svg</file>
+        <file alias="delete_light.svg">../icons/delete_light.svg</file>
+    </qresource>
+</RCC>
+
