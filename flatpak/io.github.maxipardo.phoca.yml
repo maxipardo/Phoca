@@ -40,7 +40,7 @@ modules:
     sources:
       - type: file
         url: https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/download/2026.09.16.232951/yt-dlp
-        sha256: 9c900a6b5d13933b1d31a3a039139a9fa020c7fb0d8edaa049054a802641533d
+        sha256: f8ca14db511702a5dbfc5a527056312907ddd0914d0b4036f108d6849e17ef61
         dest-filename: yt-dlp
 
   # Phoca
