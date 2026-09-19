@@ -25,7 +25,7 @@ ServiceMaintainer::ServiceMaintainer(QObject *parent) : QObject(parent) {
 void ServiceMaintainer::getService(bool nightly) {
 #ifdef FLATPAK_BUILD
 Q_UNUSED(nightly);
-  emit finished(0); // <--- ¡Faltaba avisarle a la UI!
+  emit finished(0);
   return;
 #else
   QDir directory;
