@@ -135,7 +135,7 @@ void Service::readOutput() {
     static const QRegularExpression regexDestination("^\\[download\\] Destination:\\s+(.+)$");
     static const QRegularExpression regexAlready("^\\[download\\]\\s+(.+)\\s+has already been downloaded");
     static const QRegularExpression regexProgress("^\\[download\\]\\s+(\\d+\\.?\\d*)%(?:\\s+of\\s+~?\\s*([0-9.]+)([a-zA-Z]+))?");
-    static const QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9]+)?\\.\\w+$");
+    static const QRegularExpression regexTitle("^(.+?)(?:\\.f[a-zA-Z0-9\\-]+)?\\.\\w+$");
     static const QRegularExpression regexPlaylist("^\\[download\\] Downloading (?:video|item) (\\d+) of (\\d+)");
     static const QRegularExpression finalPath("^FINALPATH:(.+)$");
 
