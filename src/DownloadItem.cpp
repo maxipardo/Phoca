@@ -210,7 +210,7 @@ void DownloadItem::onError(DownloadError error, QString detail) {
             break;
         case DownloadError::Forbidden:
             updateTitleText(tr("Access denied (403)"));
-            #ifdef Q_OS_LINUX
+            #if defined(Q_OS_LINUX) && !defined(FLATPAK_BUILD)
                 m_restartButton->setText(tr("Update yt-dlp"));
             #endif
             break;
@@ -340,7 +340,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
 }
 
 void DownloadItem::retryDownload() {
-    #ifdef Q_OS_LINUX
+    #if defined(Q_OS_LINUX) && !defined(FLATPAK_BUILD)
     if (m_lastError == DownloadError::Forbidden) {
         m_maintainer->getService(true);
         m_lastError = DownloadError::None;

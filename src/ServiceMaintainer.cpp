@@ -7,17 +7,27 @@
 ServiceMaintainer::ServiceMaintainer(QObject *parent) : QObject(parent) {
   networkManager = new QNetworkAccessManager(this);
 
+#ifdef FLATPAK_BUILD
+  // Flatpak static directory given in manifest
+  serviceFile = "/app/bin/yt-dlp";
+#else
   QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Phoca";
   serviceDirectory = basePath + "/bin";
 
-#ifdef Q_OS_WIN
-  serviceFile = serviceDirectory + "/yt-dlp.exe";
-#else
-  serviceFile = serviceDirectory + "/yt-dlp";
+  #ifdef Q_OS_WIN
+    serviceFile = serviceDirectory + "/yt-dlp.exe";
+  #else
+    serviceFile = serviceDirectory + "/yt-dlp";
+  #endif
 #endif
 }
 
 void ServiceMaintainer::getService(bool nightly) {
+#ifdef FLATPAK_BUILD
+Q_UNUSED(nightly);
+  emit finished(0); // <--- ¡Faltaba avisarle a la UI!
+  return;
+#else
   QDir directory;
   if (!directory.exists(serviceDirectory)) {
     if (!directory.mkpath(serviceDirectory)) {
@@ -70,6 +80,7 @@ void ServiceMaintainer::getService(bool nightly) {
   });
 
   connect(currentReply, &QNetworkReply::finished, this, &ServiceMaintainer::onDownloadFinished);
+#endif
 }
 
 void ServiceMaintainer::onDownloadFinished() {
@@ -105,11 +116,15 @@ bool ServiceMaintainer::exists() {
 }
 
 QString ServiceMaintainer::getServiceLocation() {
+#ifdef FLATPAK_BUILD
+  return QStringLiteral("/app/bin/yt-dlp");
+#else
   QString basePath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/Phoca";
   QString dir = basePath + "/bin";
 #ifdef Q_OS_WIN
   return dir + "/yt-dlp.exe";
 #else
   return dir + "/yt-dlp";
+#endif
 #endif
 }

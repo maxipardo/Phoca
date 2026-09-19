@@ -31,6 +31,17 @@ modules:
       - type: archive
         url: https://github.com/denoland/deno/releases/download/v2.9.5/deno-x86_64-unknown-linux-gnu.zip
         sha256: 8b010a3b1a4a0188a67cdb8a7a27348b2a501af78aec7fc74f2ace167368d530
+        
+  # yt-dlp
+  - name: yt-dlp
+    buildsystem: simple
+    build-commands:
+      - install -D -m 755 yt-dlp /app/bin/yt-dlp
+    sources:
+      - type: file
+        url: https://github.com/yt-dlp/yt-dlp-nightly-builds/releases/download/2026.09.16.232951/yt-dlp_linux
+        sha256:69112248177f7c3a6ba7ed981e143a0214910ed6adeb40e075f08543f74a4850
+        dest-filename: yt-dlp
 
   # Phoca
   - name: phoca

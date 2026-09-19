@@ -46,11 +46,12 @@ qt_add_translations(phoca TS_FILES ${TS_FILES})
 
 target_compile_definitions(phoca PRIVATE PROJECT_VERSION="${PROJECT_VERSION}")
 
-# Flatpak icon
-option(FLATPAK_BUILD "Set names for Flatpak" OFF)
+# Flatpak build configuration
+option(FLATPAK_BUILD "Build for Flatpak" OFF)
 
 if(FLATPAK_BUILD)
     set(APP_ID "io.github.maxipardo.phoca")
+    target_compile_definitions(phoca PRIVATE FLATPAK_BUILD)
 else()
     set(APP_ID "phoca")
 endif()

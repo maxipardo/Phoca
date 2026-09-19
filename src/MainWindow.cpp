@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QDateTime now = QDateTime::currentDateTime();
     bool needsUpdate = m_lastEngineUpdate.daysTo(now) >= 3;
 
+#ifndef FLATPAK_BUILD
     if (m_firstLaunch || needsUpdate) {
         QTimer::singleShot(500, [this]() {
             getServiceSlot();
@@ -47,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
             settings.setValue("nightlyService", m_nightlyService);
         }
     }
+#endif
 
     setupUI();
     setupConnections();
@@ -101,10 +103,14 @@ void MainWindow::setDownloadReadiness() {
 }
     
 void MainWindow::getServiceSlot() {
+#ifdef FLATPAK_BUILD
+    return; // OTA download disabled in Flatpak builds
+#else
     m_downloadButton->setEnabled(false);
     m_maintainer->getService(m_nightlyService);
     QSettings settings;
     settings.setValue("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate));
+#endif
 }
     
     void MainWindow::changeLocation() {
@@ -317,10 +323,14 @@ void MainWindow::itemFinished() {
 }
 
 void MainWindow::changeNightlyService() {
+#ifdef FLATPAK_BUILD
+    return; // OTA download disabled in Flatpak builds
+#else
     m_nightlyService = m_chooseNightlyAction->isChecked();
     QSettings settings;
     settings.setValue("nightlyService", m_nightlyService);
     getServiceSlot();
+#endif
 }
         
 void MainWindow::changeForceIPv4() {
@@ -383,11 +393,13 @@ void MainWindow::setupConnections() {
     connect(m_linkBox, &QLineEdit::textChanged, this, &MainWindow::setDownloadReadiness);
     connect(m_qualityBox, &QComboBox::editTextChanged, this, &MainWindow::setDownloadReadiness);
     connect(m_conversionBox, &QComboBox::editTextChanged, this, &MainWindow::setDownloadReadiness);
+#ifndef FLATPAK_BUILD
     connect(m_getEngineButton, &QPushButton::clicked, this, &MainWindow::getServiceSlot);
     connect(m_maintainer, &ServiceMaintainer::started, this, &MainWindow::engineDownloading);
     connect(m_maintainer, &ServiceMaintainer::finished, this, &MainWindow::engineDownloaded);
     connect(m_chooseStableAction, &QAction::triggered, this, &MainWindow::changeNightlyService);
     connect(m_chooseNightlyAction, &QAction::triggered, this, &MainWindow::changeNightlyService);
+#endif
     connect(m_chooseLocationAction, &QAction::triggered, this, &MainWindow::changeLocation);
     connect(m_forceIPv4Action, &QAction::triggered, this, &MainWindow::changeForceIPv4);
     connect(m_thumbnailVisibilityAction, &QAction::triggered, this, &MainWindow::changeThumbnailVisibility);
@@ -538,6 +550,11 @@ void MainWindow::setupUI() {
     m_bottomLayout->addWidget(m_clearFinishedButton);
     m_clearFinishedButton->setEnabled(false);
     m_bottomLayout->addWidget(m_getEngineButton);
+
+    #ifdef FLATPAK_BUILD
+        m_getEngineButton->setVisible(false);
+        m_buildMenu->menuAction()->setVisible(false);
+    #endif
     m_layout->addLayout(m_bottomLayout);
     
     m_optionsLayout->addWidget(m_bothButton);
