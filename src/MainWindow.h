@@ -75,12 +75,14 @@ private:
     QAction *m_savePlaylistInFolderAction;
     QAction *m_saveThumbnailAction;
     QAction *m_forceIPv4Action;
+    QAction *m_cookiesFileAction;
     QAction *m_cookiesAction;
     QActionGroup *m_cookiesGroup;
 
     QAction *m_thumbnailVisibilityAction;
 
     QString m_downloadLocation;
+    QString m_cookiesFile;
     bool m_savePlaylistInFolder;
     bool m_saveThumbnail;
     bool m_firstLaunch;
@@ -108,6 +110,7 @@ private slots:
     void updateLocationLabel();
     void changeNightlyService();
     void changeForceIPv4();
+    void chooseCookiesFile();
 
     void startDownload();
     void clearFinishedDownloads();

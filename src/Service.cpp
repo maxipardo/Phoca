@@ -25,7 +25,7 @@ Service::Service(QObject *parent) : QObject(parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 }
 
-void Service::startDownload(const QString &link, const QString &location, int format, const QString &quality, const QString &conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4, const QString &cookies) {
+void Service::startDownload(const QString &link, const QString &location, int format, const QString &quality, const QString &conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4, const QString &cookies, const QString &cookiesFile) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath;
@@ -113,7 +113,9 @@ void Service::startDownload(const QString &link, const QString &location, int fo
         arguments << "-4";
     }
 
-    if (!cookies.isEmpty()) {
+    if (!cookiesFile.isEmpty()) {
+        arguments << "--cookies" << cookiesFile;
+    } else if (!cookies.isEmpty()) {
         arguments << "--cookies-from-browser" << cookies;
     }
 

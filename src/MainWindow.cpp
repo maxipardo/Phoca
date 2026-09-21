@@ -9,6 +9,7 @@
 #include <QUrlQuery>
 #include <QApplication>
 #include <QCoreApplication>
+#include <QFileInfo>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QCoreApplication::setOrganizationName("MaximoPardo");
@@ -26,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_forceIPv4 = settings.value("IPv4", true).toBool();
     m_thumbnailVisibility = settings.value("thumbnailVisibility", true).toBool();
     m_cookies = settings.value("cookies", "").toString();
+    m_cookiesFile = settings.value("cookiesFile", "").toString();
 
     QString dateString = settings.value("lastEngineUpdate", QDateTime::currentDateTime().toString(Qt::ISODate)).toString();
     m_lastEngineUpdate = QDateTime::fromString(dateString, Qt::ISODate);
@@ -113,21 +115,21 @@ void MainWindow::getServiceSlot() {
 #endif
 }
     
-    void MainWindow::changeLocation() {
-        const QString dir = QFileDialog::getExistingDirectory(
-            this, tr("Choose where to save files"), m_downloadLocation,
-            QFileDialog::ShowDirsOnly);
+void MainWindow::changeLocation() {
+    const QString dir = QFileDialog::getExistingDirectory(
+        this, tr("Choose where to save files"), m_downloadLocation,
+        QFileDialog::ShowDirsOnly);
+        
+        if (!dir.isEmpty()) {
+            m_downloadLocation = dir;
             
-            if (!dir.isEmpty()) {
-                m_downloadLocation = dir;
-                
-                QSettings settings;
-                settings.setValue("downloadLocation", m_downloadLocation);
-                
-                qDebug() << "Settings saved. Chosen folder:" << m_downloadLocation;
-                updateLocationLabel();
-            }
+            QSettings settings;
+            settings.setValue("downloadLocation", m_downloadLocation);
+            
+            qDebug() << "Settings saved. Chosen folder:" << m_downloadLocation;
+            updateLocationLabel();
         }
+}
         
 void MainWindow::startDownload() {
     if (!m_maintainer->exists()){
@@ -219,6 +221,7 @@ void MainWindow::startDownload() {
     config.forceIPv4 = m_forceIPv4;
     config.cookies = m_cookies;
     config.thumbnailVisibility = m_thumbnailVisibility;
+    config.cookiesFile = m_cookiesFile;
     
     DownloadItem *newDownload = new DownloadItem(config, this);
     QListWidgetItem *item = new QListWidgetItem();
@@ -241,6 +244,17 @@ void MainWindow::startDownload() {
     });
     
     connect(newDownload, &DownloadItem::finishedSignal, this, &MainWindow::itemFinished);
+
+    connect(newDownload, &DownloadItem::retryRequested, this, [this](DownloadItem *item) {
+        DownloadConfig updated;
+        updated.cookies = m_cookies;
+        updated.cookiesFile = m_cookiesFile;
+        updated.forceIPv4 = m_forceIPv4;
+        updated.saveThumbnail = m_saveThumbnail;
+        updated.saveSubtitles = m_subtitlesBox->isChecked();
+        updated.thumbnailVisibility = m_thumbnailVisibility;
+        item->updateConfig(updated);
+    });
     
     item->setSizeHint(newDownload->sizeHint());
     m_list->insertItem(0, item);
@@ -379,6 +393,36 @@ void MainWindow::changeCookies(const QString &browser) {
     settings.setValue("cookies", m_cookies);
 }
 
+void MainWindow::chooseCookiesFile() {
+    if (m_cookiesFileAction->isChecked()) {
+        const QString file = QFileDialog::getOpenFileName(
+            this, tr("Choose cookies file"), m_cookiesFile,
+            tr("Text Files (*.txt);;All Files (*)"));
+
+        if (!file.isEmpty()) {
+            m_cookiesFile = file;
+
+            QSettings settings;
+            settings.setValue("cookiesFile", file);
+
+            m_cookiesFileAction->setText(tr("Cookies file: %1").arg(QFileInfo(file).fileName()));
+            qDebug() << "Cookies file set:" << m_cookiesFile;
+            this->statusBar()->showMessage(tr("Cookies file: %1").arg(m_cookiesFile), 5000);
+        } else {
+            m_cookiesFileAction->setChecked(false);
+        }
+    } else {
+        m_cookiesFile = "";
+
+        QSettings settings;
+        settings.setValue("cookiesFile", "");
+
+        m_cookiesFileAction->setText(tr("Load cookies from file..."));
+        qDebug() << "Cookies file cleared";
+        this->statusBar()->showMessage(tr("Cookies file cleared"), 3000);
+    }
+}
+
 void MainWindow::setupConnections() {
     connect(m_deleteAction, &QAction::triggered, this, [this]() {
         QListWidgetItem *currentItem = m_list->currentItem();
@@ -436,6 +480,7 @@ void MainWindow::setupConnections() {
     connect(m_saveThumbnailAction, &QAction::triggered, this, &MainWindow::changeSaveThumbnail);
     connect(m_downloadButton, &QPushButton::clicked, this, &MainWindow::startDownload);
     connect(m_linkBox, &QLineEdit::returnPressed, m_downloadButton, &QPushButton::click);
+    connect(m_cookiesFileAction, &QAction::triggered, this, &MainWindow::chooseCookiesFile);
 }
 
 void MainWindow::setupUI() {
@@ -466,6 +511,9 @@ void MainWindow::setupUI() {
     m_savePlaylistInFolderAction = new QAction(tr("Save playlists in folder"), this);
     m_saveThumbnailAction = new QAction(tr("Save thumbnail"), this);
     m_forceIPv4Action = new QAction(tr("Force IPv4 connections (Recommended)"), this);
+    m_cookiesFileAction = new QAction(
+        m_cookiesFile.isEmpty() ? tr("Load cookies from file...") : tr("Cookies file: %1").arg(QFileInfo(m_cookiesFile).fileName()),
+        this);
     m_cookiesAction = new QAction("Browser cookies", this);
     m_cookiesGroup = new QActionGroup(this);
     m_thumbnailVisibilityAction = new QAction(tr("Show thumbnails on list"), this);
@@ -517,6 +565,8 @@ void MainWindow::setupUI() {
     
     m_forceIPv4Action->setCheckable(true);
     m_forceIPv4Action->setChecked(m_forceIPv4);
+    m_cookiesFileAction->setCheckable(true);
+    m_cookiesFileAction->setChecked(!m_cookiesFile.isEmpty());
     
     m_thumbnailVisibilityAction->setCheckable(true);
     m_thumbnailVisibilityAction->setChecked(m_thumbnailVisibility);
@@ -531,6 +581,7 @@ void MainWindow::setupUI() {
     
     m_optionsMenu->addMenu(m_advancedMenu);
     m_advancedMenu->addAction(m_forceIPv4Action);
+    m_advancedMenu->addAction(m_cookiesFileAction);
     m_advancedMenu->addMenu(m_cookiesMenu);
     
     m_linkBox->setPlaceholderText(tr("Enter link..."));

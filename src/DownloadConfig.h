@@ -14,4 +14,5 @@ struct DownloadConfig {
     bool forceIPv4 = true;
     bool thumbnailVisibility = true;
     QString cookies = "";
+    QString cookiesFile = "";
 };

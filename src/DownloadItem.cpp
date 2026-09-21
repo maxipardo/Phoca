@@ -123,7 +123,8 @@ DownloadItem::DownloadItem (const DownloadConfig &config, QWidget *parent) : QWi
     m_service->startDownload(config.link, config.downloadLocation, config.format, 
                             config.quality, config.conversion, 
                             config.playlist, config.savePlaylistInFolder,
-                            config.saveThumbnail, config.saveSubtitles, config.forceIPv4, config.cookies);
+                            config.saveThumbnail, config.saveSubtitles, 
+                            config.forceIPv4, config.cookies, config.cookiesFile);
 }                  
 // Service
 void DownloadItem::downloadStarted() {
@@ -203,7 +204,7 @@ void DownloadItem::onError(DownloadError error, QString detail) {
 
         switch (error) {
         case DownloadError::CookiesNotFound:
-            updateTitleText(tr("Cookies not found for the selected browser"));
+            updateTitleText(tr("Cookies not found for %1").arg(m_ServiceConfig.cookies));
             break;
         case DownloadError::AgeVerification:
             updateTitleText(tr("Sign in to confirm your age"));
@@ -361,10 +362,13 @@ void DownloadItem::retryDownload() {
     m_progressBar->setValue(0);
     m_percentageLabel->setVisible(true);
     
+    emit retryRequested(this);
+    
     m_service->startDownload(m_ServiceConfig.link, m_ServiceConfig.downloadLocation, m_ServiceConfig.format, 
         m_ServiceConfig.quality, m_ServiceConfig.conversion, 
         m_ServiceConfig.playlist, m_ServiceConfig.savePlaylistInFolder, 
-        m_ServiceConfig.saveThumbnail, m_ServiceConfig.saveSubtitles, m_ServiceConfig.forceIPv4, m_ServiceConfig.cookies);
+        m_ServiceConfig.saveThumbnail, m_ServiceConfig.saveSubtitles, m_ServiceConfig.forceIPv4, 
+        m_ServiceConfig.cookies, m_ServiceConfig.cookiesFile);
 }
 
 void DownloadItem::onFullPathUpdated(QString fullPath) {
@@ -520,4 +524,13 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
 void DownloadItem::changeThumbnailVisibility(bool enabled) {
     m_thumbnailLabel->setVisible(enabled);
     QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
+}
+
+void DownloadItem::updateConfig(const DownloadConfig &config) {
+    m_ServiceConfig.cookies = config.cookies;
+    m_ServiceConfig.cookiesFile = config.cookiesFile;
+    m_ServiceConfig.forceIPv4 = config.forceIPv4;
+    m_ServiceConfig.saveThumbnail = config.saveThumbnail;
+    m_ServiceConfig.saveSubtitles = config.saveSubtitles;
+    m_ServiceConfig.thumbnailVisibility = config.thumbnailVisibility;
 }

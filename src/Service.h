@@ -14,7 +14,7 @@ class Service : public QObject {
 Q_OBJECT
 public:
     explicit Service(QObject *parent = nullptr);
-    void startDownload(const QString &link, const QString &location, int format, const QString &quality, const QString &conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4, const QString &cookies);
+    void startDownload(const QString &link, const QString &location, int format, const QString &quality, const QString &conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4, const QString &cookies, const QString &cookiesFile);
     void stopDownload();
     void fetchThumbnailUrl(const QString &link);
 private:
