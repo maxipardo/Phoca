@@ -40,11 +40,11 @@
     <screenshots>
         <screenshot type="default">
             <caption xml:lang="en">Main application window</caption>
-            <image xml:lang="en">https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/screenshot1.png</image>
+            <image xml:lang="en">https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/flatpak_screenshot1.png</image>
         </screenshot>
         <screenshot>
             <caption xml:lang="en">Application in dark mode</caption>
-            <image xml:lang="en">https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/screenshot2.png</image>
+            <image xml:lang="en">https://raw.githubusercontent.com/maxipardo/Phoca/main/screenshots/flatpak_screenshot2.png</image>
         </screenshot>
     </screenshots>
 

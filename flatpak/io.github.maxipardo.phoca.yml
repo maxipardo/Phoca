@@ -11,7 +11,7 @@ finish-args:
   - --share=network
   - --filesystem=xdg-download
   - --talk-name=org.freedesktop.FileManager1
-
+  - --env=QT_QPA_PLATFORMTHEME=xdgdesktopportal
 modules:
   # ffmpeg, ffmprobe
   - name: ffmpeg-full
