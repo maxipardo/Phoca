@@ -205,6 +205,7 @@ void DownloadItem::onError(DownloadError error, QString detail) {
         switch (error) {
         case DownloadError::CookiesNotFound:
             updateTitleText(tr("Cookies not found for %1").arg(m_ServiceConfig.cookies));
+            m_restartButton->setText(tr("Clear cookies"));
             break;
         case DownloadError::AgeVerification:
             updateTitleText(tr("Sign in to confirm your age"));
@@ -230,7 +231,7 @@ void DownloadItem::onError(DownloadError error, QString detail) {
             updateTitleText(tr("Download failed"));
             break;
         }
-
+        
     }
     
     if (!detail.isEmpty()) {
@@ -249,6 +250,7 @@ void DownloadItem::showErrorState() {
     m_sizeLabel->setVisible(false);
     m_progressBar->setVisible(false);
     m_percentageLabel->setVisible(false);
+    QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }
 
 void DownloadItem::downloadStalled() {
@@ -349,6 +351,12 @@ void DownloadItem::retryDownload() {
         return;
     }
     #endif
+
+    if (m_lastError == DownloadError::CookiesNotFound) {
+        emit(clearCookiesRequested(""));
+        m_lastError = DownloadError::None;
+        m_restartButton->setText(tr("Retry"));
+    }
     
     m_restartButton->setText(tr("Retry"));
     m_lastError = DownloadError::None;
@@ -514,6 +522,7 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
                 
                 m_thumbnailLabel->setFixedSize(scaledPixmap.size());
                 m_thumbnailLabel->setPixmap(scaledPixmap);
+                QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
             }
         } else {
             qDebug() << "Failed downloading thumbnail:" << reply->errorString();

@@ -226,6 +226,7 @@ void MainWindow::startDownload() {
     DownloadItem *newDownload = new DownloadItem(config, this);
     QListWidgetItem *item = new QListWidgetItem();
     
+    connect(newDownload, &DownloadItem::clearCookiesRequested, this, &MainWindow::changeCookies);
     connect(newDownload, &DownloadItem::removeRequested, [this, item]() {
         QTimer::singleShot(0, this, [this, item]() {
             delete item; 
@@ -391,6 +392,10 @@ void MainWindow::changeCookies(const QString &browser) {
     
     QSettings settings;
     settings.setValue("cookies", m_cookies);
+
+    if (browser.isEmpty()) {
+        m_cookiesGroup->actions().first()->setChecked(true);
+    }
 }
 
 void MainWindow::chooseCookiesFile() {

@@ -82,4 +82,5 @@ signals:
     void removeRequested();
     void finishedSignal();
     void retryRequested(DownloadItem *item);
+    void clearCookiesRequested(QString browser);
 };
