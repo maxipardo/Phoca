@@ -117,7 +117,7 @@ void MainWindow::getServiceSlot() {
     
 void MainWindow::changeLocation() {
     const QString dir = QFileDialog::getExistingDirectory(
-    nullptr, tr("Choose where to save files"), m_downloadLocation,
+    this, tr("Choose where to save files"), m_downloadLocation,
     QFileDialog::ShowDirsOnly);
         
         if (!dir.isEmpty()) {

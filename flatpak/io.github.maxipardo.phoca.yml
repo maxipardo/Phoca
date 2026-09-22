@@ -11,6 +11,8 @@ finish-args:
   - --share=network
   - --filesystem=xdg-download
   - --talk-name=org.freedesktop.FileManager1
+  # Workaround: Force portal theme because QFileDialog::getExistingDirectory
+  # falls back to the restricted Qt dialog on KDE runtime 6.10
   - --env=QT_QPA_PLATFORMTHEME=xdgdesktopportal
 modules:
   # ffmpeg, ffmprobe
