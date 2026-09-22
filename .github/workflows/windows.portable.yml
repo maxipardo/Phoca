@@ -2,8 +2,7 @@ name: Build Windows Portable
 
 on:
   push:
-    branches: [ "v0.5" ]
-  workflow_dispatch:
+    branches: [ "main", "master" ]
 
 jobs:
   build:
