@@ -401,8 +401,8 @@ void DownloadItem::retryDownload() {
 }
 
 void DownloadItem::onFullPathUpdated(QString fullPath) {
-    m_fullFilePath = fullPath;
-    qDebug() << fullPath;
+    m_fullFilePath = QDir::cleanPath(fullPath);
+    qDebug() << m_fullFilePath;
 }
 
 void DownloadItem::openDownloadLocation() {
