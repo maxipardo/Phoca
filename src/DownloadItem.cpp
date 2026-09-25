@@ -141,8 +141,8 @@ void DownloadItem::downloadStarted() {
 }
 
 void DownloadItem::downloadFinished(int exit) {
+    if (m_downloadFinishedState) return;
     m_downloadFinishedState = true;
-    emit finishedSignal();
     m_progressBar->setRange(0, 100);
     m_discardText = (tr("Discard download\tDel"));
     if (exit == 0) {
@@ -157,7 +157,6 @@ void DownloadItem::downloadFinished(int exit) {
         
         m_percentageLabel->setVisible(false);
         QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
-        return;
     } else if (exit == 9) {
         updateTitleText(tr("Download stopped"));
     } else {
@@ -166,8 +165,8 @@ void DownloadItem::downloadFinished(int exit) {
             updateTitleText(tr("Download failed"));
         }
         showErrorState();
-        return;
     }
+    emit finishedSignal();
 }
 
 void DownloadItem::downloadProgress(int percentage) {
