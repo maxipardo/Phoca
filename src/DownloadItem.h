@@ -61,6 +61,8 @@ private:
     QString m_playlistStatus;
     QString m_toolTipErrors;
     QNetworkAccessManager *m_networkManager;
+
+    QLabel *m_formatLabel;
 public slots:
     void stopDownload();
 private slots:
