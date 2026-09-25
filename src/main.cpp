@@ -7,10 +7,20 @@
 #include <QIcon>
 #include <QTranslator>
 #include <QLocale>
+#include <QStyleFactory>
 #include "MainWindow.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+
+    #ifdef Q_OS_LINUX
+    QString desktop = qEnvironmentVariable("XDG_CURRENT_DESKTOP").toLower();
+    if (!desktop.contains("kde")) {
+        app.setStyle(QStyleFactory::create("Fusion"));
+    }
+    #endif
+
+
 
     QTranslator translator;
     

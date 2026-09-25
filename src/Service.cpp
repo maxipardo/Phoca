@@ -159,7 +159,7 @@ void Service::readOutput() {
             qDebug() << "yt-dlp [ERROR]:" << line;
 
             DownloadError errorType = DownloadError::GenericYtdlp;
-            if (line.contains("could not find") && line.contains("cookies")) {
+            if (line.contains("could not find") && line.contains("cookies") || line.contains("unsupported platform")) {
                 errorType = DownloadError::CookiesNotFound;
             } else if (line.contains("Forbidden") || line.contains("403")) {
                 errorType = DownloadError::Forbidden;
@@ -282,6 +282,8 @@ void Service::readOutput() {
             
             if (percentage == 100) {
                 emit phaseUpdated(tr("Processing..."));
+                stallTimer->stop();
+                killTimer->stop();
             }
             continue;
         }

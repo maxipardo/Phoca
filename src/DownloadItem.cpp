@@ -44,13 +44,23 @@ DownloadItem::DownloadItem (const DownloadConfig &config, QWidget *parent) : QWi
     m_networkManager = new QNetworkAccessManager(this);
     
     m_service = new Service(this);
+
+    m_formatLabel = new QLabel(this);
+    QIcon formatIcon;
+    if (config.format == 1) {
+        formatIcon = QIcon::fromTheme(QIcon::ThemeIcon::CameraVideo);
+    } else if (config.format == 2) {
+        formatIcon = QIcon::fromTheme(QIcon::ThemeIcon::AudioVolumeHigh);
+    }
+
+    m_formatLabel->setPixmap(formatIcon.pixmap(18, 18));
     
     m_titleLabel = new QLabel(this);
     m_titleLabel->setMinimumWidth(50); 
     m_titleLabel->setContentsMargins(4, 0, 0, 0);
     
     m_thumbnailLabel = new QLabel(this);
-    m_thumbnailLabel->setVisible(config.thumbnailVisibility);
+    m_thumbnailLabel->setVisible(false);
     m_thumbnailLabel->setFixedSize(0, 0);
     
     m_sizeLabel = new QLabel(this);
@@ -91,6 +101,9 @@ DownloadItem::DownloadItem (const DownloadConfig &config, QWidget *parent) : QWi
     m_discardButton->setText(tr("Discard"));
     
     layout->addWidget(m_thumbnailLabel);
+    if (config.format >= 1) {
+        layout->addWidget(m_formatLabel);
+    }
     layout->addWidget(m_titleLabel, 3); 
     layout->addWidget(m_infoIcon);
     layout->addLayout(failLayout);
@@ -543,6 +556,10 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
                 
                 m_thumbnailLabel->setFixedSize(scaledPixmap.size());
                 m_thumbnailLabel->setPixmap(scaledPixmap);
+                if (m_ServiceConfig.thumbnailVisibility) {
+                    m_thumbnailLabel->setVisible(true);
+                }
+                m_formatLabel->setVisible(false);
                 QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
             }
         } else {
