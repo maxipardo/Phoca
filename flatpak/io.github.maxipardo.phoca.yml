@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Máximo Pardo
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 app-id: io.github.maxipardo.phoca
 runtime: org.kde.Platform
 runtime-version: '6.10'
@@ -11,9 +14,6 @@ finish-args:
   - --share=network
   - --filesystem=xdg-download
   - --talk-name=org.freedesktop.FileManager1
-  # Workaround because QFileDialog::getExistingDirectory
-  # falls back to the restricted Qt dialog on KDE runtime 6.10
-  - --env=QT_QPA_PLATFORMTHEME=xdgdesktopportal
 modules:
   # ffmpeg, ffmprobe
   - name: ffmpeg-full

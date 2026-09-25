@@ -1,3 +1,8 @@
+/*
+    SPDX-FileCopyrightText: 2026 Máximo Pardo
+    SPDX-License-Identifier: GPL-3.0-or-later
+*/
+
 #include "ServiceMaintainer.h"
 #include <QNetworkRequest>
 #include <QUrl>

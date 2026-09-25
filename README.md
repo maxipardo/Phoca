@@ -14,7 +14,7 @@ GNU/Linux and Windows binaries are available on [Releases](https://github.com/ma
 **Requirements (Ubuntu/Debian):**
 ```bash
 sudo apt update
-sudo apt install build-essential cmake qt6-base-dev ffmpeg
+sudo apt install build-essential cmake git qt6-base-dev qt6-tools-dev ffmpeg
 curl -fsSL https://deno.land/install.sh | sh
 ```
 **Compiling:**
