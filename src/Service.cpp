@@ -127,6 +127,10 @@ void Service::startDownload(const QString &link, const QString &location, int fo
     arguments << "--windows-filenames";
 #endif
 
+#ifdef Q_OS_WIN
+    arguments << "--windows-filenames";
+#endif
+
     arguments << link;
     
     partCounter = 0;
