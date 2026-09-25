@@ -35,6 +35,7 @@ class MainWindow : public QMainWindow {
 Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
+    bool activeDownloads();
 private:
     void setupConnections();
     void setupUI();
@@ -119,4 +120,5 @@ private slots:
     void aboutPage();
     void changeThumbnailVisibility();
     void changeCookies(const QString &browser);
+    void setGetEngineButton();
 };

@@ -18,6 +18,7 @@ public:
     bool isFinished() const { return m_downloadFinishedState; }
     void changeThumbnailVisibility(bool enabled);
     void updateConfig(const DownloadConfig &config);
+    void updateActiveDownloadsState();
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;

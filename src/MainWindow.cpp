@@ -262,7 +262,7 @@ void MainWindow::startDownload() {
     m_list->setItemWidget(item, newDownload);
     
     m_linkBox->clear();
-    
+    setGetEngineButton();
 }
         
 void MainWindow::aboutPage() {
@@ -335,6 +335,19 @@ void MainWindow::clearFinishedDownloads() {
 
 void MainWindow::itemFinished() {
     m_clearFinishedButton->setEnabled(true);
+    setGetEngineButton();
+
+    if (!activeDownloads()) {
+        for (int i = m_list->count() - 1; i >= 0; --i) {
+            QListWidgetItem *item = m_list->item(i);
+            QWidget *widget = m_list->itemWidget(item);
+            DownloadItem *downloadItem = qobject_cast<DownloadItem*>(widget);
+            
+            if (downloadItem) {
+                downloadItem->updateActiveDownloadsState();
+            }
+        }
+    }
 }
 
 void MainWindow::changeNightlyService() {
@@ -426,6 +439,27 @@ void MainWindow::chooseCookiesFile() {
         qDebug() << "Cookies file cleared";
         this->statusBar()->showMessage(tr("Cookies file cleared"), 3000);
     }
+}
+
+bool MainWindow::activeDownloads() {
+    bool hasActiveDownloads = false;
+    for (int i = 0; i < m_list->count(); ++i) {
+        DownloadItem *di = qobject_cast<DownloadItem*>(m_list->itemWidget(m_list->item(i)));
+
+        if (di && !di->isFinished()) {
+            hasActiveDownloads = true;
+            break;
+        }
+    }
+    return hasActiveDownloads;
+}
+
+void MainWindow::setGetEngineButton() {
+    #ifndef FLATPAK_BUILD
+    #ifdef Q_OS_WIN
+        m_getEngineButton->setEnabled(!activeDownloads());
+    #endif
+    #endif
 }
 
 void MainWindow::setupConnections() {

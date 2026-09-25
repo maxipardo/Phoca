@@ -1,5 +1,7 @@
+#include "MainWindow.h"
 #include "DownloadItem.h"
 #include "DownloadError.h"
+#include "Service.h"
 #include "ServiceMaintainer.h"
 #include <QLayout>
 #include <QMenu>
@@ -139,6 +141,8 @@ void DownloadItem::downloadStarted() {
 }
 
 void DownloadItem::downloadFinished(int exit) {
+    m_downloadFinishedState = true;
+    emit finishedSignal();
     m_progressBar->setRange(0, 100);
     m_discardText = (tr("Discard download\tDel"));
     if (exit == 0) {
@@ -153,8 +157,6 @@ void DownloadItem::downloadFinished(int exit) {
         
         m_percentageLabel->setVisible(false);
         QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
-        m_downloadFinishedState = true;
-        emit finishedSignal();
         return;
     } else if (exit == 9) {
         updateTitleText(tr("Download stopped"));
@@ -164,9 +166,8 @@ void DownloadItem::downloadFinished(int exit) {
             updateTitleText(tr("Download failed"));
         }
         showErrorState();
+        return;
     }
-    m_downloadFinishedState = true;
-    emit finishedSignal();
 }
 
 void DownloadItem::downloadProgress(int percentage) {
@@ -212,7 +213,7 @@ void DownloadItem::onError(DownloadError error, QString detail) {
             break;
         case DownloadError::Forbidden:
             updateTitleText(tr("Access denied (403)"));
-            #if defined(Q_OS_LINUX) && !defined(FLATPAK_BUILD)
+            #if !defined(FLATPAK_BUILD)
                 m_restartButton->setText(tr("Update yt-dlp"));
             #endif
             break;
@@ -224,6 +225,10 @@ void DownloadItem::onError(DownloadError error, QString detail) {
             break;
         case DownloadError::ProcessNotFound:
             updateTitleText(tr("yt-dlp not found"));
+            #if !defined(FLATPAK_BUILD)
+                m_restartButton->setText(tr("Update yt-dlp"));
+            #endif
+            downloadFinished(1);
             break;
         case DownloadError::GenericYtdlp:
         case DownloadError::Unknown:
@@ -246,6 +251,14 @@ void DownloadItem::onError(DownloadError error, QString detail) {
 
 void DownloadItem::showErrorState() {
     m_restartButton->setVisible(true);
+    #ifdef Q_OS_WIN
+    if (m_lastError == DownloadError::Forbidden || m_lastError == DownloadError::ProcessNotFound) {
+        if (MainWindow *mainWindow = qobject_cast<MainWindow*>(window())) {
+            m_restartButton->setEnabled(!mainWindow->activeDownloads());
+        }
+    }
+    #endif
+
     m_discardButton->setVisible(true);
     m_sizeLabel->setVisible(false);
     m_progressBar->setVisible(false);
@@ -343,11 +356,15 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
 }
 
 void DownloadItem::retryDownload() {
-    #if defined(Q_OS_LINUX) && !defined(FLATPAK_BUILD)
-    if (m_lastError == DownloadError::Forbidden) {
+    #if (defined(Q_OS_LINUX) && !defined(FLATPAK_BUILD)) || defined(Q_OS_WIN)
+    if (m_lastError == DownloadError::Forbidden || m_lastError == DownloadError::ProcessNotFound) {
         m_maintainer->getService(true);
         m_lastError = DownloadError::None;
+        m_restartButton->setEnabled(false);
         m_restartButton->setText(tr("Retry"));
+        connect(m_maintainer, &ServiceMaintainer::finished, this, [this]() {
+            m_restartButton->setEnabled(true);
+        }, Qt::SingleShotConnection);
         return;
     }
     #endif
@@ -542,4 +559,14 @@ void DownloadItem::updateConfig(const DownloadConfig &config) {
     m_ServiceConfig.saveThumbnail = config.saveThumbnail;
     m_ServiceConfig.saveSubtitles = config.saveSubtitles;
     m_ServiceConfig.thumbnailVisibility = config.thumbnailVisibility;
+}
+
+void DownloadItem::updateActiveDownloadsState() {
+    #ifdef Q_OS_WIN
+    if (m_lastError == DownloadError::Forbidden || m_lastError == DownloadError::ProcessNotFound) {
+        if (MainWindow *mainWindow = qobject_cast<MainWindow*>(window())) {
+            m_restartButton->setEnabled(!mainWindow->activeDownloads());
+        }
+    }
+    #endif
 }
