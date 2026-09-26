@@ -20,4 +20,5 @@ struct DownloadConfig {
     bool thumbnailVisibility = true;
     QString cookies = "";
     QString cookiesFile = "";
+    bool embedMetadata = false;
 };

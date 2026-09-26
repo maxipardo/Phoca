@@ -144,7 +144,7 @@ DownloadItem::DownloadItem (const DownloadConfig &config, QWidget *parent) : QWi
                             config.quality, config.conversion, 
                             config.playlist, config.savePlaylistInFolder,
                             config.saveThumbnail, config.saveSubtitles, 
-                            config.forceIPv4, config.cookies, config.cookiesFile);
+                            config.forceIPv4, config.cookies, config.cookiesFile, config.embedMetadata);
 }                  
 // Service
 void DownloadItem::downloadStarted() {
@@ -410,7 +410,7 @@ void DownloadItem::retryDownload() {
         m_ServiceConfig.quality, m_ServiceConfig.conversion, 
         m_ServiceConfig.playlist, m_ServiceConfig.savePlaylistInFolder, 
         m_ServiceConfig.saveThumbnail, m_ServiceConfig.saveSubtitles, m_ServiceConfig.forceIPv4, 
-        m_ServiceConfig.cookies, m_ServiceConfig.cookiesFile);
+        m_ServiceConfig.cookies, m_ServiceConfig.cookiesFile, m_ServiceConfig.embedMetadata);
 }
 
 void DownloadItem::onFullPathUpdated(QString fullPath) {

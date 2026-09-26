@@ -73,6 +73,7 @@ private:
     QComboBox *m_qualityBox;
     QComboBox *m_conversionBox;
     QCheckBox *m_subtitlesBox;
+    QCheckBox *m_metadataBox;
 
     QAction *m_chooseLocationAction;
     QAction *m_chooseNightlyAction;

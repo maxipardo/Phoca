@@ -227,6 +227,7 @@ void MainWindow::startDownload() {
     config.cookies = m_cookies;
     config.thumbnailVisibility = m_thumbnailVisibility;
     config.cookiesFile = m_cookiesFile;
+    config.embedMetadata = m_metadataBox->isChecked();
     
     DownloadItem *newDownload = new DownloadItem(config, this);
     QListWidgetItem *item = new QListWidgetItem();
@@ -281,6 +282,16 @@ void MainWindow::toggleQualityOptions() {
     } else {
         m_qualityBox->setCurrentIndex(0);
         m_qualityBox->setEnabled(false);
+    }
+
+    if (m_audioButton->isChecked()) {
+        m_subtitlesBox->setChecked(false);
+        m_metadataBox->setVisible(true);
+        m_subtitlesBox->setVisible(false);
+    } else {
+        m_metadataBox->setChecked(false);
+        m_subtitlesBox->setVisible(true);
+        m_metadataBox->setVisible(false);
     }
 }
         
@@ -565,6 +576,7 @@ void MainWindow::setupUI() {
     m_qualityBox = new QComboBox(this);
     m_conversionBox = new QComboBox(this);
     m_subtitlesBox = new QCheckBox(this);
+    m_metadataBox = new QCheckBox(this);
     m_spacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
     m_locationLabel = new QLabel(this);
 
@@ -670,6 +682,11 @@ void MainWindow::setupUI() {
     m_subtitlesBox->setText(tr("Subtitles"));
     m_subtitlesBox->setChecked(false);
     m_optionsLayout->addWidget(m_subtitlesBox);
+
+    m_metadataBox->setText(tr("Metadata"));
+    m_metadataBox->setChecked(false);
+    m_optionsLayout->addWidget(m_metadataBox);
+    m_metadataBox->setVisible(false);
     
     m_optionsLayout->addItem(m_spacer);
     
