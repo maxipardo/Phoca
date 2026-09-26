@@ -32,6 +32,7 @@ private:
     double currentPartMiB = 0.0;
     bool stallEmitted = false;
     bool killedByTimeout = false;
+    bool processingPhase = false;
     QString currentPartFile;
 
     void resetStallTimer();

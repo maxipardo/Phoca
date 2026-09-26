@@ -123,6 +123,9 @@ void Service::startDownload(const QString &link, const QString &location, int fo
     } else if (!cookies.isEmpty()) {
         arguments << "--cookies-from-browser" << cookies;
     }
+#ifdef Q_OS_WIN
+    arguments << "--windows-filenames";
+#endif
 
     arguments << link;
     
@@ -131,6 +134,7 @@ void Service::startDownload(const QString &link, const QString &location, int fo
     currentPartMiB = 0.0;
     stallEmitted = false;
     killedByTimeout = false;
+    processingPhase = false;
 
     qDebug() << "Starting yt-dlp download with command: " << arguments;
     downloadProcess->start(executable, arguments);
@@ -155,7 +159,7 @@ void Service::readOutput() {
             qDebug() << "yt-dlp [ERROR]:" << line;
 
             DownloadError errorType = DownloadError::GenericYtdlp;
-            if (line.contains("could not find") && line.contains("cookies")) {
+            if (line.contains("could not find") && line.contains("cookies") || line.contains("unsupported platform")) {
                 errorType = DownloadError::CookiesNotFound;
             } else if (line.contains("Forbidden") || line.contains("403")) {
                 errorType = DownloadError::Forbidden;
@@ -210,6 +214,7 @@ void Service::readOutput() {
 
         QRegularExpressionMatch matchDestination = regexDestination.match(line);
         if (matchDestination.hasMatch()) {
+            processingPhase = false;
             savedSizeMiB += currentPartMiB;
             currentPartMiB = 0.0;
             partCounter++;
@@ -277,7 +282,10 @@ void Service::readOutput() {
             emit percentageUpdated(percentage);
             
             if (percentage == 100) {
+                processingPhase = true;
                 emit phaseUpdated(tr("Processing..."));
+                stallTimer->stop();
+                killTimer->stop();
             }
             continue;
         }
@@ -366,6 +374,7 @@ void Service::stopDownload() {
 }
 
 void Service::resetStallTimer() {
+    if (processingPhase) return;
     stallEmitted = false;
     stallTimer->start(); // restart
     killTimer->start();

@@ -272,7 +272,6 @@ void DownloadItem::showErrorState() {
 
 void DownloadItem::downloadStalled() {
     m_progressBar->setRange(0, 0);
-    m_percentageLabel->setVisible(false);
     QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }
 
