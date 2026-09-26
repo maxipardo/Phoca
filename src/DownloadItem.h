@@ -61,6 +61,7 @@ private:
     QString m_playlistStatus;
     QString m_toolTipErrors;
     QNetworkAccessManager *m_networkManager;
+    QString m_thumbnailUrl;
 
     QLabel *m_formatLabel;
 public slots:
@@ -86,6 +87,7 @@ private slots:
     void deleteFile();
     void playlistItemUpdated(QString status);
     void onThumbnailUrlReceived(const QString &link);
+    void saveThumbnail();
 signals:
     void removeRequested();
     void finishedSignal();

@@ -139,6 +139,7 @@ void Service::startDownload(const QString &link, const QString &location, int fo
     currentPartMiB = 0.0;
     stallEmitted = false;
     killedByTimeout = false;
+    processingPhase = false;
 
     qDebug() << "Starting yt-dlp download with command: " << arguments;
     downloadProcess->start(executable, arguments);
@@ -218,6 +219,7 @@ void Service::readOutput() {
 
         QRegularExpressionMatch matchDestination = regexDestination.match(line);
         if (matchDestination.hasMatch()) {
+            processingPhase = false;
             savedSizeMiB += currentPartMiB;
             currentPartMiB = 0.0;
             partCounter++;
@@ -285,6 +287,7 @@ void Service::readOutput() {
             emit percentageUpdated(percentage);
             
             if (percentage == 100) {
+                processingPhase = true;
                 emit phaseUpdated(tr("Processing..."));
                 stallTimer->stop();
                 killTimer->stop();
@@ -376,6 +379,7 @@ void Service::stopDownload() {
 }
 
 void Service::resetStallTimer() {
+    if (processingPhase) return;
     stallEmitted = false;
     stallTimer->start(); // restart
     killTimer->start();

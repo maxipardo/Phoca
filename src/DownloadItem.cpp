@@ -285,7 +285,6 @@ void DownloadItem::showErrorState() {
 
 void DownloadItem::downloadStalled() {
     m_progressBar->setRange(0, 0);
-    m_percentageLabel->setVisible(false);
     QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }
 
@@ -333,6 +332,14 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
         }
     }
     openLocation->setIcon(folderIcon);
+
+    if (!m_ServiceConfig.saveThumbnail) {
+        QAction *saveThumbnailAction = menu->addAction(tr("Save thumbnail..."));
+        QIcon saveThumbnailIcon = QIcon::fromTheme("document-save");
+        saveThumbnailAction->setIcon(saveThumbnailIcon);
+        saveThumbnailAction->setEnabled(!m_thumbnailUrl.isEmpty());
+        connect(saveThumbnailAction, &QAction::triggered, this, &DownloadItem::saveThumbnail);
+    }
     
     QAction *cancelAction = menu->addAction(m_discardText);
     QIcon cancelIcon = QIcon::fromTheme("process-stop");
@@ -537,6 +544,8 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
         return;
     }
     
+    m_thumbnailUrl = link;
+    
     QUrl url(link);
     QNetworkRequest request(url);
     
@@ -590,4 +599,58 @@ void DownloadItem::updateActiveDownloadsState() {
         }
     }
     #endif
+}
+
+void DownloadItem::saveThumbnail() {
+    if (m_thumbnailUrl.isEmpty()) {
+        return;
+    }
+
+    QString defaultName = m_fullTitle;
+    if (defaultName.isEmpty() || defaultName == tr("Download started")) {
+        defaultName = "thumbnail";
+    }
+    // Filter characters
+    defaultName.replace(QRegularExpression("[\\\\/:*?\"<>|]"), "_");
+
+    // Determine extension from the URL
+    QUrl url(m_thumbnailUrl);
+    QString urlPath = url.path();
+    QString ext = QFileInfo(urlPath).suffix();
+    if (ext.isEmpty()) {
+        ext = "jpg";
+    }
+
+    QString defaultPath = m_downloadLocation + "/" + defaultName + "." + ext;
+
+    QString filePath = QFileDialog::getSaveFileName(
+        this,
+        tr("Save thumbnail"),
+        defaultPath,
+        tr("Images (*.jpg *.jpeg *.png *.webp);;All files (*)")
+    );
+
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    QNetworkRequest request(url);
+    QNetworkReply *reply = m_networkManager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, filePath]() {
+        reply->deleteLater();
+
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray imageData = reply->readAll();
+            QFile file(filePath);
+            if (file.open(QIODevice::WriteOnly)) {
+                file.write(imageData);
+                file.close();
+            } else {
+                qDebug() << "Failed to save thumbnail:" << file.errorString();
+            }
+        } else {
+            qDebug() << "Failed to download thumbnail:" << reply->errorString();
+        }
+    });
 }
