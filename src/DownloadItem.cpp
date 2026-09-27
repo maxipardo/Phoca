@@ -234,6 +234,9 @@ void DownloadItem::onError(DownloadError error, QString detail) {
             #endif
             downloadFinished(1);
             break;
+        case DownloadError::InvalidLink:
+            updateTitleText(tr("Invalid or unsupported link"));
+            break;
         case DownloadError::GenericYtdlp:
         case DownloadError::Unknown:
         default:

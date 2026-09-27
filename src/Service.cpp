@@ -165,6 +165,8 @@ void Service::readOutput() {
                 errorType = DownloadError::Forbidden;
             } else if (line.contains("Sign in to confirm your age")) {
                 errorType = DownloadError::AgeVerification;
+            } else if (line.contains("Unsupported URL") || line.contains("is not a valid URL") || line.contains("Unsupported link")) {
+                errorType = DownloadError::InvalidLink;
             }
 
             emit errorOccurred(errorType, line);

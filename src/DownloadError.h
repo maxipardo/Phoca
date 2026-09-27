@@ -14,6 +14,7 @@ enum class DownloadError {
     NetworkTimeout,
     ProcessCrashed,
     ProcessNotFound,     // yt-dlp not found
+    InvalidLink,         // Invalid URL
     GenericYtdlp,        // Other yt-dlp error
     Unknown
 };
