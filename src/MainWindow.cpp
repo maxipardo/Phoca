@@ -60,6 +60,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupUI();
     setupConnections();
 
+    if (!m_maintainer->exists()) {
+        getServiceSlot();
+    }
+
     this->setWindowTitle("Phoca");
     setCentralWidget(m_centralWidget);
     this->resize(200, 200);
@@ -277,12 +281,7 @@ void MainWindow::aboutPage() {
 }
         
 void MainWindow::toggleQualityOptions() {
-    if (!m_audioButton->isChecked()) {
-        m_qualityBox->setEnabled(true);
-    } else {
-        m_qualityBox->setCurrentIndex(0);
-        m_qualityBox->setEnabled(false);
-    }
+    m_qualityBox->setCurrentIndex(0);
 
     if (m_audioButton->isChecked()) {
         m_subtitlesBox->setChecked(false);
@@ -521,14 +520,20 @@ void MainWindow::setupConnections() {
     connect(m_bothButton, &QRadioButton::clicked, this, [this]() {
         m_conversionBox->clear();
         m_conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
+        m_qualityBox->clear();
+        m_qualityBox->addItems({tr("Best"), "2160p", "1440p", "1080p", "720p", "480p"});
     });
     connect(m_videoButton, &QRadioButton::clicked, this, [this]() {
         m_conversionBox->clear();
         m_conversionBox->addItems({tr("Original"), ".mp4", ".mkv", ".webm"}); 
+        m_qualityBox->clear();
+        m_qualityBox->addItems({tr("Best"), "2160p", "1440p", "1080p", "720p", "480p"});
     });
     connect(m_audioButton, &QRadioButton::clicked, this, [this]() {
         m_conversionBox->clear();
         m_conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
+        m_qualityBox->clear();
+        m_qualityBox->addItems({tr("Best"), "320Kbps", "192Kbps", "128Kbps", "64Kbps", "32Kbps"});
     });
 
     connect(m_savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::changeSavePlaylistInFolder);
