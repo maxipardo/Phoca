@@ -5,6 +5,7 @@
 
 #include "MainWindow.h"
 #include "DownloadItem.h"
+#include "SponsorBlock.h"
 #include "About.h"
 #include "CustomOptions.h"
 #include "DownloadConfig.h"
@@ -286,6 +287,11 @@ void MainWindow::aboutPage() {
     About aboutWindow(this);
     aboutWindow.exec();
 }
+
+void MainWindow::sponsorBlockPage() {
+    SponsorBlock sbWindow(this);
+    sbWindow.exec();
+}
         
 void MainWindow::toggleQualityOptions() {
     m_qualityBox->setCurrentIndex(0);
@@ -514,6 +520,7 @@ void MainWindow::setupConnections() {
     connect(m_forceIPv4Action, &QAction::triggered, this, &MainWindow::changeForceIPv4);
     connect(m_thumbnailVisibilityAction, &QAction::triggered, this, &MainWindow::changeThumbnailVisibility);
     connect(m_aboutAction, &QAction::triggered, this,  &MainWindow::aboutPage);
+    connect(m_sponsorBlockAction, &QAction::triggered, this,  &MainWindow::sponsorBlockPage);
     connect(m_clearFinishedButton, &QPushButton::clicked, this, &MainWindow::clearFinishedDownloads);
 
     connect(m_linkBox, &QLineEdit::textChanged, this, [this](const QString &text) {
@@ -573,6 +580,7 @@ void MainWindow::setupUI() {
     m_videoButton = new QRadioButton(tr("Video"), m_centralWidget);
     m_audioButton = new QRadioButton(tr("Audio"), m_centralWidget);
     m_optionsMenu = new QMenu(tr("Options"), this);
+    m_sponsorBlockAction = new QAction(tr("SponsorBlock..."), this);
     m_aboutAction = new QAction(tr("About"), this);
     m_buildMenu = new QMenu(tr("Choose yt-dlp version"), m_optionsMenu);
     m_customOptionsAction = new QAction(tr("Custom yt-dlp options..."));
@@ -655,6 +663,7 @@ void MainWindow::setupUI() {
     m_optionsMenu->addAction(m_saveThumbnailAction);
 
     m_optionsMenu->addAction(m_customOptionsAction);
+    m_optionsMenu->addAction(m_sponsorBlockAction);
     
     m_optionsMenu->addMenu(m_advancedMenu);
     m_advancedMenu->addAction(m_forceIPv4Action);
