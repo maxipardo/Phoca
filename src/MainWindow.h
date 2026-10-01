@@ -60,6 +60,7 @@ private:
     QMenu *m_buildMenu;
     QMenu *m_advancedMenu;
     QMenu *m_cookiesMenu;
+    QAction *m_sponsorBlockAction;
     QAction *m_aboutAction;
     QAction *m_deleteAction;
     QSpacerItem *m_spacer;
@@ -123,6 +124,7 @@ private slots:
     void clearFinishedDownloads();
     void itemFinished();
 
+    void sponsorBlockPage();
     void aboutPage();
     void changeThumbnailVisibility();
     void changeCookies(const QString &browser);
