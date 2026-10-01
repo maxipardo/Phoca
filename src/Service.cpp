@@ -18,7 +18,7 @@ Service::Service(QObject *parent) : QObject(parent) {
     connect(stallTimer, &QTimer::timeout, this, &Service::onStallTimeout);
 
     killTimer = new QTimer(this);
-    killTimer->setInterval(20000); // 20 s
+    killTimer->setInterval(25000); // 25 s
     killTimer->setSingleShot(true);
     connect(killTimer, &QTimer::timeout, this, &Service::onKillTimeout);
 
@@ -73,11 +73,20 @@ void Service::startDownload(const QString &link, const QString &location, int fo
     }
 
     QString videoFilter = "bv*"; 
+    QString audioFilter = "ba*";
     
     if (quality != "0" && !quality.isEmpty()) {
-        QString height = quality;
-        height.remove("p");
-        videoFilter = "bv*[height<=" + height + "]";
+        if (format == 0 || format == 1) { // Both, video
+            QString height = quality;
+            height.remove("p");
+            videoFilter = "bv*[height<=" + height + "]";
+        } else if (format == 2) {
+            QString bitrate = quality;
+            bitrate.remove("Kbps");
+            audioFilter = "ba*[abr<=?" + bitrate + "]";
+
+            // Best audio below or equal bitrate, if not known one below, if not found (any) downlaods best audio ba*
+        }
     }
 
     switch (format) {
@@ -92,6 +101,8 @@ void Service::startDownload(const QString &link, const QString &location, int fo
         case 2: // audio only
             arguments << "-x"; 
             
+            arguments << "-f" << audioFilter;
+
             if (conversion != "0" && !conversion.isEmpty()) {
                 QString targetFormat = conversion;
                 targetFormat.remove(".");
