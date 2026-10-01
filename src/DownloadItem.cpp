@@ -319,7 +319,6 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
     
     menu->setAttribute(Qt::WA_DeleteOnClose);
     
-    // Check if app is in dark mode
     bool isDarkMode = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
     
     QAction *openLocation = menu->addAction(tr("Open file location"));
@@ -343,6 +342,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
     
     QAction *cancelAction = menu->addAction(m_discardText);
     QIcon cancelIcon = QIcon::fromTheme("process-stop");
+    #ifdef Q_OS_WIN
     if (cancelIcon.isNull()) {
         if (isDarkMode) {
             cancelIcon = QIcon(":/cancel_light.svg");
@@ -350,6 +350,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
             cancelIcon = QIcon(":/cancel_dark.svg");
         }
     }
+    #endif
     cancelAction->setIcon(cancelIcon); 
     
     QAction *deleteFileAction = nullptr;
@@ -357,6 +358,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
     if (!m_fullFilePath.isEmpty() && m_ServiceConfig.playlist == false) {
         deleteFileAction = menu->addAction(tr("Delete file"));
         deleteIcon = QIcon::fromTheme("edit-delete");
+        #ifdef Q_OS_WIN
         if (deleteIcon.isNull()) {
             if (isDarkMode) {
                 deleteIcon = QIcon(":/delete_light.svg");
@@ -364,6 +366,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
                 deleteIcon = QIcon(":/delete_dark.svg");
             }
         }
+        #endif
         deleteFileAction->setIcon(deleteIcon);
         connect(deleteFileAction, &QAction::triggered, this, &DownloadItem::deleteFile);
     }
@@ -431,7 +434,6 @@ void DownloadItem::openDownloadLocation() {
 
 void DownloadItem::openFileLocation() {
     #if defined(Q_OS_WIN)
-    // Windows
     QString windowsPath = QDir::toNativeSeparators(m_fullFilePath);
     
     QStringList args;
