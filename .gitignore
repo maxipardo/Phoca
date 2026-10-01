@@ -19,6 +19,8 @@
 !DownloadError.h
 !CustomOptions.cpp
 !CustomOptions.h
+!SponsorBlock.cpp
+!SponsorBlock.h
 !.github/
 !.github/workflows/
 !.github/workflows/windows-build.yml

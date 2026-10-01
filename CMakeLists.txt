@@ -33,6 +33,8 @@ add_executable(phoca
     src/DownloadError.h
     src/CustomOptions.h
     src/CustomOptions.cpp
+    src/SponsorBlock.cpp
+    src/SponsorBlock.h
 )
 
 if(WIN32)
