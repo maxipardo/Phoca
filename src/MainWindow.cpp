@@ -6,6 +6,7 @@
 #include "MainWindow.h"
 #include "DownloadItem.h"
 #include "About.h"
+#include "CustomOptions.h"
 #include "DownloadConfig.h"
 #include "ServiceMaintainer.h"
 #include <qaction.h>
@@ -232,6 +233,10 @@ void MainWindow::startDownload() {
     config.thumbnailVisibility = m_thumbnailVisibility;
     config.cookiesFile = m_cookiesFile;
     config.embedMetadata = m_metadataBox->isChecked();
+
+    QSettings settings;
+    config.customOptions = settings.value("customOptions", "").toString();
+    config.reconcileCustomOptions();
     
     DownloadItem *newDownload = new DownloadItem(config, this);
     QListWidgetItem *item = new QListWidgetItem();
@@ -264,6 +269,8 @@ void MainWindow::startDownload() {
         updated.saveThumbnail = m_saveThumbnail;
         updated.saveSubtitles = m_subtitlesBox->isChecked();
         updated.thumbnailVisibility = m_thumbnailVisibility;
+        QSettings retrySettings;
+        updated.customOptions = retrySettings.value("customOptions", "").toString();
         item->updateConfig(updated);
     });
     
@@ -456,6 +463,11 @@ void MainWindow::chooseCookiesFile() {
     }
 }
 
+void MainWindow::customOptionsSlot() {
+    CustomOptions co(this);
+    co.exec();
+}
+
 bool MainWindow::activeDownloads() {
     bool hasActiveDownloads = false;
     for (int i = 0; i < m_list->count(); ++i) {
@@ -538,6 +550,7 @@ void MainWindow::setupConnections() {
 
     connect(m_savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::changeSavePlaylistInFolder);
     connect(m_saveThumbnailAction, &QAction::triggered, this, &MainWindow::changeSaveThumbnail);
+    connect(m_customOptionsAction, &QAction::triggered, this, &MainWindow::customOptionsSlot);
     connect(m_downloadButton, &QPushButton::clicked, this, &MainWindow::startDownload);
     connect(m_linkBox, &QLineEdit::returnPressed, m_downloadButton, &QPushButton::click);
     connect(m_cookiesFileAction, &QAction::triggered, this, &MainWindow::chooseCookiesFile);
@@ -562,6 +575,7 @@ void MainWindow::setupUI() {
     m_optionsMenu = new QMenu(tr("Options"), this);
     m_aboutAction = new QAction(tr("About"), this);
     m_buildMenu = new QMenu(tr("Choose yt-dlp version"), m_optionsMenu);
+    m_customOptionsAction = new QAction(tr("Custom yt-dlp options..."));
     m_advancedMenu = new QMenu(tr("Advanced"), m_optionsMenu);
     m_cookiesMenu = new QMenu(tr("Browser cookies"), m_advancedMenu);
     m_chooseLocationAction = new QAction(tr("Change download location..."), this);
@@ -639,6 +653,8 @@ void MainWindow::setupUI() {
     
     m_optionsMenu->addAction(m_thumbnailVisibilityAction);
     m_optionsMenu->addAction(m_saveThumbnailAction);
+
+    m_optionsMenu->addAction(m_customOptionsAction);
     
     m_optionsMenu->addMenu(m_advancedMenu);
     m_advancedMenu->addAction(m_forceIPv4Action);
