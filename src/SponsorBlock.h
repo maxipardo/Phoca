@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QSettings>
 #include <QStringList>
+#include <QComboBox>
 
 class SponsorBlock : public QDialog {
 Q_OBJECT
@@ -15,17 +16,22 @@ public:
     SponsorBlock(QWidget *parent = nullptr);
 
     static QStringList selectedCategories();
+    static QString selectedAction();
 
 private:
-    QVBoxLayout *layout;
+    QHBoxLayout *m_topLayout;
+    QVBoxLayout *m_layout;
+    QHBoxLayout *m_bottomLayout;
     QLabel *m_label;
+    QComboBox *m_actionBox;
+    
     QListWidget *m_listWidget;
     QLabel *m_sponsorBlockReference;
     QPushButton *m_saveButton;
 
     struct CategoryInfo {
         QString key;
-        QString displayName;
+        const char *displayName;
     };
 
     static const QList<CategoryInfo> s_categories;

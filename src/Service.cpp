@@ -5,6 +5,7 @@
 
 #include "Service.h"
 #include "ServiceMaintainer.h"
+#include "SponsorBlock.h"
 
 Service::Service(QObject *parent) : QObject(parent) {
     downloadProcess = new QProcess(this);
@@ -137,6 +138,13 @@ void Service::startDownload(const QString &link, const QString &location, int fo
     
     if (embedMetadata) {
         arguments << "--embed-metadata" << "--embed-thumbnail";
+    }
+
+    QStringList sponsorCategories = SponsorBlock::selectedCategories();
+    if (!sponsorCategories.isEmpty()) {
+        QString action = SponsorBlock::selectedAction();
+        QString flag = (action == "mark") ? "--sponsorblock-mark" : "--sponsorblock-remove";
+        arguments << flag << sponsorCategories.join(",");
     }
 
 #ifdef Q_OS_WIN
