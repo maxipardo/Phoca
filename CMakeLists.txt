@@ -31,6 +31,8 @@ add_executable(phoca
     src/DownloadItem.cpp
     src/DownloadConfig.h
     src/DownloadError.h
+    src/CustomOptions.h
+    src/CustomOptions.cpp
 )
 
 if(WIN32)

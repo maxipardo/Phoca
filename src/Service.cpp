@@ -30,7 +30,7 @@ Service::Service(QObject *parent) : QObject(parent) {
     connect(downloadProcess, &QProcess::readyReadStandardOutput, this, &Service::readOutput);
 }
 
-void Service::startDownload(const QString &link, const QString &location, int format, const QString &quality, const QString &conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4, const QString &cookies, const QString &cookiesFile, bool embedMetadata) {
+void Service::startDownload(const QString &link, const QString &location, int format, const QString &quality, const QString &conversion, bool playlist, bool savePlaylistInFolder, bool saveThumbnail, bool saveSubtitles, bool forceIPv4, const QString &cookies, const QString &cookiesFile, bool embedMetadata, const QString &customOptions) {
     QString executable = ServiceMaintainer::getServiceLocation();
     QStringList arguments;
     QString outputPath;
@@ -142,6 +142,10 @@ void Service::startDownload(const QString &link, const QString &location, int fo
 #ifdef Q_OS_WIN
     arguments << "--windows-filenames";
 #endif
+
+    if (!customOptions.isEmpty()) {
+        arguments << customOptions;
+    }
 
     arguments << link;
     

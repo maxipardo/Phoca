@@ -17,6 +17,8 @@
 !DownloadItem.cpp
 !DownloadConfig.h
 !DownloadError.h
+!CustomOptions.cpp
+!CustomOptions.h
 !.github/
 !.github/workflows/
 !.github/workflows/windows-build.yml

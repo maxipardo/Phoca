@@ -60,6 +60,7 @@ private:
     QMenu *m_buildMenu;
     QMenu *m_advancedMenu;
     QMenu *m_cookiesMenu;
+    QAction *m_customOptionsAction;
     QAction *m_aboutAction;
     QAction *m_deleteAction;
     QSpacerItem *m_spacer;
@@ -127,4 +128,5 @@ private slots:
     void changeThumbnailVisibility();
     void changeCookies(const QString &browser);
     void setGetEngineButton();
+    void customOptionsSlot();
 };

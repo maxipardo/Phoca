@@ -5,6 +5,7 @@
 
 #pragma once
 #include <QString>
+#include <QStringList>
 
 struct DownloadConfig {
     QString link;
@@ -21,4 +22,36 @@ struct DownloadConfig {
     QString cookies = "";
     QString cookiesFile = "";
     bool embedMetadata = false;
+    QString customOptions = "";
+
+    // Adjusts config when customOptions contain flags that override UI values.
+    void reconcileCustomOptions() {
+        if (customOptions.isEmpty()) return;
+
+        const QStringList tokens = customOptions.split(' ', Qt::SkipEmptyParts);
+
+        if (tokens.contains("--no-write-thumbnail")) {
+            saveThumbnail = false;
+        } else if (tokens.contains("--write-thumbnail")) {
+            saveThumbnail = true;
+        }
+
+        if (tokens.contains("--no-write-subs")) {
+            saveSubtitles = false;
+        } else if (tokens.contains("--write-subs")) {
+            saveSubtitles = true;
+        }
+
+        if (tokens.contains("--no-embed-metadata")) {
+            embedMetadata = false;
+        } else if (tokens.contains("--embed-metadata")) {
+            embedMetadata = true;
+        }
+
+        if (tokens.contains("--force-ipv6") || tokens.contains("-6")) {
+            forceIPv4 = false;
+        } else if (tokens.contains("--force-ipv4") || tokens.contains("-4")) {
+            forceIPv4 = true;
+        }
+    }
 };
