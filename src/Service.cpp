@@ -82,7 +82,7 @@ void Service::startDownload(const QString &link, const QString &location, int fo
             videoFilter = "bv*[height<=" + height + "]";
         } else if (format == 2) {
             QString bitrate = quality;
-            bitrate.remove("Kbps");
+            bitrate.remove(" Kbps");
             audioFilter = "ba*[abr<=?" + bitrate + "]";
 
             // Best audio below or equal bitrate, if not known one below, if not found (any) downlaods best audio ba*

@@ -545,7 +545,7 @@ void MainWindow::setupConnections() {
         m_conversionBox->clear();
         m_conversionBox->addItems({tr("Original"), ".mp3", ".wav", ".flac", ".m4a"}); 
         m_qualityBox->clear();
-        m_qualityBox->addItems({tr("Best"), "320Kbps", "192Kbps", "128Kbps", "64Kbps", "32Kbps"});
+        m_qualityBox->addItems({tr("Best"), "320 Kbps", "192 Kbps", "128 Kbps", "64 Kbps", "32 Kbps"});
     });
 
     connect(m_savePlaylistInFolderAction, &QAction::triggered, this, &MainWindow::changeSavePlaylistInFolder);
