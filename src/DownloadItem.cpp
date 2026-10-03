@@ -38,7 +38,7 @@ DownloadItem::DownloadItem (const DownloadConfig &config, QWidget *parent) : QWi
     m_maintainer = new ServiceMaintainer(this);
     m_ServiceConfig = config;
     m_fullFilePath = ""; // Set on download finish
-    m_discardText = (tr("Cancel download\tDel"));
+    m_discardText = tr("Cancel download");
     m_playlistStatus = "";
     m_toolTipErrors = "";
     m_networkManager = new QNetworkAccessManager(this);
@@ -159,7 +159,7 @@ void DownloadItem::downloadFinished(int exit) {
     if (m_downloadFinishedState) return;
     m_downloadFinishedState = true;
     m_progressBar->setRange(0, 100);
-    m_discardText = (tr("Discard download\tDel"));
+    m_discardText = tr("Discard download");
     if (exit == 0) {
         m_progressBar->setValue(100);
         if (m_fullTitle == tr("Download started")) {
@@ -289,6 +289,8 @@ void DownloadItem::downloadStalled() {
 }
 
 void DownloadItem::stopDownload() {
+    if (m_removed) return;
+    m_removed = true;
     disconnect(m_service, nullptr, this, nullptr);
     m_service->stopDownload();
     emit removeRequested();
@@ -342,6 +344,7 @@ void DownloadItem::contextMenuEvent(QContextMenuEvent *event) {
     }
     
     QAction *cancelAction = menu->addAction(m_discardText);
+    cancelAction->setShortcut(QKeySequence::Delete);
     QIcon cancelIcon = QIcon::fromTheme("process-stop");
     #ifdef Q_OS_WIN
     if (cancelIcon.isNull()) {
@@ -519,13 +522,19 @@ void DownloadItem::deleteFile() {
             if (file.moveToTrash()) {
                 qDebug() << "File successfully moved to trash:" << cleanPath;
                 m_fullFilePath.clear();
-                emit removeRequested();
+                if (!m_removed) {
+                    m_removed = true;
+                    emit removeRequested();
+                }
             } else {
                 qDebug() << "Couldn't move to trash, trying hard delete...";
                 if (file.remove()) {
                     qDebug() << "File successfully deleted (hard):" << cleanPath;
                     m_fullFilePath.clear();
-                    emit removeRequested();
+                    if (!m_removed) {
+                        m_removed = true;
+                        emit removeRequested();
+                    }
                 } else {
                     qDebug() << "Error: Couldn't delete file.";
                     updateTitleText(tr("Couldn't delete file"));
