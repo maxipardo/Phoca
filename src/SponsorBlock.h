@@ -27,7 +27,10 @@ private:
     
     QListWidget *m_listWidget;
     QLabel *m_sponsorBlockReference;
+    QPushButton *m_selectAllButton;
+    QPushButton *m_deselectAllButton;
     QPushButton *m_saveButton;
+    QPushButton *m_cancelButton;
 
     struct CategoryInfo {
         QString key;
@@ -38,4 +41,6 @@ private:
 
 private slots:
     void saveSettings();
+    void selectAll();
+    void deselectAll();
 };

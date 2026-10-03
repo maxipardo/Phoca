@@ -26,7 +26,7 @@ CustomOptions::CustomOptions(QWidget *parent) : QDialog(parent) {
     m_layout->addWidget(m_textBox);
     m_layout->addLayout(m_bottomLayout);
 
-    QSettings settings("MaximoPardo", "Phoca");
+    QSettings settings;
     QString text = settings.value("customOptions", "").toString();
 
     m_textBox->setPlainText(text);
@@ -35,7 +35,7 @@ CustomOptions::CustomOptions(QWidget *parent) : QDialog(parent) {
 }
 
 void CustomOptions::saveOptionsSlot() {
-    QSettings settings("MaximoPardo", "Phoca");
+    QSettings settings;
     settings.setValue("customOptions", m_textBox->toPlainText());
     this->accept();
 }
