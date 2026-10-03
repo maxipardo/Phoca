@@ -20,9 +20,9 @@
             <li>Download video, audio, or both simultaneously</li>
             <li>Convert files to your preferred format (MP4, MKV, WebM, MP3, FLAC, WAV, and more)</li>
             <li>Download entire playlists</li>
-            <li>Save thumbnails and subtitles</li>
+            <li>Save thumbnails, subtitles and metadata</li>
             <li>Use browser cookies for accessing restricted content</li>
-            <li>Automatic yt-dlp updates to stay compatible with the latest sites</li>
+            <li>Drag and drop downloaded items for a better workflow</li>
         </ul>
     </description>
 
@@ -67,20 +67,19 @@
     </keywords>
 
     <releases>
-        <release version="0.6-alpha" date="2026-09-18">
+        <release version="0.6-alpha" date="2026-10-03">
             <description>
                 <p>New features and improvements in this release:</p>
                 <ul>
-                    <li>Added drag-and-drop support for finished downloads.</li>
-                    <li>Added thumbnail previews in the download list and thumbnail visibility toggle.</li>
-                    <li>Added support for browser cookies in downloads.</li>
-                    <li>Added subtitle downloads option.</li>
-                    <li>Added delete file button for finished, non-playlist downloads.</li>
-                    <li>Added support for showing downloaded files directly from the app, including Windows and Linux file manager integration (file indication on directory).</li>
-                    <li>Improved download error handling with clearer failure states and retry/discard buttons.</li>
-                    <li>Added IPv4 forcing option for more reliable connections.</li>
-                    <li>Added better handling for stalled, crashed, timeout, and missing yt-dlp process errors.</li>
-                    <li>Improved playlist handling and final file path tracking.</li>
+                    <li>Added custom yt-dlp options dialog for advanced download flags.</li>
+                    <li>Added SponsorBlock categories support with skip/mark actions.</li>
+                    <li>Added metadata embedding option for audio downloads.</li>
+                    <li>Added quality/bitrate options for audio downloads.</li>
+                    <li>Added more keyboard shortcuts.</li>
+                    <li>Added audio-only and video-only downloads icon indicators.</li>
+                    <li>Added dedicated save thumbnail action in the download list.</li>
+                    <li>Fixed retry, cancel, and update behavior to avoid stale states and improve reliability.</li>
+                    <li>Enhanced stalled-download detection, progress reporting, and download status updates.</li>
                 </ul>
             </description>
         </release>
