@@ -46,25 +46,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QDateTime now = QDateTime::currentDateTime();
     bool needsUpdate = m_lastEngineUpdate.daysTo(now) >= 3;
 
-#ifndef FLATPAK_BUILD
-    if (m_firstLaunch || needsUpdate) {
-        QTimer::singleShot(500, [this]() {
-            getServiceSlot();
-        });
-
-        if (m_firstLaunch) {
-            settings.setValue("firstLaunch", false);
-            settings.setValue("nightlyService", m_nightlyService);
-        }
-    }
-#endif
-
     setupUI();
     setupConnections();
 
-    if (!m_maintainer->exists()) {
-        getServiceSlot();
+#ifndef FLATPAK_BUILD
+    if (m_firstLaunch) {
+        settings.setValue("firstLaunch", false);
+        settings.setValue("nightlyService", m_nightlyService);
     }
+
+    if (m_firstLaunch || needsUpdate || !m_maintainer->exists()) {
+        QTimer::singleShot(500, [this]() {
+            getServiceSlot();
+        });
+    }
+#endif
 
     this->setWindowTitle("Phoca");
     setCentralWidget(m_centralWidget);
@@ -583,7 +579,7 @@ void MainWindow::setupUI() {
     m_sponsorBlockAction = new QAction(tr("SponsorBlock..."), this);
     m_aboutAction = new QAction(tr("About"), this);
     m_buildMenu = new QMenu(tr("Choose yt-dlp version"), m_optionsMenu);
-    m_customOptionsAction = new QAction(tr("Custom yt-dlp options..."));
+    m_customOptionsAction = new QAction(tr("Custom yt-dlp options..."), this);
     m_advancedMenu = new QMenu(tr("Advanced"), m_optionsMenu);
     m_cookiesMenu = new QMenu(tr("Browser cookies"), m_advancedMenu);
     m_chooseLocationAction = new QAction(tr("Change download location..."), this);
