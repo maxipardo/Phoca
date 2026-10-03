@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 cmake_minimum_required(VERSION 3.16)
-project(Phoca VERSION 0.5)
+project(Phoca VERSION 0.6)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
