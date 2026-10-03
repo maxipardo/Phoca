@@ -579,8 +579,8 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
                 m_thumbnailLabel->setPixmap(scaledPixmap);
                 if (m_ServiceConfig.thumbnailVisibility) {
                     m_thumbnailLabel->setVisible(true);
+                    m_formatLabel->setVisible(false);
                 }
-                m_formatLabel->setVisible(false);
                 QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
             }
         } else {
@@ -593,6 +593,7 @@ void DownloadItem::changeThumbnailVisibility(bool enabled) {
     m_ServiceConfig.thumbnailVisibility = enabled;
     if (!m_thumbnailLabel->pixmap().isNull()) {
         m_thumbnailLabel->setVisible(enabled);
+        m_formatLabel->setVisible(!enabled);
     }
     QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }
