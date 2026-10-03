@@ -46,14 +46,11 @@ DownloadItem::DownloadItem (const DownloadConfig &config, QWidget *parent) : QWi
     m_service = new Service(this);
 
     m_formatLabel = new QLabel(this);
-    QIcon formatIcon;
     if (config.format == 1) {
-        formatIcon = QIcon::fromTheme(QIcon::ThemeIcon::CameraVideo);
+        m_formatLabel->setPixmap(QIcon::fromTheme(QIcon::ThemeIcon::CameraVideo).pixmap(18, 18));
     } else if (config.format == 2) {
-        formatIcon = QIcon::fromTheme(QIcon::ThemeIcon::AudioVolumeHigh);
+        m_formatLabel->setPixmap(QIcon::fromTheme(QIcon::ThemeIcon::AudioVolumeHigh).pixmap(18, 18));
     }
-
-    m_formatLabel->setPixmap(formatIcon.pixmap(18, 18));
     
     m_titleLabel = new QLabel(this);
     m_titleLabel->setMinimumWidth(50); 
@@ -289,6 +286,7 @@ void DownloadItem::downloadStalled() {
 }
 
 void DownloadItem::stopDownload() {
+    disconnect(m_service, nullptr, this, nullptr);
     m_service->stopDownload();
     emit removeRequested();
 }
@@ -580,7 +578,10 @@ void DownloadItem::onThumbnailUrlReceived(const QString &link) {
 }
 
 void DownloadItem::changeThumbnailVisibility(bool enabled) {
-    m_thumbnailLabel->setVisible(enabled);
+    m_ServiceConfig.thumbnailVisibility = enabled;
+    if (!m_thumbnailLabel->pixmap().isNull()) {
+        m_thumbnailLabel->setVisible(enabled);
+    }
     QTimer::singleShot(0, this, &DownloadItem::updateElidedText);
 }
 

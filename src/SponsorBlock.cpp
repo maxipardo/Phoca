@@ -13,7 +13,7 @@ const QList<SponsorBlock::CategoryInfo> SponsorBlock::s_categories = {
 SponsorBlock::SponsorBlock(QWidget *parent) : QDialog(parent) {
 
   this->setWindowTitle(tr("SponsorBlock options"));
-  this->resize(300, 320);
+  this->resize(300, 350);
   m_layout = new QVBoxLayout(this);
   m_topLayout = new QHBoxLayout();
   m_bottomLayout = new QHBoxLayout();
@@ -21,8 +21,8 @@ SponsorBlock::SponsorBlock(QWidget *parent) : QDialog(parent) {
 
   m_label = new QLabel(tr("Categories to"), this);
   m_actionBox = new QComboBox(this);
-  m_actionBox->addItem(tr("Skip"));
-  m_actionBox->addItem(tr("Mark"));
+  m_actionBox->addItem(tr("skip"));
+  m_actionBox->addItem(tr("mark"));
   m_topLayout->setSpacing(4);
   m_topLayout->setContentsMargins(0, 0, 0, 0);
   m_topLayout->addWidget(m_label);
@@ -45,6 +45,15 @@ SponsorBlock::SponsorBlock(QWidget *parent) : QDialog(parent) {
 
   m_layout->addWidget(m_listWidget);
 
+  // Selection helper buttons
+  QHBoxLayout *m_selectionLayout = new QHBoxLayout();
+  m_selectAllButton = new QPushButton(tr("Select All"), this);
+  m_deselectAllButton = new QPushButton(tr("Deselect All"), this);
+  m_selectionLayout->addWidget(m_selectAllButton);
+  m_selectionLayout->addWidget(m_deselectAllButton);
+  m_selectionLayout->addStretch();
+  m_layout->addLayout(m_selectionLayout);
+
   m_layout->addLayout(m_bottomLayout);
 
   m_sponsorBlockReference = new QLabel(this);
@@ -55,9 +64,16 @@ SponsorBlock::SponsorBlock(QWidget *parent) : QDialog(parent) {
   m_sponsorBlockReference->setOpenExternalLinks(true);
   m_bottomLayout->addWidget(m_sponsorBlockReference, 1);
 
+  m_cancelButton = new QPushButton(tr("Cancel"), this);
   m_saveButton = new QPushButton(tr("Save"), this);
+  m_bottomLayout->addWidget(m_cancelButton);
   m_bottomLayout->addWidget(m_saveButton);
 
+  connect(m_selectAllButton, &QPushButton::clicked, this,
+          &SponsorBlock::selectAll);
+  connect(m_deselectAllButton, &QPushButton::clicked, this,
+          &SponsorBlock::deselectAll);
+  connect(m_cancelButton, &QPushButton::clicked, this, &QDialog::reject);
   connect(m_saveButton, &QPushButton::clicked, this,
           &SponsorBlock::saveSettings);
 }
@@ -88,4 +104,16 @@ QStringList SponsorBlock::selectedCategories() {
 QString SponsorBlock::selectedAction() {
   QSettings settings;
   return settings.value("sponsorblock/action", "skip").toString();
+}
+
+void SponsorBlock::selectAll() {
+  for (int i = 0; i < m_listWidget->count(); ++i) {
+    m_listWidget->item(i)->setCheckState(Qt::Checked);
+  }
+}
+
+void SponsorBlock::deselectAll() {
+  for (int i = 0; i < m_listWidget->count(); ++i) {
+    m_listWidget->item(i)->setCheckState(Qt::Unchecked);
+  }
 }

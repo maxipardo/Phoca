@@ -152,7 +152,7 @@ void Service::startDownload(const QString &link, const QString &location, int fo
 #endif
 
     if (!customOptions.isEmpty()) {
-        arguments << customOptions;
+        arguments << customOptions.split(' ', Qt::SkipEmptyParts);
     }
 
     arguments << link;
@@ -289,7 +289,8 @@ void Service::readOutput() {
                 QString unit = matchProgress.captured(3); 
 
                 double sizeInMiB = totalSize;
-                if (unit == "KiB") sizeInMiB /= 1024.0;
+                if (unit == "B") sizeInMiB /= (1024.0 * 1024.0);
+                else if (unit == "KiB") sizeInMiB /= 1024.0;
                 else if (unit == "GiB") sizeInMiB *= 1024.0;
                 currentPartMiB = sizeInMiB;
                 
