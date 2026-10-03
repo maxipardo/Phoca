@@ -52,6 +52,7 @@ private:
     DownloadConfig m_ServiceConfig;
 
     bool m_downloadFinishedState = false;
+    bool m_removed = false;
     DownloadError m_lastError = DownloadError::None;
     QString m_fullFilePath;
 

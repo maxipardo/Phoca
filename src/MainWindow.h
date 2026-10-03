@@ -63,6 +63,7 @@ private:
     QAction *m_customOptionsAction;
     QAction *m_sponsorBlockAction;
     QAction *m_aboutAction;
+    QAction *m_quitAction;
     QAction *m_deleteAction;
     QSpacerItem *m_spacer;
 
