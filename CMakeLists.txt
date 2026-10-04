@@ -99,14 +99,14 @@ set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_VENDOR "Maximo Pardo")
 set(CPACK_PACKAGE_CONTACT "Maximo Pardo <maxipardo@proton.me>")
 # Title and category
-set(CPACK_DEBIAN_PACKAGE_NAME "Phoca")
+set(CPACK_DEBIAN_PACKAGE_NAME "phoca")
 set(CPACK_DEBIAN_PACKAGE_SECTION "utility")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/maxipardo/Phoca")
 
 # Descriptions
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Download any video/audio through yt-dlp")
-set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Phoca is a GUI app for yt-dlp to allow for simple and easy downloads from most internet services like YouTube and other social media.\n\nIt supports playlists, audio extraction, format conversion and saving thumbnails.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Download videos and audio from the web")
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Phoca provides a clean and intuitive interface to grab media from hundreds of supported sites.\n\nFeatures include:\n  * Download video, audio, or both simultaneously\n  * Convert files to your preferred format (MP4, MKV, WebM, MP3, FLAC, WAV, and more)\n  * Download entire playlists\n  * Save thumbnails, subtitles and metadata\n  * Use browser cookies for accessing restricted content\n  * Drag and drop downloaded items for a better workflow")
 
 # LICENSE
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")

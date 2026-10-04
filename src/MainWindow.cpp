@@ -243,16 +243,7 @@ void MainWindow::startDownload() {
         QTimer::singleShot(0, this, [this, item]() {
             delete item; 
             
-            // Check for finished items
-            bool hasFinishedItems = false;
-            for (int i = 0; i < m_list->count(); ++i) {
-                DownloadItem *di = qobject_cast<DownloadItem*>(m_list->itemWidget(m_list->item(i)));
-                if (di && di->isFinished()) {
-                    hasFinishedItems = true;
-                    break;
-                }
-            }
-            m_clearFinishedButton->setEnabled(hasFinishedItems);
+            setClearFinishedButton();
         });
     });
     
@@ -269,6 +260,9 @@ void MainWindow::startDownload() {
         QSettings retrySettings;
         updated.customOptions = retrySettings.value("customOptions", "").toString();
         item->updateConfig(updated);
+
+        setClearFinishedButton();
+
     });
     
     item->setSizeHint(newDownload->sizeHint());
@@ -277,6 +271,18 @@ void MainWindow::startDownload() {
     
     m_linkBox->clear();
     setGetEngineButton();
+}
+
+void MainWindow::setClearFinishedButton() {
+    bool hasFinishedItems = false;
+    for (int i = 0; i < m_list->count(); ++i) {
+        DownloadItem *di = qobject_cast<DownloadItem*>(m_list->itemWidget(m_list->item(i)));
+        if (di && di->isFinished()) {
+                hasFinishedItems = true;
+                break;
+        }
+    }
+    m_clearFinishedButton->setEnabled(hasFinishedItems);
 }
         
 void MainWindow::aboutPage() {
@@ -354,11 +360,11 @@ void MainWindow::clearFinishedDownloads() {
             delete item;
         }
     }
-    m_clearFinishedButton->setEnabled(false);
+    setClearFinishedButton();
 }
 
 void MainWindow::itemFinished() {
-    m_clearFinishedButton->setEnabled(true);
+    setClearFinishedButton();
     setGetEngineButton();
 
     if (!activeDownloads()) {

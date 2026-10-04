@@ -132,4 +132,5 @@ private slots:
     void changeCookies(const QString &browser);
     void setGetEngineButton();
     void customOptionsSlot();
+    void setClearFinishedButton();
 };
